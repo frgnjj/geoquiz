@@ -1,25 +1,61 @@
 @import "tailwindcss";
 
+/* Dark mode follows the .dark class on <html>, set by the theme toggle. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #18181b;
+  --muted: #71717a;
+  --line: #e4e4e7;
+  --surface: #ffffff;
+  --correct: #059669;
+  --wrong: #dc2626;
+}
+
+.dark {
+  --background: #0c0c0e;
+  --foreground: #f4f4f5;
+  --muted: #a1a1aa;
+  --line: #27272a;
+  --surface: #151518;
+  --correct: #34d399;
+  --wrong: #f87171;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --color-correct: var(--correct);
+  --color-wrong: var(--wrong);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.animate-shake {
+  animation: shake 0.25s ease-in-out;
+}
+
+@keyframes bonus {
+  0% { opacity: 0; transform: translateY(4px); }
+  20% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+
+.animate-bonus {
+  animation: bonus 1s ease-out forwards;
 }

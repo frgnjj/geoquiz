@@ -62,6 +62,12 @@ Agreed with the owner on 2026-10-17.
 - **End of game:** the game ends when the timer hits zero or when every country in the selection has been asked, whichever comes first.
 - **End screen:** shows "X right out of Y". The result isn't saved, and there's no leaderboard yet.
 
+### Implementation choices (not from the owner; change freely if asked)
+- Multiple choice shows 4 options. Wrong options come from the same continent as the answer.
+- After a correct answer the next question appears after 0.7 s; after a revealed answer, after 1.8 s. The timer keeps running.
+- Keys 1 to 4 pick a multiple choice option. A wrong typed answer stays in the box so typos can be fixed.
+- The end screen lists the missed countries.
+
 ### Look and feel
 - Desktop only for now, and English only.
 - Minimal and clean, aimed at adults rather than children.
