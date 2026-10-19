@@ -77,7 +77,9 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19.
 ### Look and feel
 - Desktop only for now, and English only.
 - Minimal and clean, aimed at adults rather than children.
-- A light and dark mode toggle.
+- A light and dark mode toggle, shown as an icon: a moon in light mode and a sun in dark mode. With no choice saved, the site follows the system theme, even when it changes.
+- Logo: a line globe whose outline forms a "G", beside "Geoquiz" in the header and in the browser tab.
+- Home page cards show a random flag and a random capital (with a government building icon) on every load. They always come from two different countries and never repeat the previous load's countries.
 
 ### Later
 - Scores and leaderboards with Supabase.

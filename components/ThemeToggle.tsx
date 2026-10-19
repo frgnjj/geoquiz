@@ -1,6 +1,7 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+import { MoonIcon, SunIcon } from "./icons";
 
 function subscribe(onChange: () => void) {
   const observer = new MutationObserver(onChange);
@@ -9,15 +10,36 @@ function subscribe(onChange: () => void) {
 }
 
 const isDark = () => document.documentElement.classList.contains("dark");
+const systemDark = () => matchMedia("(prefers-color-scheme: dark)").matches;
+
+function savedTheme() {
+  try {
+    return localStorage.getItem("theme");
+  } catch {
+    return null;
+  }
+}
 
 export default function ThemeToggle() {
   const dark = useSyncExternalStore(subscribe, isDark, () => false);
+
+  // With no saved choice, the site follows the system theme, even when it changes later.
+  useEffect(() => {
+    const query = matchMedia("(prefers-color-scheme: dark)");
+    const follow = () => {
+      if (!savedTheme()) document.documentElement.classList.toggle("dark", query.matches);
+    };
+    query.addEventListener("change", follow);
+    return () => query.removeEventListener("change", follow);
+  }, []);
 
   function toggle() {
     const next = !dark;
     document.documentElement.classList.toggle("dark", next);
     try {
-      localStorage.setItem("theme", next ? "dark" : "light");
+      // Picking the system's own theme goes back to following the system.
+      if (next === systemDark()) localStorage.removeItem("theme");
+      else localStorage.setItem("theme", next ? "dark" : "light");
     } catch {}
   }
 
@@ -26,10 +48,11 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
-      className="rounded-full border border-line px-3 py-1.5 text-sm text-muted transition-colors hover:text-foreground"
+      className="rounded-full p-2 text-muted transition-colors hover:bg-line/60 hover:text-foreground"
     >
-      {dark ? "Light" : "Dark"}
+      {/* The icon shows the mode a click switches to. */}
+      <MoonIcon className="size-5 dark:hidden" />
+      <SunIcon className="hidden size-5 dark:block" />
     </button>
   );
 }
-
