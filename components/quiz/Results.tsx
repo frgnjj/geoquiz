@@ -11,6 +11,7 @@ type Props = {
   settings: Settings;
   results: Result[];
   total: number;
+  score: number;
   onPlayAgain: () => void;
   onChangeSettings: () => void;
 };
@@ -20,6 +21,7 @@ export default function Results({
   settings,
   results,
   total,
+  score,
   onPlayAgain,
   onChangeSettings,
 }: Props) {
@@ -34,9 +36,14 @@ export default function Results({
         {timeOption(settings.timeId).label} ·{" "}
         {settings.answerMode === "choice" ? "Multiple choice" : "Typed"}
       </p>
-      <h1 className="mt-4 text-6xl font-semibold tracking-tight">
-        {correct} right out of {results.length}
-      </h1>
+      <div className="mt-4 flex items-end gap-12">
+        <h1 className="text-6xl font-semibold tracking-tight">
+          {correct} right out of {results.length}
+        </h1>
+        <p className="pb-1.5 text-muted">
+          Score <span className="text-3xl font-semibold text-foreground tabular-nums">{score}</span>
+        </p>
+      </div>
       <p className="mt-3 text-lg text-muted">
         {finishedAll
           ? `You got through all ${total} countries before time ran out.`

@@ -6,6 +6,7 @@ import type { Mode } from "@/lib/answers";
 import {
   availableTimes,
   countriesFor,
+  MIN_QUESTIONS,
   TYPE_IN_TRIES,
   type AnswerMode,
   type Settings,
@@ -22,17 +23,26 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
   const [answerMode, setAnswerMode] = useState<AnswerMode>(initial.answerMode);
   const [timeId, setTimeId] = useState(initial.timeId);
   const [retry, setRetry] = useState(initial.retry);
+  const [questionCount, setQuestionCount] = useState(
+    initial.questionCount ?? countriesFor(initial.continents).length,
+  );
 
   const times = availableTimes(continents);
   // The 1 minute option disappears when the region changes; fall back to 3 minutes.
   const activeTimeId = times.some((t) => t.id === timeId) ? timeId : "3";
   const countryCount = countriesFor(continents).length;
 
+  // Changing the region resets the slider to the new maximum.
+  function changeRegion(next: Continent[]) {
+    setContinents(next);
+    setQuestionCount(countriesFor(next).length);
+  }
+
   function toggleContinent(continent: Continent) {
-    setContinents((current) =>
-      current.includes(continent)
-        ? current.filter((c) => c !== continent)
-        : [...current, continent],
+    changeRegion(
+      continents.includes(continent)
+        ? continents.filter((c) => c !== continent)
+        : [...continents, continent],
     );
   }
 
@@ -49,9 +59,9 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
 
       <Section
         title="Region"
-        hint={`${countryCount} countries. Pick World, or up to five continents.`}
+        hint="Pick World, or up to five continents."
       >
-        <Chip selected={continents.length === 0} onClick={() => setContinents([])}>
+        <Chip selected={continents.length === 0} onClick={() => changeRegion([])}>
           World
         </Chip>
         {CONTINENTS.map((continent) => {
@@ -69,6 +79,25 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
             </Chip>
           );
         })}
+      </Section>
+
+      <Section title="Questions" hint={`How many countries to name, from ${MIN_QUESTIONS} to ${countryCount}.`}>
+        <label className="flex w-full items-center gap-4">
+          <span className="w-28 shrink-0 text-sm">
+            <span className="text-2xl font-semibold tabular-nums">{questionCount}</span>
+            <span className="text-muted"> / {countryCount}</span>
+          </span>
+          <input
+            type="range"
+            min={MIN_QUESTIONS}
+            max={countryCount}
+            step={1}
+            value={questionCount}
+            onChange={(e) => setQuestionCount(Number(e.target.value))}
+            aria-label="Number of countries to name"
+            className="h-1.5 flex-1 cursor-pointer accent-foreground"
+          />
+        </label>
       </Section>
 
       <Section title="Answer">
@@ -118,7 +147,9 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
 
       <button
         type="button"
-        onClick={() => onStart({ continents, answerMode, timeId: activeTimeId, retry })}
+        onClick={() =>
+          onStart({ continents, answerMode, timeId: activeTimeId, retry, questionCount })
+        }
         className="mt-12 w-full rounded-xl bg-foreground py-4 text-lg font-medium text-background transition-opacity hover:opacity-90"
       >
         Start
