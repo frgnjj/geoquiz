@@ -2,9 +2,9 @@
 
 A geography quiz website. Guess countries from their flags, or name their capitals.
 
-## Run it on your computer
+## Run it on your computer (Test Version)
 
-You need [Node.js](https://nodejs.org) (the LTS version) installed once.
+You need [Node.js](https://nodejs.org) (LTS version) installed once.
 
 In a terminal, inside this folder:
 
