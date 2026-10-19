@@ -12,6 +12,13 @@ import {
   TYPE_IN_TRIES,
   type Settings,
 } from "@/lib/quiz";
+import {
+  METER_DRAIN_PER_SECOND,
+  METER_FULL_HOLD_MS,
+  METER_RISE,
+  pointsFor,
+} from "@/lib/score";
+import ScoreMeter from "./ScoreMeter";
 
 export type Result = {
   country: Country;
@@ -26,19 +33,28 @@ const REVEAL_PAUSE_MS = 1800;
 type Props = {
   mode: Mode;
   settings: Settings;
-  onFinish: (results: Result[], total: number) => void;
+  onFinish: (results: Result[], total: number, score: number) => void;
   onQuit: () => void;
 };
 
 export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   const time = timeOption(settings.timeId);
-  const [queue] = useState(() => shuffle(countriesFor(settings.continents)));
+  const [queue] = useState(() => {
+    const pool = shuffle(countriesFor(settings.continents));
+    return pool.slice(0, settings.questionCount ?? pool.length);
+  });
   const [endAt, setEndAt] = useState(() => Date.now() + time.seconds * 1000);
   const [now, setNow] = useState(() => Date.now());
   const [index, setIndex] = useState(0);
   const [results, setResults] = useState<Result[]>([]);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [bonusKey, setBonusKey] = useState(0);
+
+  // Score and meter
+  const [score, setScore] = useState(0);
+  const [lastPoints, setLastPoints] = useState<{ points: number; key: number } | null>(null);
+  const [meter, setMeter] = useState(0);
+  const holdUntil = useRef(0);
 
   // Multiple choice
   const [choices, setChoices] = useState(() => makeChoices(queue[0]));
@@ -58,7 +74,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   const finish = useEffectEvent(() => {
     if (finished.current) return;
     finished.current = true;
-    onFinish(results, queue.length);
+    onFinish(results, queue.length, score);
   });
 
   const next = useEffectEvent(() => {
@@ -76,7 +92,16 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   });
 
   useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 200);
+    let last = Date.now();
+    const id = setInterval(() => {
+      const t = Date.now();
+      const elapsed = t - last;
+      last = t;
+      setNow(t);
+      if (t >= holdUntil.current) {
+        setMeter((m) => Math.max(0, m - (METER_DRAIN_PER_SECOND * elapsed) / 1000));
+      }
+    }, 100);
     return () => clearInterval(id);
   }, []);
 
@@ -94,11 +119,34 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
     if (settings.answerMode === "type" && !feedback) inputRef.current?.focus();
   }, [settings.answerMode, feedback, index]);
 
-  function resolve(correct: boolean) {
+  /** Any wrong try (or a skip) empties the meter. */
+  function breakMeter() {
+    holdUntil.current = 0;
+    setMeter(0);
+  }
+
+  /** Only a first-try correct answer scores. Points depend on the meter before it rises. */
+  function scoreCorrect(firstTry: boolean) {
+    if (firstTry) {
+      const points = pointsFor(meter);
+      setScore((s) => s + points);
+      setLastPoints((p) => ({ points, key: (p?.key ?? 0) + 1 }));
+    }
+    const next = Math.min(100, meter + METER_RISE);
+    if (next >= 100) holdUntil.current = Date.now() + METER_FULL_HOLD_MS;
+    setMeter(next);
+  }
+
+  function resolve(correct: boolean, firstTry = false) {
     setResults((r) => [...r, { country, correct }]);
-    if (correct && time.bonus > 0) {
-      setEndAt((e) => e + time.bonus * 1000);
-      setBonusKey((k) => k + 1);
+    if (correct) {
+      scoreCorrect(firstTry);
+      if (time.bonus > 0) {
+        setEndAt((e) => e + time.bonus * 1000);
+        setBonusKey((k) => k + 1);
+      }
+    } else {
+      breakMeter();
     }
     setFeedback(correct ? "correct" : "reveal");
   }
@@ -106,11 +154,12 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   function pick(choice: Country) {
     if (feedback || wrongPicks.includes(choice.code)) return;
     if (choice.code === country.code) {
-      resolve(true);
+      resolve(true, wrongPicks.length === 0);
       return;
     }
     const wrong = [...wrongPicks, choice.code];
     setWrongPicks(wrong);
+    breakMeter();
     if (wrong.length >= (settings.retry ? 2 : 1)) resolve(false);
   }
 
@@ -130,12 +179,13 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
     e.preventDefault();
     if (feedback || !typed.trim()) return;
     if (isCorrect(typed, country, mode)) {
-      resolve(true);
+      resolve(true, wrongTries === 0);
       return;
     }
     const tries = wrongTries + 1;
     setWrongTries(tries);
     setShakeKey((k) => k + 1);
+    breakMeter();
     if (tries >= TYPE_IN_TRIES) resolve(false);
     else inputRef.current?.select();
   }
@@ -153,22 +203,37 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
           <span className="mx-3 opacity-40">·</span>
           {correctCount} correct
         </span>
-        <span className="relative font-mono text-lg tabular-nums text-foreground">
-          <span className={remaining <= 10_000 ? "text-wrong" : undefined}>
-            {formatTime(remaining)}
+        <span className="flex items-center gap-8">
+          <span className="relative text-foreground">
+            <span className="text-muted">Score</span>{" "}
+            <span className="text-lg font-semibold tabular-nums">{score}</span>
+            {lastPoints && (
+              <span
+                key={lastPoints.key}
+                className="animate-bonus absolute -top-5 right-0 text-sm text-correct"
+              >
+                +{lastPoints.points}
+              </span>
+            )}
           </span>
-          {bonusKey > 0 && (
-            <span
-              key={bonusKey}
-              className="animate-bonus absolute -top-5 right-0 text-sm text-correct"
-            >
-              +{time.bonus}s
+          <span className="relative font-mono text-lg tabular-nums text-foreground">
+            <span className={remaining <= 10_000 ? "text-wrong" : undefined}>
+              {formatTime(remaining)}
             </span>
-          )}
+            {bonusKey > 0 && (
+              <span
+                key={bonusKey}
+                className="animate-bonus absolute -top-5 right-0 text-sm text-correct"
+              >
+                +{time.bonus}s
+              </span>
+            )}
+          </span>
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col items-center justify-center py-12">
+      <div className="relative flex flex-1 flex-col items-center justify-center py-12">
+        <ScoreMeter meter={meter} />
         {mode === "flags" ? (
           <Image
             src={`/flags/${country.code}.svg`}

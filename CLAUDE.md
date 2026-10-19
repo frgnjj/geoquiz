@@ -18,7 +18,7 @@ A geography quiz website with Flags and Capitals modes. Built with Next.js (App 
 
 ## Game spec (agreed with the owner)
 
-Agreed with the owner on 2026-10-17.
+Agreed with the owner on 2026-10-17, slider and score added 2026-10-19.
 
 ### Stack
 - Next.js (TypeScript), developed and tested on localhost.
@@ -35,6 +35,7 @@ Agreed with the owner on 2026-10-17.
 
 ### Settings screen (same for Flags and Capitals)
 - **Region:** World, or 1 to 5 continents. All 6 can't be picked, because that is World.
+- **Questions:** a slider under Region sets how many countries to name, from 10 up to every country in the chosen region, in steps of 1. It starts at the maximum and resets to the new maximum when the region changes. The countries are a random pick from the region.
 - **Answer mode:** multiple choice or type-in.
 - **Time:**
   - 3 min, +5 s per correct answer
@@ -60,7 +61,12 @@ Agreed with the owner on 2026-10-17.
   - In multiple choice they appear as one option joined with a slash, such as "La Paz/Sucre" or "Pretoria/Cape Town/Bloemfontein".
   - In type-in, any one of them is accepted. (Assumed; not yet confirmed by the owner.)
 - **End of game:** the game ends when the timer hits zero or when every country in the selection has been asked, whichever comes first.
-- **End screen:** shows "X right out of Y". The result isn't saved, and there's no leaderboard yet.
+- **Score** (not saved yet): starts at 0. Only a first-try correct answer scores; a correct answer after a wrong try scores nothing but still counts as right.
+- **Meter:** a vertical meter beside the question. It starts empty, rises 20% per correct answer (including after a retry), and drains 5% per second, also during the pause between questions. Any wrong try or skip resets it to 0%.
+  - Points depend on the meter just before the answer: empty 0% = +5, under 50% = +10, 50% to 99% = +15, full 100% = +25.
+  - When it reaches 100% it holds for 3 seconds before draining, and a correct answer while full restarts the hold.
+  - The timer's +5 s bonus still applies alongside the score.
+- **End screen:** shows "X right out of Y" and the final score. Neither is saved, and there's no leaderboard yet.
 
 ### Implementation choices (not from the owner; change freely if asked)
 - Multiple choice shows 4 options. Wrong options come from the same continent as the answer.

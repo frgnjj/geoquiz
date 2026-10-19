@@ -27,6 +27,8 @@ export type Settings = {
   timeId: string;
   /** Multiple choice only: one extra try per question. */
   retry: boolean;
+  /** How many countries to ask. Null means every country in the region. */
+  questionCount: number | null;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -34,9 +36,11 @@ export const DEFAULT_SETTINGS: Settings = {
   answerMode: "choice",
   timeId: "3",
   retry: false,
+  questionCount: null,
 };
 
 export const TYPE_IN_TRIES = 3;
+export const MIN_QUESTIONS = 10;
 export const CHOICE_COUNT = 4;
 
 export function availableTimes(continents: Continent[]): TimeOption[] {
