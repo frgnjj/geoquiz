@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-22T21:00:00Z",
+  "title": "Design System: Geoquiz",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "primary", "displayName": "Ink", "canonical": "#18181b", "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#e4e4e7"] },
+      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "#fafafa", "tonalRamp": ["#18181b", "#27272a", "#3f3f46", "#71717a", "#a1a1aa", "#d4d4d8", "#f4f4f5", "#fafafa"] },
+      "sheet": { "role": "neutral", "displayName": "Sheet", "canonical": "#ffffff" },
+      "graphite": { "role": "neutral", "displayName": "Graphite", "canonical": "#71717a" },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#e4e4e7" },
+      "correct-green": { "role": "feedback", "displayName": "Correct Green", "canonical": "#059669", "tonalRamp": ["#022c22", "#064e3b", "#065f46", "#047857", "#059669", "#10b981", "#34d399", "#d1fae5"] },
+      "wrong-red": { "role": "feedback", "displayName": "Wrong Red", "canonical": "#dc2626", "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fee2e2"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Home page headline only." },
+      "headline": { "displayName": "Headline", "purpose": "Page titles, final score, capital names as questions or previews." },
+      "title": { "displayName": "Title", "purpose": "Card titles and stats." },
+      "body": { "displayName": "Body", "purpose": "Descriptions and answers." },
+      "label": { "displayName": "Label", "purpose": "Uppercase settings section labels." },
+      "numeral": { "displayName": "Numeral", "purpose": "Timer, option key numbers and changing numbers." }
+    },
+    "shadows": [
+      { "name": "sheet-rest", "value": "0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06)", "purpose": "Cards, options, inputs and secondary buttons at rest." },
+      { "name": "sheet-lifted", "value": "0 2px 4px rgb(0 0 0 / 0.06), 0 12px 32px -8px rgb(0 0 0 / 0.14)", "purpose": "Hover state of clickable sheets, with a 2px rise." },
+      { "name": "flag", "value": "0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px -6px rgb(0 0 0 / 0.18)", "purpose": "Every flag, with a 1px hairline ring." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Lifts, the globe turn and other hover movement." },
+      { "name": "duration-lift", "value": "500ms", "purpose": "Flag and sheet lift on hover." },
+      { "name": "duration-globe", "value": "1000ms", "purpose": "Graticule globe turn on hover." },
+      { "name": "duration-state", "value": "150ms", "purpose": "Colour and border changes." }
+    ],
+    "breakpoints": [
+      { "name": "desktop-min", "value": "1024px" },
+      { "name": "desktop-wide", "value": "1440px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action on a screen, such as Start.",
+      "html": "<button class=\"ds-btn-primary\">Start</button>",
+      "css": ".ds-btn-primary { background: var(--foreground, #18181b); color: var(--background, #fafafa); padding: 12px 24px; border: none; border-radius: 12px; font: 500 16px/1.5 Geist, system-ui, sans-serif; cursor: pointer; transition: opacity 150ms; } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:focus-visible { outline: 2px solid var(--foreground, #18181b); outline-offset: 4px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Second actions such as Play again settings.",
+      "html": "<button class=\"ds-btn-secondary\">Change settings</button>",
+      "css": ".ds-btn-secondary { background: var(--surface, #fff); color: var(--foreground, #18181b); padding: 12px 24px; border: 1px solid var(--line, #e4e4e7); border-radius: 12px; font: 500 16px/1.5 Geist, system-ui, sans-serif; cursor: pointer; transition: border-color 150ms; } .ds-btn-secondary:hover { border-color: var(--foreground, #18181b); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--foreground, #18181b); outline-offset: 4px; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Toggle for settings choices such as continents and time.",
+      "html": "<div style=\"display:flex;gap:8px\"><button class=\"ds-chip\">Africa</button><button class=\"ds-chip ds-chip-selected\" aria-pressed=\"true\">Europe</button></div>",
+      "css": ".ds-chip { background: var(--surface, #fff); color: var(--foreground, #18181b); padding: 8px 16px; border: 1px solid var(--line, #e4e4e7); border-radius: 9999px; font: 400 14px/1.4 Geist, system-ui, sans-serif; cursor: pointer; transition: border-color 150ms, background 150ms; } .ds-chip:hover { border-color: var(--foreground, #18181b); } .ds-chip-selected { background: var(--foreground, #18181b); color: var(--background, #fafafa); border-color: var(--foreground, #18181b); }"
+    },
+    {
+      "name": "Answer Option",
+      "kind": "custom",
+      "refersTo": "answer-option",
+      "description": "One of four multiple choice answers, with its key number.",
+      "html": "<button class=\"ds-option\"><span class=\"ds-option-key\">1</span>Portugal</button>",
+      "css": ".ds-option { display: flex; align-items: center; gap: 16px; width: 320px; background: var(--surface, #fff); color: var(--foreground, #18181b); padding: 16px 20px; border: 1px solid var(--line, #e4e4e7); border-radius: 12px; font: 400 18px/1.4 Geist, system-ui, sans-serif; text-align: left; cursor: pointer; transition: border-color 150ms; } .ds-option:hover { border-color: var(--foreground, #18181b); } .ds-option-key { font: 400 14px Geist Mono, ui-monospace, monospace; color: var(--muted, #71717a); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "text-input",
+      "description": "Type-in answer field.",
+      "html": "<input class=\"ds-input\" placeholder=\"Country\" />",
+      "css": ".ds-input { width: 320px; background: var(--surface, #fff); color: var(--foreground, #18181b); padding: 16px 20px; border: 1px solid var(--line, #e4e4e7); border-radius: 12px; font: 400 18px/1.4 Geist, system-ui, sans-serif; outline: none; transition: border-color 150ms; } .ds-input:focus { border-color: var(--foreground, #18181b); } .ds-input::placeholder { color: var(--muted, #71717a); }"
+    },
+    {
+      "name": "Mode Card",
+      "kind": "card",
+      "refersTo": "mode-card",
+      "description": "Home page card leading to a quiz mode, with a large preview and a faint graticule globe.",
+      "html": "<a class=\"ds-mode-card\" href=\"#\"><svg class=\"ds-mode-globe\" viewBox=\"0 0 200 200\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"0.5\"><circle cx=\"100\" cy=\"100\" r=\"96\"/><ellipse cx=\"100\" cy=\"100\" rx=\"32\" ry=\"96\"/><ellipse cx=\"100\" cy=\"100\" rx=\"64\" ry=\"96\"/><path d=\"M100 4v192M4 100h192M16.9 52h166.2M16.9 148h166.2M36.5 28h127M36.5 172h127\"/></svg><span class=\"ds-mode-title\">Capitals</span><span class=\"ds-mode-desc\">See a country, name its capital.</span></a>",
+      "css": ".ds-mode-card { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; width: 360px; height: 220px; padding: 40px; background: var(--surface, #fff); color: var(--foreground, #18181b); border: 1px solid var(--line, #e4e4e7); border-radius: 16px; text-decoration: none; font-family: Geist, system-ui, sans-serif; transition: border-color 150ms; } .ds-mode-card:hover { border-color: var(--foreground, #18181b); } .ds-mode-card:focus-visible { outline: 2px solid var(--foreground, #18181b); outline-offset: 4px; } .ds-mode-globe { position: absolute; top: -96px; right: -128px; z-index: -1; width: 352px; height: 352px; color: var(--line, #e4e4e7); transform: rotate(-23.4deg); transition: transform 1000ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-mode-card:hover .ds-mode-globe { transform: rotate(-8deg); } .ds-mode-title { font-size: 30px; font-weight: 600; letter-spacing: -0.025em; } .ds-mode-desc { margin-top: 6px; color: var(--muted, #71717a); }"
+    },
+    {
+      "name": "Score Meter",
+      "kind": "custom",
+      "refersTo": "score-meter",
+      "description": "Vertical meter beside the question: graphite under 50%, ink from 50%, green when full.",
+      "html": "<div class=\"ds-meter\"><div class=\"ds-meter-fill\"></div></div>",
+      "css": ".ds-meter { position: relative; width: 12px; height: 288px; overflow: hidden; border-radius: 9999px; background: var(--line, #e4e4e7); } .ds-meter-fill { position: absolute; inset: auto 0 0 0; height: 65%; border-radius: 9999px; background: var(--foreground, #18181b); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Atlas",
+    "overview": "Geoquiz should feel like a well-made atlas: calm pages of paper and ink, where the only colour comes from the world itself. Flags and place names are the content and the colour. Everything around them is black, white and grey, drawn with fine lines like a map grid, so the eye always lands on the question.\n\nThe pages are spacious and unhurried, but sure of themselves: large confident headlines, a few large surfaces, and soft, lifted sheets that respond when touched. It is made for adults: no cartoon rewards, no bright buttons and no noise. Delight comes from craft, like a flag that lifts on hover or a globe that turns slightly, not from decoration.\n\nLight and dark mode are equal partners. Both follow the same rules, with paper and ink swapped.",
+    "keyCharacteristics": [
+      "Colour comes only from flags, plus green for right and red for wrong.",
+      "Fine line work (1px hairlines, the line-globe logo and its graticule) as the signature motif.",
+      "Soft, lifted surfaces: gentle shadows at rest, a little more lift on hover.",
+      "One sans family (Geist) with big steps in size and weight; mono only for numbers that change.",
+      "Calm motion: slow ease-out, transform only, off with reduced motion."
+    ],
+    "rules": [
+      { "name": "The Flags Bring the Colour Rule", "body": "No brand or accent colour exists. If an element needs to stand out, use ink, size or weight, never a new hue.", "section": "colors" },
+      { "name": "The Green Means Right Rule", "body": "Green and red mean only right and wrong (and red also means \"this ends the game\"). Never use them for decoration, links or emphasis.", "section": "colors" },
+      { "name": "The Tabular Numbers Rule", "body": "Any number that changes while you watch it (timer, score, counts) uses tabular numerals so it doesn't jiggle.", "section": "typography" },
+      { "name": "The Soft Lift Rule", "body": "Shadows always have a downward offset and a soft blur. Never use a hard offset shadow or a coloured glow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do let flags and place names be the only colour on the page.",
+      "Do use the line-globe motif (logo, graticule) in hairline when a page needs a geographic touch.",
+      "Do give every clickable sheet a hover state and a visible keyboard focus outline.",
+      "Do keep motion slow, transform-only and wrapped in `motion-safe`.",
+      "Do design light and dark together and check both."
+    ],
+    "donts": [
+      "Don't add a brand or accent colour, or gradients.",
+      "Don't use green or red for anything except right, wrong and ending the game.",
+      "Don't put anything colourful or moving near the question during a game.",
+      "Don't use emoji, cartoon rewards or confetti; Geoquiz is for adults.",
+      "Don't use hard offset shadows or coloured glows."
+    ]
+  }
+}
