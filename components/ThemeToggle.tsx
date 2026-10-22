@@ -50,9 +50,9 @@ export default function ThemeToggle() {
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       className="rounded-full p-2 text-muted transition-colors hover:bg-line/60 hover:text-foreground"
     >
-      {/* The icon shows the mode a click switches to. */}
-      <MoonIcon className="size-5 dark:hidden" />
-      <SunIcon className="hidden size-5 dark:block" />
+      {/* The icon shows the mode you're in now. */}
+      <SunIcon className="size-5 dark:hidden" />
+      <MoonIcon className="hidden size-5 dark:block" />
     </button>
   );
 }
