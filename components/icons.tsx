@@ -36,6 +36,22 @@ export function MoonIcon(props: IconProps) {
   );
 }
 
+export function PauseIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9 5v14M15 5v14" />
+    </Icon>
+  );
+}
+
+export function PlayIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 4.5v15l12-7.5Z" />
+    </Icon>
+  );
+}
+
 /** A government building, shown beside capital cities. */
 export function CapitolIcon(props: IconProps) {
   return (

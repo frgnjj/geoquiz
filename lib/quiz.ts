@@ -42,6 +42,7 @@ export const DEFAULT_SETTINGS: Settings = {
 export const TYPE_IN_TRIES = 3;
 export const MIN_QUESTIONS = 10;
 export const CHOICE_COUNT = 4;
+export const MAX_PAUSES = 3;
 
 export function availableTimes(continents: Continent[]): TimeOption[] {
   return TIME_OPTIONS.filter((t) => !t.singleContinentOnly || continents.length === 1);

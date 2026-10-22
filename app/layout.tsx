@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
-import { LogoMark } from "@/components/icons";
+import HeaderTitle from "@/components/HeaderTitle";
 import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 
@@ -39,10 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-8 py-6">
-          <Link href="/" className="flex items-center gap-2.5 text-lg font-semibold tracking-tight">
-            <LogoMark className="size-6" />
-            Geoquiz
-          </Link>
+          <HeaderTitle />
           <ThemeToggle />
         </header>
         {children}

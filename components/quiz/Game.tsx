@@ -7,6 +7,7 @@ import { displayAnswer, isCorrect, type Mode } from "@/lib/answers";
 import {
   countriesFor,
   makeChoices,
+  MAX_PAUSES,
   shuffle,
   timeOption,
   TYPE_IN_TRIES,
@@ -18,7 +19,10 @@ import {
   METER_RISE,
   pointsFor,
 } from "@/lib/score";
+import { setQuizActive } from "@/lib/quizActive";
+import { PauseIcon, PlayIcon } from "@/components/icons";
 import ScoreMeter from "./ScoreMeter";
+import QuitButton from "./QuitButton";
 
 export type Result = {
   country: Country;
@@ -66,6 +70,12 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   const [shakeKey, setShakeKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Pause freezes the timer, the meter and the pause before the next question.
+  const [paused, setPaused] = useState(false);
+  const [pausesLeft, setPausesLeft] = useState(MAX_PAUSES);
+  const pausedRef = useRef(false);
+  const pausedAt = useRef(0);
+
   const finished = useRef(false);
   const country = queue[index];
   const remaining = Math.max(0, endAt - now);
@@ -92,11 +102,17 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   });
 
   useEffect(() => {
+    setQuizActive(true);
+    return () => setQuizActive(false);
+  }, []);
+
+  useEffect(() => {
     let last = Date.now();
     const id = setInterval(() => {
       const t = Date.now();
       const elapsed = t - last;
       last = t;
+      if (pausedRef.current) return;
       setNow(t);
       if (t >= holdUntil.current) {
         setMeter((m) => Math.max(0, m - (METER_DRAIN_PER_SECOND * elapsed) / 1000));
@@ -110,14 +126,31 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   }, [remaining]);
 
   useEffect(() => {
-    if (!feedback) return;
+    if (!feedback || paused) return;
     const id = setTimeout(next, feedback === "correct" ? CORRECT_PAUSE_MS : REVEAL_PAUSE_MS);
     return () => clearTimeout(id);
-  }, [feedback]);
+  }, [feedback, paused]);
 
   useEffect(() => {
-    if (settings.answerMode === "type" && !feedback) inputRef.current?.focus();
-  }, [settings.answerMode, feedback, index]);
+    if (settings.answerMode === "type" && !feedback && !paused) inputRef.current?.focus();
+  }, [settings.answerMode, feedback, index, paused]);
+
+  function togglePause() {
+    if (paused) {
+      // Push the deadline and any full-meter hold back by however long the game was paused.
+      const pausedFor = Date.now() - pausedAt.current;
+      setEndAt((e) => e + pausedFor);
+      if (holdUntil.current > pausedAt.current) holdUntil.current += pausedFor;
+      setNow(Date.now());
+      pausedRef.current = false;
+      setPaused(false);
+    } else if (pausesLeft > 0) {
+      pausedAt.current = Date.now();
+      pausedRef.current = true;
+      setPaused(true);
+      setPausesLeft((n) => n - 1);
+    }
+  }
 
   /** Any wrong try (or a skip) empties the meter. */
   function breakMeter() {
@@ -164,7 +197,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   }
 
   const onKey = useEffectEvent((e: KeyboardEvent) => {
-    if (settings.answerMode !== "choice") return;
+    if (settings.answerMode !== "choice" || paused) return;
     const n = Number(e.key);
     if (n >= 1 && n <= choices.length) pick(choices[n - 1]);
   });
@@ -195,9 +228,18 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col pt-4">
       <div className="flex items-center justify-between text-sm text-muted">
-        <button type="button" onClick={onQuit} className="hover:text-foreground">
-          ← Quit
-        </button>
+        <span className="flex items-center gap-6">
+          <QuitButton onConfirm={onQuit} />
+          <button
+            type="button"
+            onClick={togglePause}
+            disabled={!paused && pausesLeft === 0}
+            className="flex items-center gap-1.5 hover:text-foreground disabled:opacity-40 disabled:hover:text-muted"
+          >
+            {paused ? <PlayIcon className="size-4" /> : <PauseIcon className="size-4" />}
+            {paused ? "Resume" : `Pause (${pausesLeft} left)`}
+          </button>
+        </span>
         <span>
           {index + 1} / {queue.length}
           <span className="mx-3 opacity-40">·</span>
@@ -234,98 +276,119 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
 
       <div className="relative flex flex-1 flex-col items-center justify-center py-12">
         <ScoreMeter meter={meter} />
-        {mode === "flags" ? (
-          <Image
-            src={`/flags/${country.code}.svg`}
-            alt="Flag to identify"
-            width={420}
-            height={315}
-            unoptimized
-            priority
-            className="h-[315px] w-[420px] rounded-md border border-line object-cover shadow-sm"
-          />
-        ) : (
-          <div className="text-center">
-            <p className="text-muted">What is the capital of</p>
-            <h1 className="mt-2 text-5xl font-semibold tracking-tight">{country.name}</h1>
+        {paused ? (
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-5xl font-semibold tracking-tight">Paused</h1>
+            <p className="mt-3 text-muted">
+              {pausesLeft === 0
+                ? "That was your last pause."
+                : `${pausesLeft} ${pausesLeft === 1 ? "pause" : "pauses"} left.`}
+            </p>
+            <button
+              type="button"
+              onClick={togglePause}
+              className="mt-8 flex items-center gap-2 rounded-xl bg-foreground px-6 py-3 font-medium text-background transition-opacity hover:opacity-90"
+            >
+              <PlayIcon className="size-4" />
+              Resume
+            </button>
           </div>
-        )}
+        ) : (
+          <>
+          {mode === "flags" ? (
+            <Image
+              src={`/flags/${country.code}.svg`}
+              alt="Flag to identify"
+              width={420}
+              height={315}
+              unoptimized
+              priority
+              className="h-[315px] w-[420px] rounded-md border border-line object-cover shadow-sm"
+            />
+          ) : (
+            <div className="text-center">
+              <p className="text-muted">What is the capital of</p>
+              <h1 className="mt-2 text-5xl font-semibold tracking-tight">{country.name}</h1>
+            </div>
+          )}
 
-        <p
-          className={`mt-8 h-7 text-lg font-medium ${
-            feedback === "correct" ? "text-correct" : "text-wrong"
-          }`}
-          aria-live="polite"
-        >
-          {feedback === "correct" && "Correct"}
-          {feedback === "reveal" && `The answer is ${answer}`}
-        </p>
+          <p
+            className={`mt-8 h-7 text-lg font-medium ${
+              feedback === "correct" ? "text-correct" : "text-wrong"
+            }`}
+            aria-live="polite"
+          >
+            {feedback === "correct" && "Correct"}
+            {feedback === "reveal" && `The answer is ${answer}`}
+          </p>
 
-        {settings.answerMode === "choice" ? (
-          <div className="mt-6 grid w-full grid-cols-2 gap-3">
-            {choices.map((choice, i) => {
-              const isAnswer = choice.code === country.code;
-              const pickedWrong = wrongPicks.includes(choice.code);
-              const showRight = isAnswer && feedback !== null;
-              return (
-                <button
-                  key={choice.code}
-                  type="button"
-                  onClick={() => pick(choice)}
-                  disabled={feedback !== null || pickedWrong}
-                  className={`flex items-center gap-4 rounded-xl border px-5 py-4 text-left text-lg transition-colors ${
-                    showRight
-                      ? "border-correct text-correct"
-                      : pickedWrong
-                        ? "border-wrong text-wrong line-through opacity-70"
-                        : "border-line bg-surface hover:border-foreground disabled:hover:border-line"
+          {settings.answerMode === "choice" ? (
+            <div className="mt-6 grid w-full grid-cols-2 gap-3">
+              {choices.map((choice, i) => {
+                const isAnswer = choice.code === country.code;
+                const pickedWrong = wrongPicks.includes(choice.code);
+                const showRight = isAnswer && feedback !== null;
+                return (
+                  <button
+                    key={choice.code}
+                    type="button"
+                    onClick={() => pick(choice)}
+                    disabled={feedback !== null || pickedWrong}
+                    className={`flex items-center gap-4 rounded-xl border px-5 py-4 text-left text-lg transition-colors ${
+                      showRight
+                        ? "border-correct text-correct"
+                        : pickedWrong
+                          ? "border-wrong text-wrong line-through opacity-70"
+                          : "border-line bg-surface hover:border-foreground disabled:hover:border-line"
+                    }`}
+                  >
+                    <span className="font-mono text-sm text-muted">{i + 1}</span>
+                    {displayAnswer(choice, mode)}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <form onSubmit={submitTyped} className="mt-6 w-full max-w-md">
+              <div key={shakeKey} className={shakeKey > 0 ? "animate-shake" : undefined}>
+                <input
+                  ref={inputRef}
+                  value={typed}
+                  onChange={(e) => setTyped(e.target.value)}
+                  disabled={feedback !== null}
+                  placeholder={mode === "flags" ? "Country" : "Capital"}
+                  autoComplete="off"
+                  spellCheck={false}
+                  className={`w-full rounded-xl border bg-surface px-5 py-4 text-lg outline-none transition-colors focus:border-foreground ${
+                    feedback === "correct"
+                      ? "border-correct"
+                      : wrongTries > 0
+                        ? "border-wrong"
+                        : "border-line"
                   }`}
+                />
+              </div>
+              <div className="mt-3 flex items-center justify-between text-sm text-muted">
+                <span>
+                  {feedback === null &&
+                    wrongTries > 0 &&
+                    `Not quite. ${TYPE_IN_TRIES - wrongTries} ${
+                      TYPE_IN_TRIES - wrongTries === 1 ? "try" : "tries"
+                    } left.`}
+                  {feedback === null && wrongTries === 0 && "Press Enter to answer."}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => resolve(false)}
+                  disabled={feedback !== null}
+                  className="hover:text-foreground disabled:opacity-40"
                 >
-                  <span className="font-mono text-sm text-muted">{i + 1}</span>
-                  {displayAnswer(choice, mode)}
+                  Skip
                 </button>
-              );
-            })}
-          </div>
-        ) : (
-          <form onSubmit={submitTyped} className="mt-6 w-full max-w-md">
-            <div key={shakeKey} className={shakeKey > 0 ? "animate-shake" : undefined}>
-              <input
-                ref={inputRef}
-                value={typed}
-                onChange={(e) => setTyped(e.target.value)}
-                disabled={feedback !== null}
-                placeholder={mode === "flags" ? "Country" : "Capital"}
-                autoComplete="off"
-                spellCheck={false}
-                className={`w-full rounded-xl border bg-surface px-5 py-4 text-lg outline-none transition-colors focus:border-foreground ${
-                  feedback === "correct"
-                    ? "border-correct"
-                    : wrongTries > 0
-                      ? "border-wrong"
-                      : "border-line"
-                }`}
-              />
-            </div>
-            <div className="mt-3 flex items-center justify-between text-sm text-muted">
-              <span>
-                {feedback === null &&
-                  wrongTries > 0 &&
-                  `Not quite. ${TYPE_IN_TRIES - wrongTries} ${
-                    TYPE_IN_TRIES - wrongTries === 1 ? "try" : "tries"
-                  } left.`}
-                {feedback === null && wrongTries === 0 && "Press Enter to answer."}
-              </span>
-              <button
-                type="button"
-                onClick={() => resolve(false)}
-                disabled={feedback !== null}
-                className="hover:text-foreground disabled:opacity-40"
-              >
-                Skip
-              </button>
-            </div>
-          </form>
+              </div>
+            </form>
+          )}
+          </>
         )}
       </div>
     </div>

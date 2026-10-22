@@ -48,6 +48,9 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19.
 ### Gameplay
 - **Flags:** a flag is shown and the player names the country.
 - **Capitals:** a country is shown and the player names its capital.
+- **Quit:** pressing Quit opens a "Confirm" button below it, and only Confirm ends the game. The timer keeps running while it's open. A click elsewhere or Esc closes it.
+- **Pause:** a Pause button beside Quit, with a limit of 3 pauses per game. Pausing freezes the timer and the meter and hides the question until Resume.
+- **Header title:** during a game the Geoquiz title doesn't link home; only Quit leaves the game. Returning to Flags or Capitals always starts at the settings screen.
 - **Multiple choice:**
   - With retry off, one wrong answer reveals the correct one.
   - With retry on, two wrong answers reveal it.
@@ -77,7 +80,7 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19.
 ### Look and feel
 - Desktop only for now, and English only.
 - Minimal and clean, aimed at adults rather than children.
-- A light and dark mode toggle, shown as an icon: a moon in light mode and a sun in dark mode. With no choice saved, the site follows the system theme, even when it changes.
+- A light and dark mode toggle, shown as an icon of the current mode: a sun in light mode and a moon in dark mode. With no choice saved, the site follows the system theme, even when it changes.
 - Logo: a line globe whose outline forms a "G", beside "Geoquiz" in the header and in the browser tab.
 - Home page cards show a random flag and a random capital (with a government building icon) on every load. They always come from two different countries and never repeat the previous load's countries.
 

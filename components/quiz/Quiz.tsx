@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import type { Mode } from "@/lib/answers";
 import { DEFAULT_SETTINGS, type Settings } from "@/lib/quiz";
 import SettingsScreen from "./SettingsScreen";
@@ -15,6 +15,12 @@ type Phase =
 export default function Quiz({ mode }: { mode: Mode }) {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [phase, setPhase] = useState<Phase>({ name: "settings" });
+
+  // Next.js keeps this page alive (hidden) after navigating away. Going back to settings when it
+  // hides means returning to Flags or Capitals never reopens an old game or results screen.
+  useLayoutEffect(() => {
+    return () => setPhase({ name: "settings" });
+  }, []);
 
   function start(next: Settings) {
     setSettings(next);
