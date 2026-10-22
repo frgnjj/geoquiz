@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { COUNTRIES, type Country } from "@/data/countries";
 import { displayAnswer } from "@/lib/answers";
 import { CapitolIcon } from "@/components/icons";
@@ -26,6 +27,7 @@ export default function Home() {
 
 /** Shows a new flag and capital on every load, each from a different country. */
 async function RandomModeCards() {
+  await connection(); // pick at request time, not while prerendering
   const last = (await cookies()).get(PAIR_COOKIE)?.value.split(".") ?? [];
   const pair = randomPair(last);
   return (
