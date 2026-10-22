@@ -52,6 +52,14 @@ export function PlayIcon(props: IconProps) {
   );
 }
 
+export function ArrowRightIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4.5 12h15M13.5 6l6 6-6 6" />
+    </Icon>
+  );
+}
+
 /** A government building, shown beside capital cities. */
 export function CapitolIcon(props: IconProps) {
   return (
