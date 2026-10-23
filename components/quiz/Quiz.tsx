@@ -22,6 +22,11 @@ export default function Quiz({ mode }: { mode: Mode }) {
     return () => setPhase({ name: "settings" });
   }, []);
 
+  // Each screen starts at the top, even if the last one was scrolled down.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [phase]);
+
   function start(next: Settings) {
     setSettings(next);
     setPhase((p) => ({ name: "playing", round: p.name === "playing" ? p.round + 1 : Date.now() }));

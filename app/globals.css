@@ -44,6 +44,32 @@ body {
   color: var(--foreground);
 }
 
+/* Browser-drawn details in the site's own ink and paper. */
+:root {
+  color-scheme: light;
+  scrollbar-color: var(--line) var(--background);
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+::selection {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+input {
+  caret-color: var(--foreground);
+}
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
+  }
+}
+
 /* Range slider: an ink track that fills up to the thumb (set --fill as a percentage). */
 .range {
   appearance: none;
