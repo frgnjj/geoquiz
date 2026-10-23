@@ -182,7 +182,9 @@ Surfaces are **soft and lifted**: sheets sit slightly above the paper with a gen
 ### Named Rules
 **The Soft Lift Rule.** Shadows always have a downward offset and a soft blur. Never use a hard offset shadow or a coloured glow.
 
-**Status:** this is the agreed direction. Today only flags carry a shadow; cards, options and buttons are still flat with border hovers. Apply the sheet shadows as each page is redesigned.
+The three shadows are Tailwind utilities defined in `app/globals.css`: `shadow-sheet`, `shadow-lifted` and `shadow-flag`.
+
+**Status:** this is the agreed direction. Flags and the settings cards carry it so far; the game and end screens are still flat. Apply the sheet shadows as each page is redesigned.
 
 ## Shapes
 
@@ -216,6 +218,15 @@ Surfaces are **soft and lifted**: sheets sit slightly above the paper with a gen
 - The top part shows a large preview: a 192 by 144px flag, or the capital in headline type beside the capitol icon.
 - A faint graticule globe in hairline sits off the top-right corner, tilted 23.4° like the Earth's axis.
 - Hover: border to ink, globe turns to -8° over 1s, flag rises 4px, arrow slides 4px right. Ease `cubic-bezier(0.16, 1, 0.3, 1)`. Keyboard focus shows a 2px ink outline, 4px away.
+
+### Settings Screen
+- Two columns: a 352px summary on the left, the settings on the right.
+- The summary (title, description, a list of the current choices separated by hairlines, and Start) stays in view while the settings scroll.
+- Settings sit in three resting sheets (16px radius, 32px padding): what to play, how to answer, and time.
+
+### Slider
+- A 6px fully round track: ink up to the thumb, hairline after it.
+- The thumb is a 22px ink circle with a 4px sheet border and the resting sheet shadow. Keyboard focus shows a 2px ink outline.
 
 ### Score Meter (signature)
 - A 12px wide, 288px tall fully round track in hairline beside the question.
