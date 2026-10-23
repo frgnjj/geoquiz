@@ -64,7 +64,7 @@ function ModeCards({ pair }: { pair?: Pair }) {
           width={192}
           height={144}
           unoptimized
-          className="rounded-md shadow-[0_1px_2px_rgb(0_0_0/0.08),0_8px_24px_-6px_rgb(0_0_0/0.18)] ring-1 ring-line transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:-translate-y-1"
+          className="rounded-md shadow-flag ring-1 ring-line transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:-translate-y-1"
         />
       ) : (
         <div className="h-36 w-48 rounded-md bg-line" />

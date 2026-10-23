@@ -33,11 +33,48 @@
   --color-wrong: var(--wrong);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Soft, lifted surfaces (see DESIGN.md, Elevation & Depth). */
+  --shadow-sheet: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06);
+  --shadow-lifted: 0 2px 4px rgb(0 0 0 / 0.06), 0 12px 32px -8px rgb(0 0 0 / 0.14);
+  --shadow-flag: 0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px -6px rgb(0 0 0 / 0.18);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Range slider: an ink track that fills up to the thumb (set --fill as a percentage). */
+.range {
+  appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, var(--foreground) var(--fill, 100%), var(--line) var(--fill, 100%));
+  cursor: pointer;
+}
+
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--foreground);
+  border: 4px solid var(--surface);
+  box-shadow: var(--shadow-sheet), 0 0 0 1px var(--line);
+}
+
+.range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--foreground);
+  border: 4px solid var(--surface);
+  box-shadow: var(--shadow-sheet), 0 0 0 1px var(--line);
+}
+
+.range:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 6px;
 }
 
 @keyframes shake {
