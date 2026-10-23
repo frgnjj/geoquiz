@@ -10,15 +10,10 @@ import {
   MAX_PAUSES,
   shuffle,
   timeOption,
-  TYPE_IN_TRIES,
+  triesFor,
   type Settings,
 } from "@/lib/quiz";
-import {
-  METER_DRAIN_PER_SECOND,
-  METER_FULL_HOLD_MS,
-  METER_RISE,
-  pointsFor,
-} from "@/lib/score";
+import { meterRates, METER_FULL_HOLD_MS, pointsFor } from "@/lib/score";
 import { setQuizActive } from "@/lib/quizActive";
 import { PauseIcon, PlayIcon } from "@/components/icons";
 import ScoreMeter from "./ScoreMeter";
@@ -43,6 +38,8 @@ type Props = {
 
 export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   const time = timeOption(settings.timeId);
+  const tries = triesFor(settings);
+  const rates = meterRates(settings.hardcore);
   const [queue] = useState(() => {
     const pool = shuffle(countriesFor(settings.continents));
     return pool.slice(0, settings.questionCount ?? pool.length);
@@ -107,6 +104,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   }, []);
 
   useEffect(() => {
+    const { drain } = meterRates(settings.hardcore);
     let last = Date.now();
     const id = setInterval(() => {
       const t = Date.now();
@@ -115,11 +113,11 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
       if (pausedRef.current) return;
       setNow(t);
       if (t >= holdUntil.current) {
-        setMeter((m) => Math.max(0, m - (METER_DRAIN_PER_SECOND * elapsed) / 1000));
+        setMeter((m) => Math.max(0, m - (drain * elapsed) / 1000));
       }
     }, 100);
     return () => clearInterval(id);
-  }, []);
+  }, [settings.hardcore]);
 
   useEffect(() => {
     if (remaining <= 0) finish();
@@ -165,7 +163,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
       setScore((s) => s + points);
       setLastPoints((p) => ({ points, key: (p?.key ?? 0) + 1 }));
     }
-    const next = Math.min(100, meter + METER_RISE);
+    const next = Math.min(100, meter + rates.rise);
     if (next >= 100) holdUntil.current = Date.now() + METER_FULL_HOLD_MS;
     setMeter(next);
   }
@@ -193,7 +191,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
     const wrong = [...wrongPicks, choice.code];
     setWrongPicks(wrong);
     breakMeter();
-    if (wrong.length >= (settings.retry ? 2 : 1)) resolve(false);
+    if (wrong.length >= tries) resolve(false);
   }
 
   const onKey = useEffectEvent((e: KeyboardEvent) => {
@@ -215,12 +213,13 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
       resolve(true, wrongTries === 0);
       return;
     }
-    const tries = wrongTries + 1;
-    setWrongTries(tries);
+    const used = wrongTries + 1;
+    setWrongTries(used);
     setShakeKey((k) => k + 1);
     breakMeter();
-    if (tries >= TYPE_IN_TRIES) resolve(false);
-    else inputRef.current?.select();
+    // A wrong try empties the box, ready for the next one.
+    setTyped("");
+    if (used >= tries) resolve(false);
   }
 
   const answer = displayAnswer(country, mode);
@@ -242,6 +241,12 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
           </button>
         </span>
         <span className="text-sm text-muted tabular-nums">
+          {settings.hardcore && (
+            <>
+              <span className="font-medium text-foreground">Hardcore</span>
+              <span className="mx-3 opacity-40">·</span>
+            </>
+          )}
           Question <span className="font-medium text-foreground">{index + 1}</span> of {queue.length}
           <span className="mx-3 opacity-40">·</span>
           {correctCount} correct
@@ -285,7 +290,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
 
       <div className="flex flex-1 items-center justify-center gap-12 py-12">
         {/* Balances the meter so the question stays centred. */}
-        <div className="w-12 shrink-0" aria-hidden="true" />
+        <div className="w-16 shrink-0" aria-hidden="true" />
         <div className="flex w-full max-w-3xl flex-col items-center">
         {paused ? (
           <div className="flex w-full max-w-md flex-col items-center rounded-2xl border border-line bg-surface px-10 py-14 text-center shadow-sheet">
@@ -385,8 +390,8 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
                 <span>
                   {feedback === null &&
                     wrongTries > 0 &&
-                    `Not quite. ${TYPE_IN_TRIES - wrongTries} ${
-                      TYPE_IN_TRIES - wrongTries === 1 ? "try" : "tries"
+                    `Not quite. ${tries - wrongTries} ${
+                      tries - wrongTries === 1 ? "try" : "tries"
                     } left.`}
                   {feedback === null && wrongTries === 0 && "Press Enter to answer."}
                 </span>

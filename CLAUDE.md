@@ -18,7 +18,7 @@ A geography quiz website with Flags and Capitals modes. Built with Next.js (App 
 
 ## Game spec (agreed with the owner)
 
-Agreed with the owner on 2026-10-17, slider and score added 2026-10-19.
+Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore and type-in box clearing added 2026-10-23.
 
 ### Stack
 - Next.js (TypeScript), developed and tested on localhost.
@@ -44,6 +44,7 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19.
   - 20 min, countdown only
   - 1 min, +5 s per correct answer (only when exactly one continent is picked)
 - **Retry (multiple choice only):** on or off. When it's on, the player gets one retry.
+- **Hardcore:** on or off. When it's on, the player must name all 197 countries (World only) in 1 min, +5 s per correct answer, with one try per question in both multiple choice and type-in. The meter rises and drains 10% slower (+18% per correct answer, 4.5% per second). Region, Questions, Time and Retry are locked while it's on; Answer mode stays free. Skip, pauses and points are unchanged.
 
 ### Gameplay
 - **Flags:** a flag is shown and the player names the country.
@@ -57,6 +58,7 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19.
   - There is no skip button.
 - **Type-in:**
   - The player gets up to 3 tries, and the correct answer is shown after the third wrong try.
+  - A wrong try empties the answer box, ready for the next try.
   - Answers aren't case-sensitive and are accepted with or without accents.
   - Common names count (for example "USA"), but misspellings count as wrong.
   - A skip button is available, and a skip counts as wrong.
@@ -74,7 +76,9 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19.
 ### Implementation choices (not from the owner; change freely if asked)
 - Multiple choice shows 4 options. Wrong options come from the same continent as the answer.
 - After a correct answer the next question appears after 0.7 s; after a revealed answer, after 1.8 s. The timer keeps running.
-- Keys 1 to 4 pick a multiple choice option. A wrong typed answer stays in the box so typos can be fixed.
+- Keys 1 to 4 pick a multiple choice option.
+- The Questions slider has quick picks (10, 25, 50, All) and shows its number above the handle.
+- The meter marks its points zones (+5, +10, +15, +25) beside the track.
 - The end screen lists the missed countries.
 
 ### Look and feel
