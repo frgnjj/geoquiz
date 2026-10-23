@@ -221,8 +221,8 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 
 ### Settings Screen
 - Two columns: a 352px summary on the left, the settings on the right.
-- The summary (title, description, a list of the current choices separated by hairlines, and Start) stays in view while the settings scroll.
-- Settings sit in three resting sheets (16px radius, 32px padding): what to play, how to answer, and time.
+- The left column holds a ghost "Back" button (to the home page), the title, a list of the current choices separated by hairlines, Start, and a compact Hardcore sheet (24px padding, Off/On chips beside its label). It stays in view while the settings scroll when the window is at least 820px tall; shorter windows scroll it normally.
+- Settings sit in three resting sheets (16px radius, 32px padding): what to play (Region, Questions), how to answer, and time.
 
 ### End Screen
 - The same two columns as settings. Left: "X right out of Y" in headline type, the score in a resting sheet, Play again (primary), Change settings (secondary) and Home (ghost), then the settings summary. The left column scrolls with the page so the buttons never hide.

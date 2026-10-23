@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties, type ReactNode } from "react";
+import Link from "next/link";
 import { COUNTRIES, CONTINENTS, type Continent } from "@/data/countries";
 import type { Mode } from "@/lib/answers";
 import {
@@ -14,6 +15,7 @@ import {
   type Settings,
 } from "@/lib/quiz";
 
+import { ArrowLeftIcon } from "@/components/icons";
 import GameSummary from "./GameSummary";
 
 type Props = {
@@ -64,8 +66,15 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
 
   return (
     <div className="grid grid-cols-[22rem_minmax(0,1fr)] items-start gap-14 pt-8">
-      {/* The summary and Start stay in view while the settings scroll. */}
-      <aside className="sticky top-8">
+      {/* The summary and Start stay in view while the settings scroll, when the window is tall enough. */}
+      <aside className="sticky top-8 [@media(max-height:820px)]:static">
+        <Link
+          href="/"
+          className="-ml-3 mb-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:bg-line/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground"
+        >
+          <ArrowLeftIcon className="size-4" />
+          Back
+        </Link>
         <h1 className="text-6xl leading-[1.05] font-semibold tracking-[-0.03em]">
           {mode === "flags" ? "Flags" : "Capitals"}
         </h1>
@@ -86,23 +95,27 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
         >
           {hardcore ? "Start Hardcore" : "Start"}
         </button>
+
+        <section className="mt-6 rounded-2xl border border-line bg-surface p-6 shadow-sheet">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Hardcore</h2>
+            <div className="flex gap-2">
+              <Chip selected={!hardcore} onClick={() => setHardcore(false)}>
+                Off
+              </Chip>
+              <Chip selected={hardcore} onClick={() => setHardcore(true)}>
+                On
+              </Chip>
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-muted">
+            Name all {COUNTRIES.length} countries in 1 min, +5s per right answer. One try per
+            question, and the meter rises and drains 10% slower.
+          </p>
+        </section>
       </aside>
 
       <div className="flex flex-col gap-6">
-        <Card>
-          <Setting
-            title="Hardcore"
-            hint={`Name all ${COUNTRIES.length} countries in 1 min, +5s per right answer. One try per question, and the meter rises and drains 10% slower.`}
-          >
-            <Chip selected={!hardcore} onClick={() => setHardcore(false)}>
-              Off
-            </Chip>
-            <Chip selected={hardcore} onClick={() => setHardcore(true)}>
-              On
-            </Chip>
-          </Setting>
-        </Card>
-
         <Card>
           <Setting
             title="Region"
