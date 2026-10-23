@@ -10,17 +10,18 @@ export default function ScoreMeter({ meter }: { meter: number }) {
 
   return (
     <div
-      className="absolute left-full top-1/2 ml-12 flex -translate-y-1/2 flex-col items-center gap-3"
+      className="flex w-12 shrink-0 flex-col items-center gap-3"
       role="meter"
       aria-label="Score meter"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(meter)}
     >
-      <span
-        className={`text-sm font-semibold tabular-nums ${full ? "text-correct" : "text-muted"}`}
-      >
-        +{pointsFor(meter)}
+      <span className="flex flex-col items-center">
+        <span className={`text-lg font-semibold tabular-nums ${full ? "text-correct" : ""}`}>
+          +{pointsFor(meter)}
+        </span>
+        <span className="text-xs text-muted">next</span>
       </span>
       <div className="relative h-72 w-3 overflow-hidden rounded-full bg-line">
         <div
