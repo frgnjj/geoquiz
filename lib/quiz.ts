@@ -29,6 +29,8 @@ export type Settings = {
   retry: boolean;
   /** How many countries to ask. Null means every country in the region. */
   questionCount: number | null;
+  /** Every country in the world, 1 min +5s, one try, and a slower meter. */
+  hardcore: boolean;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -37,12 +39,27 @@ export const DEFAULT_SETTINGS: Settings = {
   timeId: "3",
   retry: false,
   questionCount: null,
+  hardcore: false,
 };
+
+/** What Hardcore locks: World, every country, 1 min +5s and no retry. Answer mode stays free. */
+export const HARDCORE_LOCKS = {
+  continents: [],
+  timeId: "1",
+  retry: false,
+  questionCount: null,
+} satisfies Partial<Settings>;
 
 export const TYPE_IN_TRIES = 3;
 export const MIN_QUESTIONS = 10;
 export const CHOICE_COUNT = 4;
 export const MAX_PAUSES = 3;
+
+/** Tries per question: type-in gets 3 (1 in Hardcore), multiple choice 1 (2 with retry). */
+export function triesFor(settings: Settings): number {
+  if (settings.answerMode === "type") return settings.hardcore ? 1 : TYPE_IN_TRIES;
+  return settings.retry ? 2 : 1;
+}
 
 export function availableTimes(continents: Continent[]): TimeOption[] {
   return TIME_OPTIONS.filter((t) => !t.singleContinentOnly || continents.length === 1);

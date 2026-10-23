@@ -239,11 +239,15 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 - One 10px dot per country in the game, in the order asked: correct-green for right, wrong-red for missed, hairline for not reached. It shows streaks at a glance.
 
 ### Slider
-- A 6px fully round track: ink up to the thumb, hairline after it.
-- The thumb is a 22px ink circle with a 4px sheet border and the resting sheet shadow. Keyboard focus shows a 2px ink outline.
+- An 8px fully round track: ink up to the thumb, hairline after it, with the minimum and maximum in small graphite numbers underneath.
+- The thumb is a 28px ink circle with a 5px sheet border and the resting sheet shadow; it grows slightly while dragged. Keyboard focus shows a 2px ink outline.
+- The current value rides above the thumb in a small resting sheet.
+- Quick-pick chips (10, 25, 50, All) sit below it.
 
 ### Score Meter (signature)
-- A 12px wide, 288px tall fully round track in hairline beside the question, with the points the next first-try answer is worth above it ("+15", labelled "next").
+- A 16px wide, 320px tall fully round track in hairline beside the question, with the points the next first-try answer is worth above it ("+15", labelled "next").
+- Points zones are marked beside the track (+5 at the bottom, +10, +15, +25 at the top). The current zone is ink and semibold (green for +25); the others are graphite.
+- When it fills, the track pops once sideways (0.4s, off with reduced motion).
 - The fill is graphite under 50%, ink from 50% and correct-green when full.
 
 ## Do's and Don'ts

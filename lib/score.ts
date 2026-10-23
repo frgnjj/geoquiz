@@ -3,6 +3,13 @@
 export const METER_RISE = 20; // % added per correct answer
 export const METER_DRAIN_PER_SECOND = 5; // % lost per second
 export const METER_FULL_HOLD_MS = 3000; // a full meter pauses draining this long
+export const HARDCORE_METER_SPEED = 0.9; // Hardcore: the meter rises and drains 10% slower
+
+/** How fast the meter rises per correct answer and drains per second. */
+export function meterRates(hardcore: boolean) {
+  const speed = hardcore ? HARDCORE_METER_SPEED : 1;
+  return { rise: METER_RISE * speed, drain: METER_DRAIN_PER_SECOND * speed };
+}
 
 /** Points for a first-try correct answer, based on the meter *before* the answer. */
 export function pointsFor(meter: number): number {

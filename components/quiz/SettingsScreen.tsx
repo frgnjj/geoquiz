@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { CONTINENTS, type Continent } from "@/data/countries";
+import { COUNTRIES, CONTINENTS, type Continent } from "@/data/countries";
 import type { Mode } from "@/lib/answers";
 import {
   availableTimes,
   countriesFor,
+  HARDCORE_LOCKS,
   MIN_QUESTIONS,
+  TIME_OPTIONS,
   TYPE_IN_TRIES,
   type AnswerMode,
   type Settings,
@@ -20,7 +22,11 @@ type Props = {
   onStart: (settings: Settings) => void;
 };
 
+const QUICK_PICKS = [10, 25, 50];
+const LOCKED_HINT = "Set by Hardcore.";
+
 export default function SettingsScreen({ mode, initial, onStart }: Props) {
+  const [hardcore, setHardcore] = useState(initial.hardcore);
   const [continents, setContinents] = useState<Continent[]>(initial.continents);
   const [answerMode, setAnswerMode] = useState<AnswerMode>(initial.answerMode);
   const [timeId, setTimeId] = useState(initial.timeId);
@@ -33,7 +39,14 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
   // The 1 minute option disappears when the region changes; fall back to 3 minutes.
   const activeTimeId = times.some((t) => t.id === timeId) ? timeId : "3";
   const countryCount = countriesFor(continents).length;
-  const chosen: Settings = { continents, answerMode, timeId: activeTimeId, retry, questionCount };
+
+  // Hardcore locks region, questions, time and retry; the normal choices are kept for when it's off.
+  const chosen: Settings = hardcore
+    ? { ...HARDCORE_LOCKS, answerMode, hardcore }
+    : { continents, answerMode, timeId: activeTimeId, retry, questionCount, hardcore };
+  const shownContinents = chosen.continents;
+  const shownCount = hardcore ? COUNTRIES.length : questionCount;
+  const shownMax = hardcore ? COUNTRIES.length : countryCount;
 
   // Changing the region resets the slider to the new maximum.
   function changeRegion(next: Continent[]) {
@@ -49,11 +62,6 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
     );
   }
 
-  // How far along the slider is, so its track fills up to the thumb.
-  const sliderFill = countryCount > MIN_QUESTIONS
-    ? ((questionCount - MIN_QUESTIONS) / (countryCount - MIN_QUESTIONS)) * 100
-    : 100;
-
   return (
     <div className="grid grid-cols-[22rem_minmax(0,1fr)] items-start gap-14 pt-8">
       {/* The summary and Start stay in view while the settings scroll. */}
@@ -68,7 +76,7 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
         </p>
 
         <div className="mt-10">
-          <GameSummary settings={chosen} questions={questionCount} />
+          <GameSummary settings={chosen} questions={shownCount} />
         </div>
 
         <button
@@ -76,24 +84,45 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           onClick={() => onStart(chosen)}
           className="mt-8 w-full rounded-xl bg-foreground py-4 text-lg font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
         >
-          Start
+          {hardcore ? "Start Hardcore" : "Start"}
         </button>
       </aside>
 
       <div className="flex flex-col gap-6">
         <Card>
-          <Setting title="Region" hint="Pick World, or up to five continents.">
-            <Chip selected={continents.length === 0} onClick={() => changeRegion([])}>
+          <Setting
+            title="Hardcore"
+            hint={`Name all ${COUNTRIES.length} countries in 1 min, +5s per right answer. One try per question, and the meter rises and drains 10% slower.`}
+          >
+            <Chip selected={!hardcore} onClick={() => setHardcore(false)}>
+              Off
+            </Chip>
+            <Chip selected={hardcore} onClick={() => setHardcore(true)}>
+              On
+            </Chip>
+          </Setting>
+        </Card>
+
+        <Card>
+          <Setting
+            title="Region"
+            hint={hardcore ? LOCKED_HINT : "Pick World, or up to five continents."}
+          >
+            <Chip
+              selected={shownContinents.length === 0}
+              disabled={hardcore}
+              onClick={() => changeRegion([])}
+            >
               World
             </Chip>
             {CONTINENTS.map((continent) => {
-              const selected = continents.includes(continent);
+              const selected = shownContinents.includes(continent);
               const blocked = !selected && continents.length === CONTINENTS.length - 1;
               return (
                 <Chip
                   key={continent}
                   selected={selected}
-                  disabled={blocked}
+                  disabled={hardcore || blocked}
                   title={blocked ? "All six continents is the same as World" : undefined}
                   onClick={() => toggleContinent(continent)}
                 >
@@ -105,27 +134,18 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
 
           <Setting
             title="Questions"
-            hint={`How many countries to name, from ${MIN_QUESTIONS} to ${countryCount}.`}
+            hint={
+              hardcore
+                ? LOCKED_HINT
+                : `How many countries to name, from ${MIN_QUESTIONS} to ${countryCount}.`
+            }
           >
-            <label className="flex w-full items-center gap-6">
-              <span className="w-24 shrink-0">
-                <span className="text-3xl font-semibold tracking-tight tabular-nums">
-                  {questionCount}
-                </span>
-                <span className="text-sm text-muted tabular-nums"> / {countryCount}</span>
-              </span>
-              <input
-                type="range"
-                min={MIN_QUESTIONS}
-                max={countryCount}
-                step={1}
-                value={questionCount}
-                onChange={(e) => setQuestionCount(Number(e.target.value))}
-                aria-label="Number of countries to name"
-                style={{ "--fill": `${sliderFill}%` } as CSSProperties}
-                className="range flex-1"
-              />
-            </label>
+            <QuestionSlider
+              value={shownCount}
+              max={shownMax}
+              disabled={hardcore}
+              onChange={setQuestionCount}
+            />
           </Setting>
         </Card>
 
@@ -142,21 +162,23 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           <Setting
             title="Retry"
             hint={
-              answerMode === "choice"
-                ? "Get a second try when you pick the wrong answer."
-                : `Typed answers always get ${TYPE_IN_TRIES} tries.`
+              hardcore
+                ? "Hardcore gives one try per question."
+                : answerMode === "choice"
+                  ? "Get a second try when you pick the wrong answer."
+                  : `Typed answers always get ${TYPE_IN_TRIES} tries.`
             }
           >
             <Chip
-              selected={answerMode === "choice" && !retry}
-              disabled={answerMode === "type"}
+              selected={answerMode === "choice" && !chosen.retry}
+              disabled={hardcore || answerMode === "type"}
               onClick={() => setRetry(false)}
             >
               Off
             </Chip>
             <Chip
-              selected={answerMode === "choice" && retry}
-              disabled={answerMode === "type"}
+              selected={answerMode === "choice" && chosen.retry}
+              disabled={hardcore || answerMode === "type"}
               onClick={() => setRetry(true)}
             >
               On
@@ -167,16 +189,78 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
         <Card>
           <Setting
             title="Time"
-            hint="Timed games marked +5s add five seconds for every correct answer."
+            hint={
+              hardcore
+                ? LOCKED_HINT
+                : "Timed games marked +5s add five seconds for every correct answer."
+            }
           >
-            {times.map((t) => (
-              <Chip key={t.id} selected={activeTimeId === t.id} onClick={() => setTimeId(t.id)}>
+            {(hardcore ? TIME_OPTIONS.filter((t) => t.id === chosen.timeId) : times).map((t) => (
+              <Chip
+                key={t.id}
+                selected={chosen.timeId === t.id}
+                disabled={hardcore}
+                onClick={() => setTimeId(t.id)}
+              >
                 {t.label}
                 {t.bonus > 0 && <span className="ml-1.5 opacity-60">+{t.bonus}s</span>}
               </Chip>
             ))}
           </Setting>
         </Card>
+      </div>
+    </div>
+  );
+}
+
+/** The question count: a slider whose number rides on the handle, plus quick picks below. */
+function QuestionSlider({
+  value,
+  max,
+  disabled,
+  onChange,
+}: {
+  value: number;
+  max: number;
+  disabled: boolean;
+  onChange: (value: number) => void;
+}) {
+  // How far along the slider is, so its track fills up to the thumb.
+  const fill = max > MIN_QUESTIONS ? ((value - MIN_QUESTIONS) / (max - MIN_QUESTIONS)) * 100 : 100;
+  const picks = [...QUICK_PICKS.filter((n) => n < max), max];
+
+  return (
+    <div className="w-full">
+      <div className={`relative pt-11 ${disabled ? "opacity-40" : ""}`} style={{ "--fill": `${fill}%` } as CSSProperties}>
+        {/* The number sits above the handle; 14px is half the handle's width. */}
+        <span
+          className="pointer-events-none absolute top-0 -translate-x-1/2 rounded-lg border border-line bg-surface px-2.5 py-1 text-lg font-semibold tabular-nums shadow-sheet"
+          style={{ left: `calc(${fill / 100} * (100% - 28px) + 14px)` }}
+        >
+          {value}
+        </span>
+        <input
+          type="range"
+          min={MIN_QUESTIONS}
+          max={max}
+          step={1}
+          value={value}
+          disabled={disabled}
+          onChange={(e) => onChange(Number(e.target.value))}
+          aria-label="Number of countries to name"
+          className="range w-full"
+        />
+        <div className="mt-2 flex justify-between text-xs text-muted tabular-nums">
+          <span>{MIN_QUESTIONS}</span>
+          <span>{max}</span>
+        </div>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {picks.map((n) => (
+          <Chip key={n} selected={value === n} disabled={disabled} onClick={() => onChange(n)}>
+            {n === max ? `All ${max}` : n}
+          </Chip>
+        ))}
       </div>
     </div>
   );

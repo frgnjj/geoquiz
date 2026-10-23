@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
-import { regionLabel, timeOption, TYPE_IN_TRIES, type Settings } from "@/lib/quiz";
+import { regionLabel, timeOption, triesFor, type Settings } from "@/lib/quiz";
 
 const TRIES = ["", "one try", "two tries", "three tries"];
 
 /** The chosen settings as a short list, shown beside the settings and on the end screen. */
 export default function GameSummary({ settings, questions }: { settings: Settings; questions: number }) {
   const time = timeOption(settings.timeId);
-  const tries = settings.answerMode === "type" ? TYPE_IN_TRIES : settings.retry ? 2 : 1;
+  const tries = triesFor(settings);
   return (
     <dl className="divide-y divide-line border-y border-line text-sm">
+      {settings.hardcore && <Row label="Mode">Hardcore</Row>}
       <Row label="Region">{regionLabel(settings.continents)}</Row>
       <Row label="Questions">
         <span className="tabular-nums">{questions}</span> countries
