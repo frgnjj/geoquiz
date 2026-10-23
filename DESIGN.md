@@ -184,7 +184,7 @@ Surfaces are **soft and lifted**: sheets sit slightly above the paper with a gen
 
 The three shadows are Tailwind utilities defined in `app/globals.css`: `shadow-sheet`, `shadow-lifted` and `shadow-flag`.
 
-**Status:** this is the agreed direction. Flags and the settings cards carry it so far; the game and end screens are still flat. Apply the sheet shadows as each page is redesigned.
+**Status:** this is the agreed direction. Flags, the settings cards and the end screen carry it so far; the game screen is still flat. Apply the sheet shadows as each page is redesigned.
 
 ## Shapes
 
@@ -223,6 +223,13 @@ The three shadows are Tailwind utilities defined in `app/globals.css`: `shadow-s
 - Two columns: a 352px summary on the left, the settings on the right.
 - The summary (title, description, a list of the current choices separated by hairlines, and Start) stays in view while the settings scroll.
 - Settings sit in three resting sheets (16px radius, 32px padding): what to play, how to answer, and time.
+
+### End Screen
+- The same two columns as settings. Left: "X right out of Y" in headline type, the score in a resting sheet, Play again (primary), Change settings (secondary) and Home (ghost), then the settings summary. The left column scrolls with the page so the buttons never hide.
+- Right: a "Your run" sheet and a "Missed" sheet listing each missed country with a 48 by 36px flag, its name and (in Capitals) its capital.
+
+### Run Dots
+- One 10px dot per country in the game, in the order asked: correct-green for right, wrong-red for missed, hairline for not reached. It shows streaks at a glance.
 
 ### Slider
 - A 6px fully round track: ink up to the thumb, hairline after it.

@@ -12,13 +12,13 @@ import {
   type Settings,
 } from "@/lib/quiz";
 
+import GameSummary from "./GameSummary";
+
 type Props = {
   mode: Mode;
   initial: Settings;
   onStart: (settings: Settings) => void;
 };
-
-const TRIES = ["", "One try", "Two tries", "Three tries"];
 
 export default function SettingsScreen({ mode, initial, onStart }: Props) {
   const [continents, setContinents] = useState<Continent[]>(initial.continents);
@@ -32,9 +32,8 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
   const times = availableTimes(continents);
   // The 1 minute option disappears when the region changes; fall back to 3 minutes.
   const activeTimeId = times.some((t) => t.id === timeId) ? timeId : "3";
-  const activeTime = times.find((t) => t.id === activeTimeId)!;
   const countryCount = countriesFor(continents).length;
-  const tries = answerMode === "type" ? TYPE_IN_TRIES : retry ? 2 : 1;
+  const chosen: Settings = { continents, answerMode, timeId: activeTimeId, retry, questionCount };
 
   // Changing the region resets the slider to the new maximum.
   function changeRegion(next: Continent[]) {
@@ -68,27 +67,13 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
             : "See a country, name its capital."}
         </p>
 
-        <dl className="mt-10 divide-y divide-line border-y border-line text-sm">
-          <SummaryRow label="Region">
-            {continents.length === 0 ? "World" : continents.join(", ")}
-          </SummaryRow>
-          <SummaryRow label="Questions">
-            <span className="tabular-nums">{questionCount}</span> countries
-          </SummaryRow>
-          <SummaryRow label="Answer">
-            {answerMode === "choice" ? "Multiple choice" : "Type it in"}, {TRIES[tries].toLowerCase()}
-          </SummaryRow>
-          <SummaryRow label="Time">
-            {activeTime.label}
-            {activeTime.bonus > 0 && `, +${activeTime.bonus}s per right answer`}
-          </SummaryRow>
-        </dl>
+        <div className="mt-10">
+          <GameSummary settings={chosen} questions={questionCount} />
+        </div>
 
         <button
           type="button"
-          onClick={() =>
-            onStart({ continents, answerMode, timeId: activeTimeId, retry, questionCount })
-          }
+          onClick={() => onStart(chosen)}
           className="mt-8 w-full rounded-xl bg-foreground py-4 text-lg font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
         >
           Start
@@ -193,15 +178,6 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           </Setting>
         </Card>
       </div>
-    </div>
-  );
-}
-
-function SummaryRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="flex items-baseline justify-between gap-6 py-3">
-      <dt className="shrink-0 text-muted">{label}</dt>
-      <dd className="text-right font-medium">{children}</dd>
     </div>
   );
 }
