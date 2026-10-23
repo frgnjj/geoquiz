@@ -1,10 +1,12 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { displayAnswer, type Mode } from "@/lib/answers";
-import { regionLabel, timeOption, type Settings } from "@/lib/quiz";
+import type { Settings } from "@/lib/quiz";
 import type { Result } from "./Game";
+import GameSummary from "./GameSummary";
 
 type Props = {
   mode: Mode;
@@ -30,76 +32,106 @@ export default function Results({
   const finishedAll = results.length === total;
 
   return (
-    <div className="mx-auto w-full max-w-3xl pt-8">
-      <p className="text-sm font-medium uppercase tracking-wider text-muted">
-        {mode === "flags" ? "Flags" : "Capitals"} · {regionLabel(settings.continents)} ·{" "}
-        {timeOption(settings.timeId).label} ·{" "}
-        {settings.answerMode === "choice" ? "Multiple choice" : "Typed"}
-      </p>
-      <div className="mt-4 flex items-end gap-12">
-        <h1 className="text-6xl font-semibold tracking-tight">
-          {correct} right out of {results.length}
+    <div className="grid grid-cols-[22rem_minmax(0,1fr)] items-start gap-14 pt-8">
+      <aside>
+        <h1 className="text-6xl leading-[1.05] font-semibold tracking-[-0.03em] text-balance">
+          <span className="tabular-nums">{correct}</span> right out of{" "}
+          <span className="tabular-nums">{results.length}</span>
         </h1>
-        <p className="pb-1.5 text-muted">
-          Score <span className="text-3xl font-semibold text-foreground tabular-nums">{score}</span>
+        <p className="mt-3 text-lg text-muted">
+          {finishedAll
+            ? `You got through all ${total} countries before time ran out.`
+            : `Time ran out with ${total - results.length} of ${total} countries left.`}
         </p>
-      </div>
-      <p className="mt-3 text-lg text-muted">
-        {finishedAll
-          ? `You got through all ${total} countries before time ran out.`
-          : `Time ran out with ${total - results.length} of ${total} countries left.`}
-      </p>
 
-      <div className="mt-10 flex gap-3">
-        <button
-          type="button"
-          onClick={onPlayAgain}
-          className="rounded-xl bg-foreground px-6 py-3 font-medium text-background transition-opacity hover:opacity-90"
-        >
-          Play again
-        </button>
-        <button
-          type="button"
-          onClick={onChangeSettings}
-          className="rounded-xl border border-line bg-surface px-6 py-3 font-medium transition-colors hover:border-foreground"
-        >
-          Change settings
-        </button>
-        <Link
-          href="/"
-          className="rounded-xl px-6 py-3 font-medium text-muted transition-colors hover:text-foreground"
-        >
-          Home
-        </Link>
-      </div>
+        <div className="mt-8 flex items-baseline justify-between rounded-2xl border border-line bg-surface px-6 py-5 shadow-sheet">
+          <span className="text-muted">Score</span>
+          <span className="text-4xl font-semibold tracking-tight tabular-nums">{score}</span>
+        </div>
 
-      {missed.length > 0 && (
-        <section className="mt-16">
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">
-            Missed ({missed.length})
-          </h2>
-          <ul className="mt-4 grid grid-cols-2 gap-x-8 gap-y-3">
-            {missed.map(({ country }) => (
-              <li key={country.code} className="flex items-center gap-3">
-                <Image
-                  src={`/flags/${country.code}.svg`}
-                  alt=""
-                  width={32}
-                  height={24}
-                  unoptimized
-                  className="rounded-sm border border-line"
-                />
-                <span>
-                  {country.name}
-                  {mode === "capitals" && (
-                    <span className="text-muted"> · {displayAnswer(country, mode)}</span>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+        <div className="mt-8 flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={onPlayAgain}
+            className="w-full rounded-xl bg-foreground py-4 text-lg font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
+          >
+            Play again
+          </button>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={onChangeSettings}
+              className="rounded-xl border border-line bg-surface py-3 font-medium shadow-sheet transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-foreground hover:shadow-lifted focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground motion-safe:hover:-translate-y-0.5"
+            >
+              Change settings
+            </button>
+            <Link
+              href="/"
+              className="rounded-xl py-3 text-center font-medium text-muted transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
+            >
+              Home
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-10">
+          <GameSummary settings={settings} questions={total} />
+        </div>
+      </aside>
+
+      <div className="flex flex-col gap-6">
+        <Card title="Your run" note={`${results.length} of ${total} asked`}>
+          {/* One dot per country, in the order asked: green right, red missed, empty not reached. */}
+          <ol className="flex flex-wrap gap-1.5" aria-label={`${correct} right, ${missed.length} missed`}>
+            {Array.from({ length: total }, (_, i) => {
+              const result = results[i];
+              const color = !result ? "bg-line" : result.correct ? "bg-correct" : "bg-wrong";
+              return <li key={i} className={`size-2.5 rounded-full ${color}`} />;
+            })}
+          </ol>
+        </Card>
+
+        <Card title="Missed" note={missed.length > 0 ? `${missed.length}` : undefined}>
+          {missed.length === 0 ? (
+            <p className="text-lg">
+              Nothing missed. Every country you were asked, you got right.
+            </p>
+          ) : (
+            <ul className="grid grid-cols-2 gap-x-8 gap-y-5">
+              {missed.map(({ country }) => (
+                <li key={country.code} className="flex items-center gap-4">
+                  <Image
+                    src={`/flags/${country.code}.svg`}
+                    alt=""
+                    width={48}
+                    height={36}
+                    unoptimized
+                    className="shrink-0 rounded-[3px] shadow-flag ring-1 ring-line"
+                  />
+                  <span className="leading-snug">
+                    <span className="block font-medium">{country.name}</span>
+                    {mode === "capitals" && (
+                      <span className="block text-sm text-muted">{displayAnswer(country, mode)}</span>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      </div>
     </div>
+  );
+}
+
+function Card({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-line bg-surface p-8 shadow-sheet">
+      <div className="flex items-baseline justify-between">
+        <h2 className="text-sm font-medium uppercase tracking-wider text-muted">{title}</h2>
+        {note && <span className="text-sm text-muted tabular-nums">{note}</span>}
+      </div>
+      <div className="mt-5">{children}</div>
+    </section>
   );
 }
