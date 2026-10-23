@@ -33,7 +33,7 @@ export default function Quiz({ mode }: { mode: Mode }) {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-8 pb-24">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-[max(3rem,env(safe-area-inset-bottom))] sm:px-8 lg:pb-24">
       {phase.name === "settings" && (
         <SettingsScreen mode={mode} initial={settings} onStart={start} />
       )}

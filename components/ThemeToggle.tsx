@@ -23,6 +23,13 @@ function savedTheme() {
 export default function ThemeToggle() {
   const dark = useSyncExternalStore(subscribe, isDark, () => false);
 
+  // The phone's status bar follows the page, including a theme picked with this toggle.
+  useEffect(() => {
+    document
+      .querySelectorAll('meta[name="theme-color"]')
+      .forEach((meta) => meta.setAttribute("content", dark ? "#0c0c0e" : "#fafafa"));
+  }, [dark]);
+
   // With no saved choice, the site follows the system theme, even when it changes later.
   useEffect(() => {
     const query = matchMedia("(prefers-color-scheme: dark)");

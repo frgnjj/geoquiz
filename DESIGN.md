@@ -168,7 +168,10 @@ A monochrome atlas page; colour belongs to the flags.
 - A centred 1024px column (`max-w-5xl`) with 32px side padding holds the header and the home page. Settings use a narrower 672px column, the game 768px.
 - The home page content is vertically centred under the header.
 - Spacing steps: 8, 12, 24, 40 and 56px. Tight inside groups, generous between them, and more space above a heading than below it.
-- Desktop only for now. Check every page at 1024px wide and at 1440px wide.
+- Desktop layout from 1024px wide (Tailwind `lg`); below that, the phone layout. Page gutters are 16px on phones and 32px from 640px.
+- Phone layout: one column everywhere. Settings put Start and a one-line summary in a bar fixed to the bottom (respecting the home-indicator safe area); the end screen goes result, score, buttons, run, missed, summary.
+- Check every page at 375px and 390px wide (phones) and at 1024px and 1440px wide (desktop), in both themes.
+- Touch rules: hover effects only apply with a mouse, controls give press feedback (`active:`), inputs are at least 16px so iOS doesn't zoom, and keyboard-only hints are hidden with `[@media(pointer:coarse)]`.
 
 ## Elevation & Depth
 
@@ -246,6 +249,7 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 
 ### Score Meter (signature)
 - A 16px wide, 320px tall fully round track in hairline beside the question, with the points the next first-try answer is worth above it ("+15", labelled "next").
+- On phones it turns sideways: a 10px tall bar under the game's top bar, filling left to right, with the zones marked underneath.
 - Points zones are marked beside the track (+5 at the bottom, +10, +15, +25 at the top). The current zone is ink and semibold (green for +25); the others are graphite.
 - When it fills, the track pops once sideways (0.4s, off with reduced motion).
 - The fill is graphite under 50%, ink from 50% and correct-green when full.

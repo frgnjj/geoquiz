@@ -16,7 +16,7 @@ import {
 } from "@/lib/quiz";
 
 import { ArrowLeftIcon } from "@/components/icons";
-import GameSummary from "./GameSummary";
+import GameSummary, { summaryLine } from "./GameSummary";
 
 type Props = {
   mode: Mode;
@@ -65,9 +65,12 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-[22rem_minmax(0,1fr)] items-start gap-14 pt-8">
-      {/* The summary and Start stay in view while the settings scroll, when the window is tall enough. */}
-      <aside className="sticky top-8 [@media(max-height:820px)]:static">
+    // Phones: one column (title, settings, Hardcore) with Start in a bar fixed to the bottom.
+    // Desktop: the title, summary, Start and Hardcore in a left column beside the settings.
+    <div className="flex flex-col gap-6 pt-2 pb-36 lg:grid lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-14 lg:pt-8 lg:pb-0">
+      {/* On desktop the column stays in view while the settings scroll, when the window is tall enough. */}
+      <aside className="contents lg:sticky lg:top-8 lg:block lg:[@media(max-height:820px)]:static">
+        <div className="order-1">
         <Link
           href="/"
           className="-ml-3 mb-4 inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:bg-line/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground"
@@ -75,7 +78,7 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           <ArrowLeftIcon className="size-4" />
           Back
         </Link>
-        <h1 className="text-6xl leading-[1.05] font-semibold tracking-[-0.03em]">
+        <h1 className="text-5xl leading-[1.05] font-semibold tracking-[-0.03em] lg:text-6xl">
           {mode === "flags" ? "Flags" : "Capitals"}
         </h1>
         <p className="mt-3 text-lg text-muted">
@@ -84,19 +87,21 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
             : "See a country, name its capital."}
         </p>
 
-        <div className="mt-10">
+        </div>
+
+        <div className="mt-10 hidden lg:block">
           <GameSummary settings={chosen} questions={shownCount} />
         </div>
 
         <button
           type="button"
           onClick={() => onStart(chosen)}
-          className="mt-8 w-full rounded-xl bg-foreground py-4 text-lg font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
+          className="mt-8 hidden w-full lg:block rounded-xl bg-foreground py-4 text-lg font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
         >
           {hardcore ? "Start Hardcore" : "Start"}
         </button>
 
-        <section className="mt-6 rounded-2xl border border-line bg-surface p-6 shadow-sheet">
+        <section className="order-3 rounded-2xl border border-line bg-surface p-6 shadow-sheet lg:mt-6">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Hardcore</h2>
             <div className="flex gap-2">
@@ -115,7 +120,7 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
         </section>
       </aside>
 
-      <div className="flex flex-col gap-6">
+      <div className="order-2 flex flex-col gap-6">
         <Card>
           <Setting
             title="Region"
@@ -222,6 +227,17 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           </Setting>
         </Card>
       </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-background px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+        <p className="truncate text-center text-xs text-muted">{summaryLine(chosen, shownCount)}</p>
+        <button
+          type="button"
+          onClick={() => onStart(chosen)}
+          className="mt-2 w-full rounded-xl bg-foreground py-3.5 text-lg font-medium text-background transition-opacity active:opacity-80"
+        >
+          {hardcore ? "Start Hardcore" : "Start"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -281,7 +297,7 @@ function QuestionSlider({
 
 function Card({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-9 rounded-2xl border border-line bg-surface p-8 shadow-sheet">
+    <div className="flex flex-col gap-8 rounded-2xl border border-line bg-surface p-6 shadow-sheet lg:gap-9 lg:p-8">
       {children}
     </div>
   );

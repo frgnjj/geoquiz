@@ -13,7 +13,7 @@ A geography quiz website with Flags and Capitals modes. Built with Next.js (App 
 ## Working rules
 - Run `npm run lint` and `npm run build` before pushing.
 - No backend in version 1. Scores and leaderboards come later with Supabase.
-- Desktop only and English only for now.
+- Desktop and phones, English only for now. Screens 1024px and wider use the desktop layout; narrower ones use the phone layout.
 - Pull before making changes, because the owner may also edit the code locally.
 
 ## Game spec (agreed with the owner)
@@ -82,7 +82,8 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - The end screen lists the missed countries.
 
 ### Look and feel
-- Desktop only for now, and English only.
+- Desktop and phones (phone support added 2026-10-24), English only for now.
+- On phones: the settings show one column with Start in a bar fixed to the bottom, the meter runs sideways under the game's top bar, and keyboard-only hints (keys 1 to 4, "Press Enter") are hidden on touch screens.
 - Minimal and clean, aimed at adults rather than children.
 - A light and dark mode toggle, shown as an icon of the current mode: a sun in light mode and a moon in dark mode. With no choice saved, the site follows the system theme, even when it changes.
 - Logo: a line globe whose outline forms a "G", beside "Geoquiz" in the header and in the browser tab.
@@ -91,4 +92,3 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 ### Later
 - Scores and leaderboards with Supabase.
 - A Maps mode.
-- Phone support.

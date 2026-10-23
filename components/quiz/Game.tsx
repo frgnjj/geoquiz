@@ -234,13 +234,21 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
             type="button"
             onClick={togglePause}
             disabled={!paused && pausesLeft === 0}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:bg-line/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted"
+            aria-label={paused ? "Resume" : `Pause (${pausesLeft} left)`}
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:bg-line/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground active:bg-line/60 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted"
           >
             {paused ? <PlayIcon className="size-4" /> : <PauseIcon className="size-4" />}
-            {paused ? "Resume" : `Pause (${pausesLeft} left)`}
+            {paused ? (
+              "Resume"
+            ) : (
+              <>
+                <span className="hidden sm:inline">Pause ({pausesLeft} left)</span>
+                <span className="tabular-nums sm:hidden">{pausesLeft}</span>
+              </>
+            )}
           </button>
         </span>
-        <span className="text-sm text-muted tabular-nums">
+        <span className="hidden text-sm text-muted tabular-nums lg:inline">
           {settings.hardcore && (
             <>
               <span className="font-medium text-foreground">Hardcore</span>
@@ -251,10 +259,10 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
           <span className="mx-3 opacity-40">·</span>
           {correctCount} correct
         </span>
-        <span className="flex items-baseline gap-8">
+        <span className="flex items-baseline gap-4 lg:gap-8">
           <span className="relative">
             <span className="text-sm text-muted">Score</span>{" "}
-            <span className="text-2xl font-semibold tracking-tight tabular-nums">{score}</span>
+            <span className="text-xl font-semibold tracking-tight tabular-nums lg:text-2xl">{score}</span>
             {lastPoints && (
               <span
                 key={lastPoints.key}
@@ -264,7 +272,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
               </span>
             )}
           </span>
-          <span className="relative font-mono text-2xl tabular-nums">
+          <span className="relative font-mono text-xl tabular-nums lg:text-2xl">
             <span className={remaining <= 10_000 ? "text-wrong" : undefined}>
               {formatTime(remaining)}
             </span>
@@ -281,20 +289,31 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
       </div>
 
       {/* Progress through the questions. */}
-      <div className="mt-4 h-px w-full bg-line" aria-hidden="true">
+      <div className="mt-3 h-px w-full bg-line lg:mt-4" aria-hidden="true">
         <div
           className="h-px bg-foreground transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
           style={{ width: `${(answered / queue.length) * 100}%` }}
         />
       </div>
 
-      <div className="flex flex-1 items-center justify-center gap-12 py-12">
+      {/* Phones: the question count moves under the bar, and the meter turns sideways. */}
+      <p className="mt-2 text-center text-xs text-muted tabular-nums lg:hidden">
+        {settings.hardcore && <span className="font-medium text-foreground">Hardcore · </span>}
+        Question <span className="font-medium text-foreground">{index + 1}</span> of {queue.length}
+        {" · "}
+        {correctCount} correct
+      </p>
+      <div className="mt-3 lg:hidden">
+        <ScoreMeter meter={meter} layout="horizontal" />
+      </div>
+
+      <div className="flex flex-1 items-center justify-center py-5 lg:gap-12 lg:py-12">
         {/* Balances the meter so the question stays centred. */}
-        <div className="w-16 shrink-0" aria-hidden="true" />
+        <div className="hidden w-16 shrink-0 lg:block" aria-hidden="true" />
         <div className="flex w-full max-w-3xl flex-col items-center">
         {paused ? (
-          <div className="flex w-full max-w-md flex-col items-center rounded-2xl border border-line bg-surface px-10 py-14 text-center shadow-sheet">
-            <h1 className="text-5xl font-semibold tracking-tight">Paused</h1>
+          <div className="flex w-full max-w-md flex-col items-center rounded-2xl border border-line bg-surface px-6 py-10 text-center shadow-sheet lg:px-10 lg:py-14">
+            <h1 className="text-4xl font-semibold tracking-tight lg:text-5xl">Paused</h1>
             <p className="mt-3 text-muted">
               {pausesLeft === 0
                 ? "That was your last pause."
@@ -319,19 +338,19 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
               height={315}
               unoptimized
               priority
-              className="h-[315px] w-[420px] rounded-lg object-cover shadow-flag ring-1 ring-line"
+              className="aspect-[4/3] h-[min(315px,32svh)] w-auto max-w-full lg:h-[315px] rounded-lg object-cover shadow-flag ring-1 ring-line"
             />
           ) : (
             <div className="text-center">
-              <p className="text-lg text-muted">What is the capital of</p>
-              <h1 className="mt-2 text-6xl leading-[1.05] font-semibold tracking-[-0.03em] text-balance">
+              <p className="text-muted lg:text-lg">What is the capital of</p>
+              <h1 className="mt-2 text-4xl leading-[1.05] font-semibold tracking-[-0.03em] text-balance lg:text-6xl">
                 {country.name}
               </h1>
             </div>
           )}
 
           <p
-            className={`mt-8 h-7 text-lg font-medium ${
+            className={`mt-4 min-h-7 text-center font-medium lg:mt-8 lg:text-lg ${
               feedback === "correct" ? "text-correct" : "text-wrong"
             }`}
             aria-live="polite"
@@ -341,7 +360,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
           </p>
 
           {settings.answerMode === "choice" ? (
-            <div className="mt-6 grid w-full grid-cols-2 gap-3">
+            <div className="mt-3 grid w-full grid-cols-2 gap-2 lg:mt-6 lg:gap-3">
               {choices.map((choice, i) => {
                 const isAnswer = choice.code === country.code;
                 const pickedWrong = wrongPicks.includes(choice.code);
@@ -352,7 +371,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
                     type="button"
                     onClick={() => pick(choice)}
                     disabled={feedback !== null || pickedWrong}
-                    className={`flex items-center gap-4 rounded-xl border bg-surface px-5 py-4 text-left text-lg shadow-sheet transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
+                    className={`flex items-center gap-4 rounded-xl border bg-surface px-4 py-3.5 text-left leading-snug shadow-sheet transition duration-300 enabled:active:scale-[0.98] lg:px-5 lg:py-4 lg:text-lg ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
                       showRight
                         ? "border-correct text-correct"
                         : pickedWrong
@@ -360,14 +379,15 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
                           : "border-line enabled:hover:border-foreground enabled:hover:shadow-lifted motion-safe:enabled:hover:-translate-y-0.5"
                     }`}
                   >
-                    <span className="font-mono text-sm text-muted">{i + 1}</span>
+                    {/* Keys 1 to 4 only help with a keyboard. */}
+                    <span className="font-mono text-sm text-muted [@media(pointer:coarse)]:hidden">{i + 1}</span>
                     {displayAnswer(choice, mode)}
                   </button>
                 );
               })}
             </div>
           ) : (
-            <form onSubmit={submitTyped} className="mt-6 w-full max-w-md">
+            <form onSubmit={submitTyped} className="mt-3 w-full max-w-md lg:mt-6">
               <div key={shakeKey} className={shakeKey > 0 ? "animate-shake" : undefined}>
                 <input
                   ref={inputRef}
@@ -376,8 +396,11 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
                   disabled={feedback !== null}
                   placeholder={mode === "flags" ? "Country" : "Capital"}
                   autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  enterKeyHint="go"
                   spellCheck={false}
-                  className={`w-full rounded-xl border bg-surface px-5 py-4 text-lg shadow-sheet outline-none transition-colors placeholder:text-muted focus:border-foreground ${
+                  className={`w-full rounded-xl border bg-surface px-5 py-3.5 text-lg lg:py-4 shadow-sheet outline-none transition-colors placeholder:text-muted focus:border-foreground ${
                     feedback === "correct"
                       ? "border-correct"
                       : wrongTries > 0
@@ -393,7 +416,9 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
                     `Not quite. ${tries - wrongTries} ${
                       tries - wrongTries === 1 ? "try" : "tries"
                     } left.`}
-                  {feedback === null && wrongTries === 0 && "Press Enter to answer."}
+                  {feedback === null && wrongTries === 0 && (
+                    <span className="[@media(pointer:coarse)]:hidden">Press Enter to answer.</span>
+                  )}
                 </span>
                 <button
                   type="button"
@@ -409,7 +434,9 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
           </>
         )}
         </div>
-        <ScoreMeter meter={meter} />
+        <div className="hidden lg:block">
+          <ScoreMeter meter={meter} />
+        </div>
       </div>
     </div>
   );
