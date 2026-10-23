@@ -92,7 +92,9 @@ export default function Results({
         </Card>
 
         <Card title="Missed" note={missed.length > 0 ? `${missed.length}` : undefined}>
-          {missed.length === 0 ? (
+          {results.length === 0 ? (
+            <p className="text-lg">Time ran out before the first answer.</p>
+          ) : missed.length === 0 ? (
             <p className="text-lg">
               Nothing missed. Every country you were asked, you got right.
             </p>

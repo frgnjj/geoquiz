@@ -13,7 +13,8 @@ export default function HeaderTitle() {
       Geoquiz
     </>
   );
-  const className = "flex items-center gap-2.5 text-lg font-semibold tracking-tight";
+  const className =
+    "flex items-center gap-2.5 rounded-md text-lg font-semibold tracking-tight focus-visible:outline-offset-4";
 
   if (playing) return <span className={className}>{content}</span>;
   return (

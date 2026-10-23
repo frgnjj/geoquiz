@@ -1,39 +1,164 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-22T21:00:00Z",
+  "generatedAt": "2026-10-23T12:00:00Z",
   "title": "Design System: Geoquiz",
   "extensions": {
     "colorMeta": {
-      "ink": { "role": "primary", "displayName": "Ink", "canonical": "#18181b", "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#e4e4e7"] },
-      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "#fafafa", "tonalRamp": ["#18181b", "#27272a", "#3f3f46", "#71717a", "#a1a1aa", "#d4d4d8", "#f4f4f5", "#fafafa"] },
-      "sheet": { "role": "neutral", "displayName": "Sheet", "canonical": "#ffffff" },
-      "graphite": { "role": "neutral", "displayName": "Graphite", "canonical": "#71717a" },
-      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#e4e4e7" },
-      "correct-green": { "role": "feedback", "displayName": "Correct Green", "canonical": "#059669", "tonalRamp": ["#022c22", "#064e3b", "#065f46", "#047857", "#059669", "#10b981", "#34d399", "#d1fae5"] },
-      "wrong-red": { "role": "feedback", "displayName": "Wrong Red", "canonical": "#dc2626", "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fee2e2"] }
+      "ink": {
+        "role": "primary",
+        "displayName": "Ink",
+        "canonical": "#18181b",
+        "tonalRamp": [
+          "#09090b",
+          "#18181b",
+          "#27272a",
+          "#3f3f46",
+          "#52525b",
+          "#71717a",
+          "#a1a1aa",
+          "#e4e4e7"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#fafafa",
+        "tonalRamp": [
+          "#18181b",
+          "#27272a",
+          "#3f3f46",
+          "#71717a",
+          "#a1a1aa",
+          "#d4d4d8",
+          "#f4f4f5",
+          "#fafafa"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Sheet",
+        "canonical": "#ffffff"
+      },
+      "graphite": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "#71717a"
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#e4e4e7"
+      },
+      "correct-green": {
+        "role": "feedback",
+        "displayName": "Correct Green",
+        "canonical": "#059669",
+        "tonalRamp": [
+          "#022c22",
+          "#064e3b",
+          "#065f46",
+          "#047857",
+          "#059669",
+          "#10b981",
+          "#34d399",
+          "#d1fae5"
+        ]
+      },
+      "wrong-red": {
+        "role": "feedback",
+        "displayName": "Wrong Red",
+        "canonical": "#dc2626",
+        "tonalRamp": [
+          "#450a0a",
+          "#7f1d1d",
+          "#991b1b",
+          "#b91c1c",
+          "#dc2626",
+          "#ef4444",
+          "#f87171",
+          "#fee2e2"
+        ]
+      }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "Home page headline only." },
-      "headline": { "displayName": "Headline", "purpose": "Page titles, final score, capital names as questions or previews." },
-      "title": { "displayName": "Title", "purpose": "Card titles and stats." },
-      "body": { "displayName": "Body", "purpose": "Descriptions and answers." },
-      "label": { "displayName": "Label", "purpose": "Uppercase settings section labels." },
-      "numeral": { "displayName": "Numeral", "purpose": "Timer, option key numbers and changing numbers." }
+      "display": {
+        "displayName": "Display",
+        "purpose": "Home page headline only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles, final score, capital names as questions or previews."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card titles and stats."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions and answers."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase settings section labels."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "Timer, option key numbers and changing numbers."
+      }
     },
     "shadows": [
-      { "name": "sheet-rest", "value": "0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06)", "purpose": "Cards, options, inputs and secondary buttons at rest." },
-      { "name": "sheet-lifted", "value": "0 2px 4px rgb(0 0 0 / 0.06), 0 12px 32px -8px rgb(0 0 0 / 0.14)", "purpose": "Hover state of clickable sheets, with a 2px rise." },
-      { "name": "flag", "value": "0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px -6px rgb(0 0 0 / 0.18)", "purpose": "Every flag, with a 1px hairline ring." }
+      {
+        "name": "sheet-rest",
+        "value": "0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06)",
+        "purpose": "Cards, options, inputs and secondary buttons at rest."
+      },
+      {
+        "name": "sheet-lifted",
+        "value": "0 2px 4px rgb(0 0 0 / 0.06), 0 12px 32px -8px rgb(0 0 0 / 0.14)",
+        "purpose": "Hover state of clickable sheets, with a 2px rise."
+      },
+      {
+        "name": "flag",
+        "value": "0 1px 2px rgb(0 0 0 / 0.08), 0 8px 24px -6px rgb(0 0 0 / 0.18)",
+        "purpose": "Every flag, with a 1px hairline ring."
+      }
     ],
     "motion": [
-      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Lifts, the globe turn and other hover movement." },
-      { "name": "duration-lift", "value": "500ms", "purpose": "Flag and sheet lift on hover." },
-      { "name": "duration-globe", "value": "1000ms", "purpose": "Graticule globe turn on hover." },
-      { "name": "duration-state", "value": "150ms", "purpose": "Colour and border changes." }
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Lifts, the globe turn and other hover movement."
+      },
+      {
+        "name": "duration-lift",
+        "value": "500ms",
+        "purpose": "Flag and sheet lift on hover."
+      },
+      {
+        "name": "duration-globe",
+        "value": "1000ms",
+        "purpose": "Graticule globe turn on hover."
+      },
+      {
+        "name": "duration-state",
+        "value": "150ms",
+        "purpose": "Colour and border changes."
+      },
+      {
+        "name": "meter-full",
+        "value": "0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The score meter pops once sideways when it fills."
+      }
     ],
     "breakpoints": [
-      { "name": "desktop-min", "value": "1024px" },
-      { "name": "desktop-wide", "value": "1440px" }
+      {
+        "name": "desktop-min",
+        "value": "1024px"
+      },
+      {
+        "name": "desktop-wide",
+        "value": "1440px"
+      }
     ]
   },
   "components": [
@@ -86,12 +211,20 @@
       "css": ".ds-mode-card { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; width: 360px; height: 220px; padding: 40px; background: var(--surface, #fff); color: var(--foreground, #18181b); border: 1px solid var(--line, #e4e4e7); border-radius: 16px; text-decoration: none; font-family: Geist, system-ui, sans-serif; transition: border-color 150ms; } .ds-mode-card:hover { border-color: var(--foreground, #18181b); } .ds-mode-card:focus-visible { outline: 2px solid var(--foreground, #18181b); outline-offset: 4px; } .ds-mode-globe { position: absolute; top: -96px; right: -128px; z-index: -1; width: 352px; height: 352px; color: var(--line, #e4e4e7); transform: rotate(-23.4deg); transition: transform 1000ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-mode-card:hover .ds-mode-globe { transform: rotate(-8deg); } .ds-mode-title { font-size: 30px; font-weight: 600; letter-spacing: -0.025em; } .ds-mode-desc { margin-top: 6px; color: var(--muted, #71717a); }"
     },
     {
+      "name": "Question Slider",
+      "kind": "input",
+      "refersTo": "slider",
+      "description": "Question count: ink track filling to the thumb, the value riding above it, quick picks below.",
+      "html": "<div class=\"ds-slider\"><span class=\"ds-slider-value\" style=\"left:calc(0.35 * (100% - 28px) + 14px)\">25</span><input type=\"range\" min=\"10\" max=\"54\" value=\"25\" class=\"ds-range\" style=\"--fill:35%\"/></div>",
+      "css": ".ds-slider { position: relative; width: 320px; padding-top: 44px; font-family: Geist, system-ui, sans-serif; } .ds-slider-value { position: absolute; top: 0; transform: translateX(-50%); padding: 4px 10px; border: 1px solid var(--line, #e4e4e7); border-radius: 8px; background: var(--surface, #fff); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06); } .ds-range { appearance: none; width: 100%; height: 8px; border-radius: 9999px; background: linear-gradient(to right, var(--foreground, #18181b) var(--fill), var(--line, #e4e4e7) var(--fill)); cursor: pointer; } .ds-range::-webkit-slider-thumb { appearance: none; width: 28px; height: 28px; border-radius: 9999px; background: var(--foreground, #18181b); border: 5px solid var(--surface, #fff); box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06), 0 0 0 1px var(--line, #e4e4e7); }"
+    },
+    {
       "name": "Score Meter",
       "kind": "custom",
       "refersTo": "score-meter",
-      "description": "Vertical meter beside the question: graphite under 50%, ink from 50%, green when full.",
-      "html": "<div class=\"ds-meter\"><div class=\"ds-meter-fill\"></div></div>",
-      "css": ".ds-meter { position: relative; width: 12px; height: 288px; overflow: hidden; border-radius: 9999px; background: var(--line, #e4e4e7); } .ds-meter-fill { position: absolute; inset: auto 0 0 0; height: 65%; border-radius: 9999px; background: var(--foreground, #18181b); }"
+      "description": "Vertical meter beside the question with points zones marked: graphite under 50%, ink from 50%, green when full.",
+      "html": "<div class=\"ds-meter-wrap\"><div class=\"ds-meter\"><div class=\"ds-meter-fill\"></div></div><div class=\"ds-meter-zones\"><span style=\"bottom:100%\">+25</span><span class=\"ds-on\" style=\"bottom:75%\">+15</span><span style=\"bottom:25%\">+10</span><span style=\"bottom:0%\">+5</span></div></div>",
+      "css": ".ds-meter-wrap { position: relative; display: inline-block; font-family: Geist, system-ui, sans-serif; } .ds-meter { position: relative; width: 16px; height: 320px; overflow: hidden; border-radius: 9999px; background: var(--line, #e4e4e7); } .ds-meter-fill { position: absolute; inset: auto 0 0 0; height: 65%; border-radius: 9999px; background: var(--foreground, #18181b); } .ds-meter-zones { position: absolute; top: 0; bottom: 0; left: 100%; margin-left: 10px; } .ds-meter-zones span { position: absolute; transform: translateY(50%); font-size: 12px; color: var(--muted, #71717a); font-variant-numeric: tabular-nums; } .ds-meter-zones .ds-on { color: var(--foreground, #18181b); font-weight: 600; }"
     }
   ],
   "narrative": {
@@ -105,10 +238,26 @@
       "Calm motion: slow ease-out, transform only, off with reduced motion."
     ],
     "rules": [
-      { "name": "The Flags Bring the Colour Rule", "body": "No brand or accent colour exists. If an element needs to stand out, use ink, size or weight, never a new hue.", "section": "colors" },
-      { "name": "The Green Means Right Rule", "body": "Green and red mean only right and wrong (and red also means \"this ends the game\"). Never use them for decoration, links or emphasis.", "section": "colors" },
-      { "name": "The Tabular Numbers Rule", "body": "Any number that changes while you watch it (timer, score, counts) uses tabular numerals so it doesn't jiggle.", "section": "typography" },
-      { "name": "The Soft Lift Rule", "body": "Shadows always have a downward offset and a soft blur. Never use a hard offset shadow or a coloured glow.", "section": "elevation" }
+      {
+        "name": "The Flags Bring the Colour Rule",
+        "body": "No brand or accent colour exists. If an element needs to stand out, use ink, size or weight, never a new hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Green Means Right Rule",
+        "body": "Green and red mean only right and wrong (and red also means \"this ends the game\"). Never use them for decoration, links or emphasis.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "body": "Any number that changes while you watch it (timer, score, counts) uses tabular numerals so it doesn't jiggle.",
+        "section": "typography"
+      },
+      {
+        "name": "The Soft Lift Rule",
+        "body": "Shadows always have a downward offset and a soft blur. Never use a hard offset shadow or a coloured glow.",
+        "section": "elevation"
+      }
     ],
     "dos": [
       "Do let flags and place names be the only colour on the page.",
