@@ -12,11 +12,11 @@ type Pair = { flag: Country; capital: Country };
 
 export default function Home() {
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-8 pb-24">
-      <h1 className="max-w-4xl text-7xl leading-[1.02] font-semibold tracking-[-0.035em] text-balance">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-4 pt-6 pb-[max(3rem,env(safe-area-inset-bottom))] sm:px-8 lg:pt-0 lg:pb-24">
+      <h1 className="max-w-4xl text-5xl leading-[1.02] font-semibold tracking-[-0.035em] text-balance sm:text-6xl lg:text-7xl">
         How well do you know the world?
       </h1>
-      <p className="mt-5 text-lg text-muted">
+      <p className="mt-4 text-lg text-muted lg:mt-5">
         {COUNTRIES.length} countries. Pick a quiz.
       </p>
       <Suspense fallback={<ModeCards />}>
@@ -64,10 +64,10 @@ function ModeCards({ pair }: { pair?: Pair }) {
           width={192}
           height={144}
           unoptimized
-          className="rounded-md shadow-flag ring-1 ring-line transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:-translate-y-1"
+          className="h-24 w-32 rounded-md shadow-flag ring-1 ring-line transition-transform lg:h-36 lg:w-48 duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:-translate-y-1"
         />
       ) : (
-        <div className="h-36 w-48 rounded-md bg-line" />
+        <div className="h-24 w-32 rounded-md bg-line lg:h-36 lg:w-48" />
       ),
     },
     {
@@ -75,8 +75,8 @@ function ModeCards({ pair }: { pair?: Pair }) {
       title: "Capitals",
       description: "See a country, name its capital.",
       preview: (
-        <span className="flex items-start gap-4 text-4xl leading-[1.1] font-semibold tracking-tight text-balance">
-          <CapitolIcon className="mt-0.5 size-9 shrink-0 text-muted" />
+        <span className="flex items-start gap-3 text-3xl leading-[1.1] font-semibold tracking-tight text-balance lg:gap-4 lg:text-4xl">
+          <CapitolIcon className="mt-0.5 size-7 shrink-0 text-muted lg:size-9" />
           {pair ? (
             // Let long multi-capital names wrap after a slash.
             pair.capital.capitals.map((city, i) => (
@@ -95,18 +95,18 @@ function ModeCards({ pair }: { pair?: Pair }) {
   ];
 
   return (
-    <div className="mt-14 grid grid-cols-2 gap-6">
+    <div className="mt-10 grid gap-4 md:grid-cols-2 lg:mt-14 lg:gap-6">
       {modes.map((mode) => (
         <Link
           key={mode.href}
           href={mode.href}
-          className="group relative isolate flex flex-col overflow-hidden rounded-2xl border border-line bg-surface p-10 transition-colors hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
+          className="group relative isolate flex flex-col overflow-hidden rounded-2xl border border-line bg-surface p-6 transition-colors active:border-foreground lg:p-10 hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
         >
           <Globe className="pointer-events-none absolute -top-24 -right-32 -z-10 size-[22rem] rotate-[-23.4deg] text-line transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:rotate-[-8deg]" />
-          <div className="flex h-36 items-center">{mode.preview}</div>
-          <div className="mt-12 flex items-end justify-between gap-6">
+          <div className="flex h-24 items-center lg:h-36">{mode.preview}</div>
+          <div className="mt-8 flex items-end justify-between gap-6 lg:mt-12">
             <div>
-              <h2 className="text-3xl font-semibold tracking-tight">{mode.title}</h2>
+              <h2 className="text-2xl font-semibold tracking-tight lg:text-3xl">{mode.title}</h2>
               <p className="mt-1.5 text-muted">{mode.description}</p>
             </div>
             <ArrowRightIcon className="size-6 shrink-0 text-muted transition duration-300 ease-out group-hover:text-foreground motion-safe:group-hover:translate-x-1" />

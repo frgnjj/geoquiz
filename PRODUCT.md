@@ -29,13 +29,13 @@ Two things, equally:
 
 ## Operating Context
 
-- Played on desktop, in short sessions, at the player's own pace.
+- Played on desktop or phone, in short sessions, at the player's own pace.
 - Each game is set up first: region (World or 1 to 5 continents), number of questions, multiple choice or type-in, time limit, and retry.
 - The full game rules live in the "Game spec" section of `CLAUDE.md`.
 
 ## Capabilities and Constraints
 
-- Desktop only and English only for now. Phone support comes later.
+- Desktop and phones, English only for now.
 - No backend in version 1. Scores aren't saved and there's no leaderboard yet; Supabase adds both later.
 - Light and dark mode, following the system theme until the player picks one.
 - Country content comes only from `data/countries.ts`.

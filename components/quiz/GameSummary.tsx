@@ -25,6 +25,21 @@ export default function GameSummary({ settings, questions }: { settings: Setting
   );
 }
 
+/** The same choices on one line, for the phone's bottom bar. */
+export function summaryLine(settings: Settings, questions: number): string {
+  const time = timeOption(settings.timeId);
+  return [
+    settings.hardcore && "Hardcore",
+    regionLabel(settings.continents),
+    `${questions} countries`,
+    settings.answerMode === "choice" ? "Multiple choice" : "Type it in",
+    TRIES[triesFor(settings)],
+    time.bonus > 0 ? `${time.label} +${time.bonus}s` : time.label,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-6 py-3">

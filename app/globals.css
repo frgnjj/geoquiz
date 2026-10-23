@@ -44,6 +44,13 @@ body {
   color: var(--foreground);
 }
 
+/* Phones: no tap flash, no font inflation, and no pull-to-refresh wiping a game. */
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
 /* Browser-drawn details in the site's own ink and paper. */
 :root {
   color-scheme: light;
@@ -63,10 +70,25 @@ input {
   caret-color: var(--foreground);
 }
 
+/* In the base layer so Tailwind utilities can still override them. */
 @layer base {
   :focus-visible {
     outline: 2px solid var(--foreground);
     outline-offset: 2px;
+  }
+
+  /* Controls fire immediately and don't select their label on long-press. */
+  button,
+  a,
+  [role="button"] {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Under 16px, iOS zooms in when an input is focused. */
+  input {
+    font-size: 16px;
   }
 }
 
@@ -120,6 +142,15 @@ input {
 
 .animate-meter-full {
   animation: meter-full 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes meter-full-x {
+  0%, 100% { transform: scaleY(1); }
+  40% { transform: scaleY(1.6); }
+}
+
+.animate-meter-full-x {
+  animation: meter-full-x 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes shake {
