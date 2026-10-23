@@ -184,7 +184,7 @@ Surfaces are **soft and lifted**: sheets sit slightly above the paper with a gen
 
 The three shadows are Tailwind utilities defined in `app/globals.css`: `shadow-sheet`, `shadow-lifted` and `shadow-flag`.
 
-**Status:** this is the agreed direction. Flags, the settings cards and the end screen carry it so far; the game screen is still flat. Apply the sheet shadows as each page is redesigned.
+Every page now follows this: flags, settings cards, end screen cards, answer options and the type-in field.
 
 ## Shapes
 
@@ -228,6 +228,13 @@ The three shadows are Tailwind utilities defined in `app/globals.css`: `shadow-s
 - The same two columns as settings. Left: "X right out of Y" in headline type, the score in a resting sheet, Play again (primary), Change settings (secondary) and Home (ghost), then the settings summary. The left column scrolls with the page so the buttons never hide.
 - Right: a "Your run" sheet and a "Missed" sheet listing each missed country with a 48 by 36px flag, its name and (in Capitals) its capital.
 
+### Game Screen
+- Top bar: Quit and Pause as quiet ghost buttons with drawn icons on the left, "Question N of M" in the middle, and the score and timer (24px, the timer in mono) on the right. The timer turns wrong-red in the last 10 seconds.
+- A 1px hairline under the bar fills with ink as questions are answered.
+- The question sits centred, with the score meter beside it and an equal empty space on the other side to keep it centred.
+- Paused: the question is replaced by a resting sheet with "Paused", the pauses left and Resume.
+- Quit's Confirm appears below Quit as a lifted sheet with wrong-red text.
+
 ### Run Dots
 - One 10px dot per country in the game, in the order asked: correct-green for right, wrong-red for missed, hairline for not reached. It shows streaks at a glance.
 
@@ -236,7 +243,7 @@ The three shadows are Tailwind utilities defined in `app/globals.css`: `shadow-s
 - The thumb is a 22px ink circle with a 4px sheet border and the resting sheet shadow. Keyboard focus shows a 2px ink outline.
 
 ### Score Meter (signature)
-- A 12px wide, 288px tall fully round track in hairline beside the question.
+- A 12px wide, 288px tall fully round track in hairline beside the question, with the points the next first-try answer is worth above it ("+15", labelled "next").
 - The fill is graphite under 50%, ink from 50% and correct-green when full.
 
 ## Do's and Don'ts

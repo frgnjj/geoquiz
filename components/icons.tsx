@@ -52,6 +52,14 @@ export function PlayIcon(props: IconProps) {
   );
 }
 
+export function ArrowLeftIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M19.5 12h-15M10.5 6l-6 6 6 6" />
+    </Icon>
+  );
+}
+
 export function ArrowRightIcon(props: IconProps) {
   return (
     <Icon {...props}>
