@@ -141,7 +141,7 @@ export default function SignIn() {
           disabled={busy}
           className="mt-3 w-full rounded-xl bg-foreground py-3.5 font-medium text-background transition-opacity hover:opacity-90 active:scale-[0.99] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
         >
-          Email me a link
+          Send link
         </button>
       </form>
 
