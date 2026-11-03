@@ -8,11 +8,13 @@ A geography quiz website with Flags and Capitals modes. Built with Next.js (App 
 - `app/`: pages (home, settings, game, end screen).
 - `components/`: reusable UI pieces (timer, answer buttons, ...).
 - `data/countries.ts`: the 197 countries, with their continent, capitals and accepted alternative names. This is the single source of truth for quiz content.
+- `lib/supabase/`, `lib/account.ts`, `components/account/`: Supabase clients, the signed-in player, and the sign-in pieces.
+- `supabase/migrations/`: database SQL, numbered. The owner runs each new file once in the Supabase SQL Editor; there's no CLI link.
 - `public/flags/`: one SVG flag per country, named by lowercase ISO code (for example `fr.svg`). From flag-icons (MIT).
 
 ## Working rules
 - Run `npm run lint` and `npm run build` before pushing.
-- No backend in version 1. Scores and leaderboards come later with Supabase.
+- Supabase (project `qmhmuyiabeffyzmnnahb`) handles accounts, and later scores. Only the URL and publishable key are used (`.env.local` and Vercel); never the secret key. Access rules live in the database (row level security), so the browser talks to Supabase directly.
 - Desktop and phones, English only for now. Screens 1024px and wider use the desktop layout; narrower ones use the phone layout.
 - Pull before making changes, because the owner may also edit the code locally.
 
@@ -23,7 +25,7 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 ### Stack
 - Next.js (TypeScript), developed and tested on localhost.
 - Hosting on Vercel at launch. Domain bought at launch.
-- No backend in version 1. Supabase gets added later when scores and leaderboards come in.
+- Supabase for accounts (added 2026-11-03), and for scores and leaderboards as they come in.
 
 ### Countries
 - 197 countries: the 193 UN members plus Taiwan, Kosovo, Vatican City (Holy See) and Palestine.
@@ -81,6 +83,14 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - The meter marks its points zones (+5, +10, +15, +25) beside the track.
 - The end screen lists the missed countries.
 
+### Accounts (agreed 2026-10-27, built 2026-11-03)
+- Anyone can play without an account. Signing in is only needed to save scores.
+- Sign in with Google or an emailed link (Supabase Auth). A link only works in the browser it was asked from.
+- At first sign-in the player picks a unique username: 3 to 20 letters, numbers or underscores, not case-sensitive, with a small blocklist. Emails are never shown to others.
+- Header: "Sign in" for guests; for players, a round initial that opens a menu with the username, email and Sign out. Hidden during a game.
+- A Privacy link sits in the footer of every page except the quiz pages, and on the sign-in page.
+- Still to come: ranked scores with server checks, a leaderboard page (28 boards), and a public profile page with rename and delete account.
+
 ### Look and feel
 - Desktop and phones (phone support added 2026-10-24), English only for now.
 - On phones: the settings show one column with Start in a bar fixed to the bottom, the meter runs sideways under the game's top bar, and keyboard-only hints (keys 1 to 4, "Press Enter") are hidden on touch screens.
@@ -90,5 +100,5 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - Home page cards show a random flag and a random capital (with a government building icon) on every load. They always come from two different countries and never repeat the previous load's countries.
 
 ### Later
-- Scores and leaderboards with Supabase.
+- Ranked scores, leaderboards and profiles (see Accounts).
 - A Maps mode.
