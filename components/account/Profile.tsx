@@ -263,7 +263,13 @@ function DeleteAccount() {
         </div>
       ) : (
         <div className="mt-4">
-          <SmallButton onClick={() => setConfirming(true)}>Delete account</SmallButton>
+          <button
+            type="button"
+            onClick={() => setConfirming(true)}
+            className="rounded-xl border border-wrong bg-surface px-4 py-2 text-sm font-medium text-wrong shadow-sheet transition-colors hover:bg-wrong hover:text-background"
+          >
+            Delete account
+          </button>
         </div>
       )}
       {failed && (
