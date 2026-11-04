@@ -1,48 +1,32 @@
 import { CONTINENTS, type Continent } from "@/data/countries";
 import type { Mode } from "@/lib/answers";
-import { countriesFor, HARDCORE_LOCKS, type AnswerMode, type Settings } from "@/lib/quiz";
+import type { Settings } from "@/lib/quiz";
 
 /**
- * Ranked games have fixed settings, so scores on one leaderboard are comparable.
- * Each mode and answer mode has seven boards: Hardcore, and each whole continent
- * in 5 min +5s with retry off. That's 2 × 2 × 7 = 28 boards.
+ * Ranked and Hardcore games are saved to leaderboards. Each mode and answer mode has
+ * eight boards: Hardcore, and Ranked World or one continent (5 min +5s, no retry).
+ * That's 2 × 2 × 8 = 32 boards.
  */
-export type Preset = { id: string; label: string; continent?: Continent };
+export type Preset = { id: string; label: string };
 
-export const RANKED_TIME_ID = "5";
+const HARDCORE: Preset = { id: "hardcore", label: "Hardcore" };
+const WORLD: Preset = { id: "world", label: "World" };
+
+const slug = (continent: Continent) => continent.toLowerCase().replace(" ", "-");
 
 export const PRESETS: Preset[] = [
-  { id: "hardcore", label: "Hardcore" },
-  ...CONTINENTS.map((continent) => ({
-    id: continent.toLowerCase().replace(" ", "-"),
-    label: continent,
-    continent,
-  })),
+  HARDCORE,
+  WORLD,
+  ...CONTINENTS.map((continent) => ({ id: slug(continent), label: continent })),
 ];
 
-/** The settings a preset sets. Answer mode stays the player's choice. */
-export function presetSettings(preset: Preset, answerMode: AnswerMode): Settings {
-  if (!preset.continent) return { ...HARDCORE_LOCKS, answerMode, hardcore: true };
-  return {
-    continents: [preset.continent],
-    answerMode,
-    timeId: RANKED_TIME_ID,
-    retry: false,
-    questionCount: countriesFor([preset.continent]).length,
-    hardcore: false,
-  };
-}
-
-/** The preset these settings match exactly, or null when the game isn't ranked. */
+/** The leaderboard a game goes on, or null for practice games. */
 export function rankedPreset(settings: Settings): Preset | null {
-  if (settings.hardcore) return PRESETS[0];
-  const [continent] = settings.continents;
-  if (settings.continents.length !== 1 || settings.timeId !== RANKED_TIME_ID) return null;
-  // Retry only matters in multiple choice; typed answers always get the same tries.
-  if (settings.answerMode === "choice" && settings.retry) return null;
-  const all = countriesFor([continent]).length;
-  if ((settings.questionCount ?? all) !== all) return null;
-  return PRESETS.find((p) => p.continent === continent) ?? null;
+  if (settings.hardcore) return HARDCORE;
+  if (!settings.ranked) return null;
+  if (settings.continents.length === 0) return WORLD;
+  if (settings.continents.length > 1) return null;
+  return PRESETS.find((p) => p.id === slug(settings.continents[0])) ?? null;
 }
 
 /** A board's id, such as "flags:choice:europe". It matches the boards table in Supabase. */

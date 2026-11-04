@@ -13,13 +13,13 @@ export default function RankedSave({ game }: { game: RankedGame | null }) {
   if (!game) {
     return (
       <p className="mt-4 text-sm text-muted">
-        Not ranked. Pick a Ranked preset in the settings to save your score.
+        Practice game, so the score isn&rsquo;t saved. Pick Ranked or Hardcore to save it.
       </p>
     );
   }
   return (
     <div className="mt-4 rounded-2xl border border-line bg-surface px-6 py-5 shadow-sheet">
-      <p className="text-sm text-muted">Ranked · {boardLabel(game.board)}</p>
+      <p className="text-sm text-muted">{boardLabel(game.board)}</p>
       {game.score === 0 ? (
         <p className="mt-2 font-medium">A score of 0 isn&rsquo;t saved.</p>
       ) : (

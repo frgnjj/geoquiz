@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { regionLabel, timeOption, triesFor, type Settings } from "@/lib/quiz";
-import { rankedPreset } from "@/lib/ranked";
+import { PLAY_MODE_LABELS, playMode, regionLabel, timeOption, triesFor, type Settings } from "@/lib/quiz";
 
 const TRIES = ["", "one try", "two tries", "three tries"];
 
@@ -10,8 +9,7 @@ export default function GameSummary({ settings, questions }: { settings: Setting
   const tries = triesFor(settings);
   return (
     <dl className="divide-y divide-line border-y border-line text-sm">
-      <Row label="Ranked">{rankedPreset(settings)?.label ?? "No"}</Row>
-      {settings.hardcore && <Row label="Mode">Hardcore</Row>}
+      <Row label="Mode">{PLAY_MODE_LABELS[playMode(settings)]}</Row>
       <Row label="Region">{regionLabel(settings.continents)}</Row>
       <Row label="Questions">
         <span className="tabular-nums">{questions}</span> countries
@@ -31,8 +29,7 @@ export default function GameSummary({ settings, questions }: { settings: Setting
 export function summaryLine(settings: Settings, questions: number): string {
   const time = timeOption(settings.timeId);
   return [
-    rankedPreset(settings) && "Ranked",
-    settings.hardcore && "Hardcore",
+    playMode(settings) !== "practice" && PLAY_MODE_LABELS[playMode(settings)],
     regionLabel(settings.continents),
     `${questions} countries`,
     settings.answerMode === "choice" ? "Multiple choice" : "Type it in",
