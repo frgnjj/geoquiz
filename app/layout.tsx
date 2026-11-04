@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import HeaderTitle from "@/components/HeaderTitle";
@@ -56,13 +57,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-4 sm:px-8 lg:py-6">
           <HeaderTitle />
           <div className="flex items-center gap-1 sm:gap-2">
-            <LeaderboardLink />
+            {/* These read the address, which on some pages (like /u/name) is only known per request. */}
+            <Suspense fallback={<span className="size-9" />}>
+              <LeaderboardLink />
+            </Suspense>
             <ThemeToggle />
-            <AccountMenu />
+            <Suspense fallback={<span className="size-9" />}>
+              <AccountMenu />
+            </Suspense>
           </div>
         </header>
         {children}
-        <Footer />
+        <Suspense>
+          <Footer />
+        </Suspense>
         <WaitingScore />
       </body>
     </html>

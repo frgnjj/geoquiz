@@ -50,6 +50,7 @@ export function takeWaiting(): RankedGame | null {
 
 /** One row of a leaderboard. */
 export type Entry = {
+  board?: string;
   user_id: string;
   username: string;
   score: number;
@@ -84,4 +85,28 @@ export async function loadBoard(board: string, userId?: string) {
     entries: (topResult.data ?? []) as Entry[],
     mine: (mineResult?.data ?? null) as Entry | null,
   };
+}
+
+export type Profile = { id: string; username: string; created_at: string };
+
+/** A player by username, ignoring case, or null when there's no such player. */
+export async function loadProfile(username: string): Promise<Profile | null> {
+  // Underscores are wildcards in ilike, so they're escaped, and the match is checked again here.
+  const { data, error } = await createClient()
+    .from("profiles")
+    .select("id, username, created_at")
+    .ilike("username", username.replace(/[\\%_]/g, (c) => `\\${c}`))
+    .limit(5);
+  if (error) throw error;
+  return (data ?? []).find((p) => p.username.toLowerCase() === username.toLowerCase()) ?? null;
+}
+
+/** A player's best on every board they've played, with their rank. */
+export async function loadBests(userId: string): Promise<Entry[]> {
+  const { data, error } = await createClient()
+    .from("leaderboard")
+    .select("board, user_id, username, score, correct, asked, achieved_at, rank")
+    .eq("user_id", userId);
+  if (error) throw error;
+  return (data ?? []) as (Entry & { board: string })[];
 }
