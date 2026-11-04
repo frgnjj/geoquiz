@@ -8,6 +8,8 @@ import {
   countriesFor,
   makeChoices,
   MAX_PAUSES,
+  PLAY_MODE_LABELS,
+  playMode,
   shuffle,
   timeOption,
   triesFor,
@@ -252,9 +254,9 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
           </button>
         </span>
         <span className="hidden text-sm text-muted tabular-nums lg:inline">
-          {settings.hardcore && (
+          {playMode(settings) !== "practice" && (
             <>
-              <span className="font-medium text-foreground">Hardcore</span>
+              <span className="font-medium text-foreground">{PLAY_MODE_LABELS[playMode(settings)]}</span>
               <span className="mx-3 opacity-40">·</span>
             </>
           )}
@@ -301,7 +303,9 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
 
       {/* Phones: the question count moves under the bar, and the meter turns sideways. */}
       <p className="mt-2 text-center text-xs text-muted tabular-nums lg:hidden">
-        {settings.hardcore && <span className="font-medium text-foreground">Hardcore · </span>}
+        {playMode(settings) !== "practice" && (
+          <span className="font-medium text-foreground">{PLAY_MODE_LABELS[playMode(settings)]} · </span>
+        )}
         Question <span className="font-medium text-foreground">{index + 1}</span> of {queue.length}
         {" · "}
         {correctCount} correct

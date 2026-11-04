@@ -29,8 +29,22 @@ export type Settings = {
   retry: boolean;
   /** How many countries to ask. Null means every country in the region. */
   questionCount: number | null;
-  /** Every country in the world, 1 min +5s, one try, and a slower meter. */
+  /** Ranked: World or one continent, every country, 5 min +5s, no retry. Saved to a leaderboard. */
+  ranked: boolean;
+  /** Every country in the world, 1 min +5s, one try, and a slower meter. Also saved. */
   hardcore: boolean;
+};
+
+export type PlayMode = "practice" | "ranked" | "hardcore";
+
+export function playMode(settings: Settings): PlayMode {
+  return settings.hardcore ? "hardcore" : settings.ranked ? "ranked" : "practice";
+}
+
+export const PLAY_MODE_LABELS: Record<PlayMode, string> = {
+  practice: "Practice",
+  ranked: "Ranked",
+  hardcore: "Hardcore",
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -39,8 +53,16 @@ export const DEFAULT_SETTINGS: Settings = {
   timeId: "3",
   retry: false,
   questionCount: null,
+  ranked: false,
   hardcore: false,
 };
+
+/** What Ranked locks besides the region: every country, 5 min +5s and no retry. */
+export const RANKED_LOCKS = {
+  timeId: "5",
+  retry: false,
+  questionCount: null,
+} satisfies Partial<Settings>;
 
 /** What Hardcore locks: World, every country, 1 min +5s and no retry. Answer mode stays free. */
 export const HARDCORE_LOCKS = {

@@ -9,13 +9,16 @@ import {
   countriesFor,
   HARDCORE_LOCKS,
   MIN_QUESTIONS,
+  PLAY_MODE_LABELS,
+  playMode as playModeOf,
+  RANKED_LOCKS,
   TIME_OPTIONS,
   TYPE_IN_TRIES,
   type AnswerMode,
+  type PlayMode,
   type Settings,
 } from "@/lib/quiz";
 
-import { PRESETS, presetSettings, rankedPreset, type Preset } from "@/lib/ranked";
 import { ArrowLeftIcon } from "@/components/icons";
 import GameSummary, { summaryLine } from "./GameSummary";
 
@@ -26,42 +29,46 @@ type Props = {
 };
 
 const QUICK_PICKS = [10, 25, 50];
-const LOCKED_HINT = "Set by Hardcore.";
+
+const PLAY_MODES: PlayMode[] = ["practice", "ranked", "hardcore"];
+
+const PLAY_MODE_NOTES: Record<PlayMode, string> = {
+  practice: "Any settings you like. Scores aren't saved.",
+  ranked: "World or one continent, every country, 5 min +5s per right answer, no retry. Your best score goes on the leaderboard.",
+  hardcore: `Name all ${COUNTRIES.length} countries in 1 min, +5s per right answer. One try per question, and the meter rises and drains 10% slower. Your best goes on the Hardcore leaderboard.`,
+};
 
 export default function SettingsScreen({ mode, initial, onStart }: Props) {
-  const [hardcore, setHardcore] = useState(initial.hardcore);
-  const [continents, setContinents] = useState<Continent[]>(initial.continents);
+  const [playMode, setPlayMode] = useState<PlayMode>(playModeOf(initial));
+  const [continents, setContinents] = useState<Continent[]>(initial.ranked ? [] : initial.continents);
+  // Ranked keeps its own region (World or one continent), so practice choices survive switching.
+  const [rankedRegion, setRankedRegion] = useState<Continent[]>(initial.ranked ? initial.continents : []);
   const [answerMode, setAnswerMode] = useState<AnswerMode>(initial.answerMode);
   const [timeId, setTimeId] = useState(initial.timeId);
   const [retry, setRetry] = useState(initial.retry);
   const [questionCount, setQuestionCount] = useState(
-    initial.questionCount ?? countriesFor(initial.continents).length,
+    initial.questionCount ?? countriesFor(initial.ranked ? [] : initial.continents).length,
   );
+
+  const hardcore = playMode === "hardcore";
+  const ranked = playMode === "ranked";
+  const locked = playMode !== "practice";
+  const lockedHint = `Set by ${PLAY_MODE_LABELS[playMode]}.`;
 
   const times = availableTimes(continents);
   // The 1 minute option disappears when the region changes; fall back to 3 minutes.
   const activeTimeId = times.some((t) => t.id === timeId) ? timeId : "3";
   const countryCount = countriesFor(continents).length;
 
-  // Hardcore locks region, questions, time and retry; the normal choices are kept for when it's off.
+  // Ranked and Hardcore lock most settings; the practice choices are kept for switching back.
   const chosen: Settings = hardcore
-    ? { ...HARDCORE_LOCKS, answerMode, hardcore }
-    : { continents, answerMode, timeId: activeTimeId, retry, questionCount, hardcore };
+    ? { ...HARDCORE_LOCKS, answerMode, ranked: false, hardcore: true }
+    : ranked
+      ? { ...RANKED_LOCKS, continents: rankedRegion, answerMode, ranked: true, hardcore: false }
+      : { continents, answerMode, timeId: activeTimeId, retry, questionCount, ranked: false, hardcore: false };
   const shownContinents = chosen.continents;
-  const shownCount = hardcore ? COUNTRIES.length : questionCount;
-  const shownMax = hardcore ? COUNTRIES.length : countryCount;
-  const ranked = rankedPreset(chosen);
-
-  // A ranked preset sets everything except the answer mode in one tap.
-  function applyPreset(preset: Preset) {
-    const next = presetSettings(preset, answerMode);
-    setHardcore(next.hardcore);
-    if (next.hardcore) return;
-    setContinents(next.continents);
-    setQuestionCount(next.questionCount ?? countriesFor(next.continents).length);
-    setTimeId(next.timeId);
-    setRetry(next.retry);
-  }
+  const shownMax = countriesFor(shownContinents).length;
+  const shownCount = locked ? shownMax : questionCount;
 
   // Changing the region resets the slider to the new maximum.
   function changeRegion(next: Continent[]) {
@@ -77,9 +84,11 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
     );
   }
 
+  const startLabel = locked ? `Start ${PLAY_MODE_LABELS[playMode]}` : "Start";
+
   return (
-    // Phones: one column (title, settings, Hardcore) with Start in a bar fixed to the bottom.
-    // Desktop: the title, summary, Start and Hardcore in a left column beside the settings.
+    // Phones: one column (title, settings, Mode) with Start in a bar fixed to the bottom.
+    // Desktop: the title, summary, Start and Mode in a left column beside the settings.
     <div className="flex flex-col gap-6 pt-2 pb-36 lg:grid lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-14 lg:pt-8 lg:pb-0">
       {/* On desktop the column stays in view while the settings scroll, when the window is tall enough. */}
       <aside className="contents lg:sticky lg:top-8 lg:block lg:[@media(max-height:820px)]:static">
@@ -111,72 +120,51 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           onClick={() => onStart(chosen)}
           className="mt-8 hidden w-full lg:block rounded-xl bg-foreground py-4 text-lg font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
         >
-          {hardcore ? "Start Hardcore" : "Start"}
+          {startLabel}
         </button>
 
         <section className="order-3 rounded-2xl border border-line bg-surface p-6 shadow-sheet lg:mt-6">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Hardcore</h2>
-            <div className="flex gap-2">
-              <Chip selected={!hardcore} onClick={() => setHardcore(false)}>
-                Off
+          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Mode</h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {PLAY_MODES.map((m) => (
+              <Chip key={m} selected={playMode === m} onClick={() => setPlayMode(m)}>
+                {PLAY_MODE_LABELS[m]}
               </Chip>
-              <Chip selected={hardcore} onClick={() => setHardcore(true)}>
-                On
-              </Chip>
-            </div>
+            ))}
           </div>
-          <p className="mt-3 text-sm text-muted">
-            Name all {COUNTRIES.length} countries in 1 min, +5s per right answer. One try per
-            question, and the meter rises and drains 10% slower.
-          </p>
+          <p className="mt-3 text-sm text-muted">{PLAY_MODE_NOTES[playMode]}</p>
         </section>
       </aside>
 
       <div className="order-2 flex flex-col gap-6">
         <Card>
           <Setting
-            title="Ranked"
-            hint={
-              ranked
-                ? `${ranked.label} is a ranked game, so your score can be saved.`
-                : "Pick one to set up a ranked game, whose score can be saved. Answer mode stays your choice."
-            }
-          >
-            {PRESETS.map((preset) => (
-              <Chip
-                key={preset.id}
-                selected={ranked?.id === preset.id}
-                onClick={() => applyPreset(preset)}
-              >
-                {preset.label}
-              </Chip>
-            ))}
-          </Setting>
-        </Card>
-
-        <Card>
-          <Setting
             title="Region"
-            hint={hardcore ? LOCKED_HINT : "Pick World, or up to five continents."}
+            hint={
+              hardcore
+                ? lockedHint
+                : ranked
+                  ? "Ranked: pick World or one continent."
+                  : "Pick World, or up to five continents."
+            }
           >
             <Chip
               selected={shownContinents.length === 0}
               disabled={hardcore}
-              onClick={() => changeRegion([])}
+              onClick={() => (ranked ? setRankedRegion([]) : changeRegion([]))}
             >
               World
             </Chip>
             {CONTINENTS.map((continent) => {
               const selected = shownContinents.includes(continent);
-              const blocked = !selected && continents.length === CONTINENTS.length - 1;
+              const blocked = !ranked && !selected && continents.length === CONTINENTS.length - 1;
               return (
                 <Chip
                   key={continent}
                   selected={selected}
                   disabled={hardcore || blocked}
                   title={blocked ? "All six continents is the same as World" : undefined}
-                  onClick={() => toggleContinent(continent)}
+                  onClick={() => (ranked ? setRankedRegion([continent]) : toggleContinent(continent))}
                 >
                   {continent}
                 </Chip>
@@ -187,15 +175,15 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           <Setting
             title="Questions"
             hint={
-              hardcore
-                ? LOCKED_HINT
+              locked
+                ? lockedHint
                 : `How many countries to name, from ${MIN_QUESTIONS} to ${countryCount}.`
             }
           >
             <QuestionSlider
               value={shownCount}
               max={shownMax}
-              disabled={hardcore}
+              disabled={locked}
               onChange={setQuestionCount}
             />
           </Setting>
@@ -216,21 +204,23 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
             hint={
               hardcore
                 ? "Hardcore gives one try per question."
-                : answerMode === "choice"
-                  ? "Get a second try when you pick the wrong answer."
-                  : `Typed answers always get ${TYPE_IN_TRIES} tries.`
+                : answerMode === "type"
+                  ? `Typed answers always get ${TYPE_IN_TRIES} tries.`
+                  : ranked
+                    ? lockedHint
+                    : "Get a second try when you pick the wrong answer."
             }
           >
             <Chip
               selected={answerMode === "choice" && !chosen.retry}
-              disabled={hardcore || answerMode === "type"}
+              disabled={locked || answerMode === "type"}
               onClick={() => setRetry(false)}
             >
               Off
             </Chip>
             <Chip
               selected={answerMode === "choice" && chosen.retry}
-              disabled={hardcore || answerMode === "type"}
+              disabled={locked || answerMode === "type"}
               onClick={() => setRetry(true)}
             >
               On
@@ -242,16 +232,16 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           <Setting
             title="Time"
             hint={
-              hardcore
-                ? LOCKED_HINT
+              locked
+                ? lockedHint
                 : "Timed games marked +5s add five seconds for every correct answer."
             }
           >
-            {(hardcore ? TIME_OPTIONS.filter((t) => t.id === chosen.timeId) : times).map((t) => (
+            {(locked ? TIME_OPTIONS.filter((t) => t.id === chosen.timeId) : times).map((t) => (
               <Chip
                 key={t.id}
                 selected={chosen.timeId === t.id}
-                disabled={hardcore}
+                disabled={locked}
                 onClick={() => setTimeId(t.id)}
               >
                 {t.label}
@@ -269,7 +259,7 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           onClick={() => onStart(chosen)}
           className="mt-2 w-full rounded-xl bg-foreground py-3.5 text-lg font-medium text-background transition-opacity active:opacity-80"
         >
-          {hardcore ? "Start Hardcore" : "Start"}
+          {startLabel}
         </button>
       </div>
     </div>

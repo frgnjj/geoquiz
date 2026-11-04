@@ -46,7 +46,9 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
   - 20 min, countdown only
   - 1 min, +5 s per correct answer (only when exactly one continent is picked)
 - **Retry (multiple choice only):** on or off. When it's on, the player gets one retry.
-- **Hardcore:** on or off. When it's on, the player must name all 197 countries (World only) in 1 min, +5 s per correct answer, with one try per question in both multiple choice and type-in. The meter rises and drains 10% slower (+18% per correct answer, 4.5% per second). Region, Questions, Time and Retry are locked while it's on; Answer mode stays free. Skip, pauses and points are unchanged.
+- **Mode:** Practice, Ranked or Hardcore (a block under Start, added 2026-11-04). Practice leaves every setting free and is never saved. Ranked and Hardcore are saved to leaderboards (see Ranked games). Locked settings say "Set by Ranked." or "Set by Hardcore.", and Start reads Start Ranked or Start Hardcore.
+- **Ranked:** World or one continent, every country in it, 5 min +5 s per correct answer, retry off. Answer mode stays free.
+- **Hardcore:** the player must name all 197 countries (World only) in 1 min, +5 s per correct answer, with one try per question in both multiple choice and type-in. The meter rises and drains 10% slower (+18% per correct answer, 4.5% per second). Region, Questions, Time and Retry are locked while it's on; Answer mode stays free. Skip, pauses and points are unchanged.
 
 ### Gameplay
 - **Flags:** a flag is shown and the player names the country.
@@ -89,11 +91,11 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - At first sign-in the player picks a unique username: 3 to 20 letters, numbers or underscores, not case-sensitive, with a small blocklist. Emails are never shown to others.
 - Header: "Sign in" for guests; for players, a round initial that opens a menu with the username, email and Sign out. Hidden during a game.
 - A Privacy link sits in the footer of every page except the quiz pages, and on the sign-in page.
-- Still to come: a leaderboard page (28 boards), and a public profile page with rename and delete account.
+- Still to come: a leaderboard page (32 boards), and a public profile page with rename and delete account.
 
 ### Ranked games (built 2026-11-04)
-- 28 leaderboards: Flags or Capitals × multiple choice or type-in × 7 presets. Hardcore is one preset; the other six are each whole continent in 5 min +5s with retry off.
-- A game is ranked only when its settings match a preset exactly. The settings screen has a Ranked row that sets them in one tap; answer mode stays the player's choice. The summary shows Ranked: <preset> or No.
+- 32 leaderboards: Flags or Capitals × multiple choice or type-in × 8 boards: Hardcore, and Ranked World or one of the six continents.
+- Only Ranked and Hardcore games are saved, picked in the Mode block. A Practice game is never saved, even if its settings happen to match. The summary's Mode row shows Practice, Ranked or Hardcore.
 - End screen: signed-in players' ranked games save automatically, showing "New personal best" with their rank, or their standing best. Guests see "Sign in to save your score"; the game waits in the browser for up to an hour and saves when they return signed in. A score of 0 isn't saved.
 - Only each player's best per board is kept: higher score wins, then more right answers. Ties rank whoever got there first.
 - The database (`submit_score`) rejects impossible games: over 25 points per right answer, more time than the clock allowed, faster than the answer delays allow, or an unfinished game that didn't use up the clock.
