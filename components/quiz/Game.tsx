@@ -32,7 +32,8 @@ const REVEAL_PAUSE_MS = 1800;
 type Props = {
   mode: Mode;
   settings: Settings;
-  onFinish: (results: Result[], total: number, score: number) => void;
+  /** playedMs: time on the clock that was used up, not counting pauses. */
+  onFinish: (results: Result[], total: number, score: number, playedMs: number) => void;
   onQuit: () => void;
 };
 
@@ -81,7 +82,9 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   const finish = useEffectEvent(() => {
     if (finished.current) return;
     finished.current = true;
-    onFinish(results, queue.length, score);
+    // The clock started at the time limit and gained the bonus for each right answer.
+    const playedMs = (time.seconds + correctCount * time.bonus) * 1000 - remaining;
+    onFinish(results, queue.length, score, Math.round(playedMs));
   });
 
   const next = useEffectEvent(() => {

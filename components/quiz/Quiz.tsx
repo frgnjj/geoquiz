@@ -10,7 +10,7 @@ import Results from "./Results";
 type Phase =
   | { name: "settings" }
   | { name: "playing"; round: number }
-  | { name: "done"; results: Result[]; total: number; score: number };
+  | { name: "done"; results: Result[]; total: number; score: number; playedMs: number };
 
 export default function Quiz({ mode }: { mode: Mode }) {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -42,8 +42,8 @@ export default function Quiz({ mode }: { mode: Mode }) {
           key={phase.round}
           mode={mode}
           settings={settings}
-          onFinish={(results, total, score) =>
-            setPhase({ name: "done", results, total, score })
+          onFinish={(results, total, score, playedMs) =>
+            setPhase({ name: "done", results, total, score, playedMs })
           }
           onQuit={() => setPhase({ name: "settings" })}
         />
@@ -55,6 +55,7 @@ export default function Quiz({ mode }: { mode: Mode }) {
           results={phase.results}
           total={phase.total}
           score={phase.score}
+          playedMs={phase.playedMs}
           onPlayAgain={() => start(settings)}
           onChangeSettings={() => setPhase({ name: "settings" })}
         />

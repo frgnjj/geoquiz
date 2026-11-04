@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { regionLabel, timeOption, triesFor, type Settings } from "@/lib/quiz";
+import { rankedPreset } from "@/lib/ranked";
 
 const TRIES = ["", "one try", "two tries", "three tries"];
 
@@ -9,6 +10,7 @@ export default function GameSummary({ settings, questions }: { settings: Setting
   const tries = triesFor(settings);
   return (
     <dl className="divide-y divide-line border-y border-line text-sm">
+      <Row label="Ranked">{rankedPreset(settings)?.label ?? "No"}</Row>
       {settings.hardcore && <Row label="Mode">Hardcore</Row>}
       <Row label="Region">{regionLabel(settings.continents)}</Row>
       <Row label="Questions">
@@ -29,6 +31,7 @@ export default function GameSummary({ settings, questions }: { settings: Setting
 export function summaryLine(settings: Settings, questions: number): string {
   const time = timeOption(settings.timeId);
   return [
+    rankedPreset(settings) && "Ranked",
     settings.hardcore && "Hardcore",
     regionLabel(settings.continents),
     `${questions} countries`,

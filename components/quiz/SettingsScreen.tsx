@@ -15,6 +15,7 @@ import {
   type Settings,
 } from "@/lib/quiz";
 
+import { PRESETS, presetSettings, rankedPreset, type Preset } from "@/lib/ranked";
 import { ArrowLeftIcon } from "@/components/icons";
 import GameSummary, { summaryLine } from "./GameSummary";
 
@@ -49,6 +50,18 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
   const shownContinents = chosen.continents;
   const shownCount = hardcore ? COUNTRIES.length : questionCount;
   const shownMax = hardcore ? COUNTRIES.length : countryCount;
+  const ranked = rankedPreset(chosen);
+
+  // A ranked preset sets everything except the answer mode in one tap.
+  function applyPreset(preset: Preset) {
+    const next = presetSettings(preset, answerMode);
+    setHardcore(next.hardcore);
+    if (next.hardcore) return;
+    setContinents(next.continents);
+    setQuestionCount(next.questionCount ?? countriesFor(next.continents).length);
+    setTimeId(next.timeId);
+    setRetry(next.retry);
+  }
 
   // Changing the region resets the slider to the new maximum.
   function changeRegion(next: Continent[]) {
@@ -121,6 +134,27 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
       </aside>
 
       <div className="order-2 flex flex-col gap-6">
+        <Card>
+          <Setting
+            title="Ranked"
+            hint={
+              ranked
+                ? `${ranked.label} is a ranked game, so your score can be saved.`
+                : "Pick one to set up a ranked game, whose score can be saved. Answer mode stays your choice."
+            }
+          >
+            {PRESETS.map((preset) => (
+              <Chip
+                key={preset.id}
+                selected={ranked?.id === preset.id}
+                onClick={() => applyPreset(preset)}
+              >
+                {preset.label}
+              </Chip>
+            ))}
+          </Setting>
+        </Card>
+
         <Card>
           <Setting
             title="Region"
