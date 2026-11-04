@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import HeaderTitle from "@/components/HeaderTitle";
 import ThemeToggle from "@/components/ThemeToggle";
 import AccountMenu from "@/components/account/AccountMenu";
+import LeaderboardLink from "@/components/LeaderboardLink";
 import Footer from "@/components/Footer";
 import WaitingScore from "@/components/account/WaitingScore";
 import "./globals.css";
@@ -54,7 +55,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col font-sans">
         <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-4 sm:px-8 lg:py-6">
           <HeaderTitle />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <LeaderboardLink />
             <ThemeToggle />
             <AccountMenu />
           </div>

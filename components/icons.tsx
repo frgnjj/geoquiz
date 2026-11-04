@@ -98,3 +98,13 @@ export function LogoMark(props: IconProps) {
     </svg>
   );
 }
+
+/** A trophy, for the leaderboards. */
+export function TrophyIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0Z" />
+      <path d="M7.5 6H4.5v1.5A3 3 0 0 0 7.6 10.5M16.5 6h3v1.5a3 3 0 0 1-3.1 3M12 13.5V17M8.5 20h7M9.5 17h5v3h-5Z" />
+    </Icon>
+  );
+}
