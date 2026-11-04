@@ -91,13 +91,14 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - At first sign-in the player picks a unique username: 3 to 20 letters, numbers or underscores, not case-sensitive, with a small blocklist. Emails are never shown to others.
 - Header: "Sign in" for guests; for players, a round initial that opens a menu with the username, email and Sign out. Hidden during a game.
 - A Privacy link sits in the footer of every page except the quiz pages, and on the sign-in page.
-- Still to come: a leaderboard page (32 boards), and a public profile page with rename and delete account.
+- Still to come: a public profile page with rename and delete account.
 
 ### Ranked games (built 2026-11-04)
 - 32 leaderboards: Flags or Capitals × multiple choice or type-in × 8 boards: Hardcore, and Ranked World or one of the six continents.
 - Only Ranked and Hardcore games are saved, picked in the Mode block. A Practice game is never saved, even if its settings happen to match. The summary's Mode row shows Practice, Ranked or Hardcore.
 - End screen: signed-in players' ranked games save automatically, showing "New personal best" with their rank, or their standing best. Guests see "Sign in to save your score"; the game waits in the browser for up to an hour and saves when they return signed in. A score of 0 isn't saved.
 - Only each player's best per board is kept: higher score wins, then more right answers. Ties rank whoever got there first.
+- Leaderboard page (`/leaderboard`, built 2026-11-04): filters for Flags or Capitals, multiple choice or type-in, and the board, kept in the address (`?board=flags:choice:europe`) so links open the right board. It shows the top 100 (rank, player, right answers, score, date); the player's own row is highlighted, and pinned below when they're outside the top 100. Linked from a trophy in the header (hidden during a game) and from the end screen's ranked card.
 - The database (`submit_score`) rejects impossible games: over 25 points per right answer, more time than the clock allowed, faster than the answer delays allow, or an unfinished game that didn't use up the clock.
 
 ### Look and feel
@@ -109,5 +110,5 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - Home page cards show a random flag and a random capital (with a government building icon) on every load. They always come from two different countries and never repeat the previous load's countries.
 
 ### Later
-- Leaderboard page and profiles (see Accounts).
+- Profiles (see Accounts).
 - A Maps mode.

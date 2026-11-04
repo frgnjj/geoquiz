@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAccount } from "@/lib/account";
 import { boardLabel } from "@/lib/ranked";
@@ -25,6 +26,12 @@ export default function RankedSave({ game }: { game: RankedGame | null }) {
       ) : (
         <SaveState game={game} />
       )}
+      <Link
+        href={`/leaderboard?board=${game.board}`}
+        className="mt-3 inline-block text-sm text-muted underline decoration-line underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
+      >
+        See the leaderboard
+      </Link>
     </div>
   );
 }

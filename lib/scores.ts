@@ -47,3 +47,41 @@ export function takeWaiting(): RankedGame | null {
     return null;
   }
 }
+
+/** One row of a leaderboard. */
+export type Entry = {
+  user_id: string;
+  username: string;
+  score: number;
+  correct: number;
+  asked: number;
+  achieved_at: string;
+  rank: number;
+};
+
+export const TOP_COUNT = 100;
+
+/** The top of a board, plus the player's own row when they're further down. */
+export async function loadBoard(board: string, userId?: string) {
+  const supabase = createClient();
+  const top = supabase
+    .from("leaderboard")
+    .select("user_id, username, score, correct, asked, achieved_at, rank")
+    .eq("board", board)
+    .order("rank")
+    .limit(TOP_COUNT);
+  const mine = userId
+    ? supabase
+        .from("leaderboard")
+        .select("user_id, username, score, correct, asked, achieved_at, rank")
+        .eq("board", board)
+        .eq("user_id", userId)
+        .maybeSingle()
+    : null;
+  const [topResult, mineResult] = await Promise.all([top, mine]);
+  if (topResult.error) throw topResult.error;
+  return {
+    entries: (topResult.data ?? []) as Entry[],
+    mine: (mineResult?.data ?? null) as Entry | null,
+  };
+}
