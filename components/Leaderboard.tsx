@@ -64,38 +64,41 @@ export default function Leaderboard() {
 
   return (
     <div className="mt-8 flex flex-col gap-6 lg:mt-10">
-      <div className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-6 shadow-sheet lg:p-8">
-        <div className="flex flex-wrap gap-x-6 gap-y-3">
-          <ChipRow>
-            {MODES.map((m) => (
-              <Chip key={m.id} selected={mode === m.id} onClick={() => pick({ mode: m.id })}>
-                {m.label}
-              </Chip>
-            ))}
-          </ChipRow>
-          <ChipRow>
-            {ANSWERS.map((a) => (
-              <Chip key={a.id} selected={answer === a.id} onClick={() => pick({ answer: a.id })}>
-                {a.label}
-              </Chip>
-            ))}
-          </ChipRow>
+      {/* What was played (two switches), then which board: Hardcore on its own, Ranked by region. */}
+      <div className="flex flex-col gap-5 rounded-2xl border border-line bg-surface p-4 shadow-sheet sm:p-6 lg:p-8">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Segmented label="Quiz" options={MODES} value={mode} onChange={(id) => pick({ mode: id })} />
+          <Segmented label="Answer mode" options={ANSWERS} value={answer} onChange={(id) => pick({ answer: id })} />
         </div>
-        <ChipRow>
-          {PRESETS.map((p) => (
-            <Chip key={p.id} selected={preset === p.id} onClick={() => pick({ preset: p.id })}>
-              {p.label}
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
+          <Group title="Hardcore">
+            <Chip selected={preset === "hardcore"} onClick={() => pick({ preset: "hardcore" })}>
+              All 197
             </Chip>
-          ))}
-        </ChipRow>
-        <p className="text-sm text-muted">
-          {preset === "hardcore"
-            ? "Hardcore: all 197 countries, 1 min +5s per right answer, one try."
-            : `Ranked ${PRESETS.find((p) => p.id === preset)?.label}: every country, 5 min +5s per right answer, no retry.`}
-        </p>
+          </Group>
+          <span className="hidden w-px self-stretch bg-line sm:block" aria-hidden="true" />
+          <Group title="Ranked">
+            {PRESETS.filter((p) => p.id !== "hardcore").map((p) => (
+              <Chip key={p.id} selected={preset === p.id} onClick={() => pick({ preset: p.id })}>
+                {p.label}
+              </Chip>
+            ))}
+          </Group>
+        </div>
       </div>
 
       <section className="rounded-2xl border border-line bg-surface shadow-sheet">
+        <header className="flex flex-col gap-1 border-b border-line px-5 py-5 lg:px-8 lg:py-6">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            {preset === "hardcore" ? "Hardcore" : `Ranked ${PRESETS.find((p) => p.id === preset)?.label}`}
+          </h2>
+          <p className="text-sm text-muted">
+            {mode === "flags" ? "Flags" : "Capitals"} &middot; {answer === "choice" ? "Multiple choice" : "Type-in"} &middot;{" "}
+            {preset === "hardcore"
+              ? "all 197 countries, 1 min +5s per right answer, one try"
+              : "every country, 5 min +5s per right answer, no retry"}
+          </p>
+        </header>
         {!ready ? (
           <Skeleton />
         ) : "failed" in ready ? (
@@ -211,8 +214,44 @@ function formatDate(iso: string) {
   });
 }
 
-function ChipRow({ children }: { children: ReactNode }) {
-  return <div className="flex flex-wrap gap-2">{children}</div>;
+/** A two-way switch: one track, with the chosen side raised. */
+function Segmented({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: { id: string; label: string }[];
+  value: string;
+  onChange: (id: string) => void;
+}) {
+  return (
+    <div role="group" aria-label={label} className="grid grid-flow-col auto-cols-fr rounded-xl bg-line/60 p-1">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          aria-pressed={value === o.id}
+          onClick={() => onChange(o.id)}
+          className={`rounded-lg px-4 py-2 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
+            value === o.id ? "bg-surface text-foreground shadow-sheet" : "text-muted hover:text-foreground"
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Group({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="min-w-0">
+      <h2 className="text-xs font-medium uppercase tracking-wider text-muted">{title}</h2>
+      <div className="mt-2.5 flex flex-wrap gap-2">{children}</div>
+    </section>
+  );
 }
 
 function Chip({
