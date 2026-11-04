@@ -173,7 +173,12 @@ function Row({ entry, you }: { entry: Entry; you: boolean }) {
       <span className="font-medium tabular-nums text-muted">{entry.rank}</span>
       <span className="min-w-0">
         <span className="block truncate font-medium">
-          {entry.username}
+          <Link
+            href={`/u/${encodeURIComponent(entry.username)}`}
+            className="underline-offset-4 hover:underline"
+          >
+            {entry.username}
+          </Link>
           {you && <span className="ml-2 text-sm font-normal text-muted">you</span>}
         </span>
         <span className="block text-sm text-muted tabular-nums sm:hidden">

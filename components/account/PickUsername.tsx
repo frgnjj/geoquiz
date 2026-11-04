@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { setAccountUsername, useAccount } from "@/lib/account";
 import { safeNext } from "@/lib/safeNext";
-
-const FORMAT = /^[A-Za-z0-9_]{3,20}$/;
+import { USERNAME_FORMAT, USERNAME_RULE, usernameError } from "@/lib/username";
 
 function nextPath() {
   return safeNext(new URLSearchParams(window.location.search).get("next"));
@@ -45,23 +44,19 @@ export default function PickUsername() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     const username = name.trim();
-    if (!FORMAT.test(username)) {
-      setError("Use 3 to 20 letters, numbers or underscores.");
+    if (!USERNAME_FORMAT.test(username)) {
+      setError(USERNAME_RULE);
       return;
     }
     setBusy(true);
     setError(null);
     const { error } = await createClient().from("profiles").insert({ id: userId, username });
     setBusy(false);
-    if (!error) {
+    if (error) {
+      setError(usernameError(error));
+    } else {
       setAccountUsername(username);
       router.replace(nextPath());
-    } else if (error.code === "23505") {
-      setError(error.message.includes("pkey") ? "You already have a username. Reload the page." : "That username is taken. Try another.");
-    } else if (error.code === "23514") {
-      setError(error.message.includes("username_allowed") ? "That username isn't allowed. Try another." : "Use 3 to 20 letters, numbers or underscores.");
-    } else {
-      setError("Couldn't save your username. Try again.");
     }
   }
 

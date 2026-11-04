@@ -89,9 +89,9 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - Anyone can play without an account. Signing in is only needed to save scores.
 - Sign in with Google or an emailed link (Supabase Auth). A link only works in the browser it was asked from.
 - At first sign-in the player picks a unique username: 3 to 20 letters, numbers or underscores, not case-sensitive, with a small blocklist. Emails are never shown to others.
-- Header: "Sign in" for guests; for players, a round initial that opens a menu with the username, email and Sign out. Hidden during a game.
+- Header: "Sign in" for guests; for players, a round initial that opens a menu with the username, email, Profile and Sign out. Hidden during a game.
 - A Privacy link sits in the footer of every page except the quiz pages, and on the sign-in page.
-- Still to come: a public profile page with rename and delete account.
+- Profile page (`/u/<username>`, not case-sensitive, built 2026-11-04): public. Shows the username, join month, boards played out of 32, and the best score and rank on every board in four groups (each row opens that leaderboard). On their own profile, players can change their username, sign out, and delete their account (with a second "Delete for good" step), which removes their profile and scores. Leaderboard names link to profiles.
 
 ### Ranked games (built 2026-11-04)
 - 32 leaderboards: Flags or Capitals × multiple choice or type-in × 8 boards: Hardcore, and Ranked World or one of the six continents.
@@ -110,5 +110,4 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - Home page cards show a random flag and a random capital (with a government building icon) on every load. They always come from two different countries and never repeat the previous load's countries.
 
 ### Later
-- Profiles (see Accounts).
 - A Maps mode.

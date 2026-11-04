@@ -77,6 +77,13 @@ export default function AccountMenu() {
             {account.email && <p className="truncate text-sm text-muted">{account.email}</p>}
           </div>
           <div className="my-1 h-px bg-line" />
+          <Link
+            href={`/u/${encodeURIComponent(account.username)}`}
+            onClick={() => setOpen(false)}
+            className="block w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-line/60"
+          >
+            Profile
+          </Link>
           <button
             type="button"
             onClick={() => {
