@@ -1,12 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { displayAnswer, type Mode } from "@/lib/answers";
 import type { Settings } from "@/lib/quiz";
+import { boardId } from "@/lib/ranked";
+import type { RankedGame } from "@/lib/scores";
 import type { Result } from "./Game";
 import GameSummary from "./GameSummary";
+import RankedSave from "./RankedSave";
 
 type Props = {
   mode: Mode;
@@ -14,6 +17,7 @@ type Props = {
   results: Result[];
   total: number;
   score: number;
+  playedMs: number;
   onPlayAgain: () => void;
   onChangeSettings: () => void;
 };
@@ -24,12 +28,18 @@ export default function Results({
   results,
   total,
   score,
+  playedMs,
   onPlayAgain,
   onChangeSettings,
 }: Props) {
   const correct = results.filter((r) => r.correct).length;
   const missed = results.filter((r) => !r.correct);
   const finishedAll = results.length === total;
+  const board = boardId(mode, settings);
+  const game = useMemo<RankedGame | null>(
+    () => (board ? { board, score, correct, asked: results.length, playedMs } : null),
+    [board, score, correct, results.length, playedMs],
+  );
 
   return (
     // Phones: result, score and buttons, then your run and misses, then the settings summary.
@@ -50,6 +60,7 @@ export default function Results({
           <span className="text-muted">Score</span>
           <span className="text-4xl font-semibold tracking-tight tabular-nums">{score}</span>
         </div>
+        <RankedSave game={game} />
 
         <div className="mt-8 flex flex-col gap-3">
           <button

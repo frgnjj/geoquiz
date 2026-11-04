@@ -4,6 +4,7 @@ import HeaderTitle from "@/components/HeaderTitle";
 import ThemeToggle from "@/components/ThemeToggle";
 import AccountMenu from "@/components/account/AccountMenu";
 import Footer from "@/components/Footer";
+import WaitingScore from "@/components/account/WaitingScore";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </header>
         {children}
         <Footer />
+        <WaitingScore />
       </body>
     </html>
   );
