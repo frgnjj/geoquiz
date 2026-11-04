@@ -10,6 +10,7 @@ A geography quiz website with Flags and Capitals modes. Built with Next.js (App 
 - `data/countries.ts`: the 197 countries, with their continent, capitals and accepted alternative names. This is the single source of truth for quiz content.
 - `lib/supabase/`, `lib/account.ts`, `components/account/`: Supabase clients, the signed-in player, and the sign-in pieces.
 - `supabase/migrations/`: database SQL, numbered. The owner runs each new file once in the Supabase SQL Editor; there's no CLI link.
+- `supabase/templates/`: the sign-in emails. The owner pastes each into Supabase > Authentication > Emails (subject in the file's first line).
 - `public/flags/`: one SVG flag per country, named by lowercase ISO code (for example `fr.svg`). From flag-icons (MIT).
 
 ## Working rules
@@ -68,7 +69,7 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
   - A skip button is available, and a skip counts as wrong.
 - **Countries with more than one capital:**
   - In multiple choice they appear as one option joined with a slash, such as "La Paz/Sucre" or "Pretoria/Cape Town/Bloemfontein".
-  - In type-in, any one of them is accepted. (Assumed; not yet confirmed by the owner.)
+  - In type-in, any one of them is accepted (confirmed by the owner on 2026-11-04).
 - **End of game:** the game ends when the timer hits zero or when every country in the selection has been asked, whichever comes first.
 - **Score:** starts at 0. Only a first-try correct answer scores; a correct answer after a wrong try scores nothing but still counts as right.
 - **Meter:** a vertical meter beside the question. It starts empty, rises 20% per correct answer (including after a retry), and drains 5% per second, also during the pause between questions. Any wrong try or skip resets it to 0%.
