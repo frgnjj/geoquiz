@@ -80,12 +80,12 @@ components:
   chip:
     backgroundColor: "{colors.sheet}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.pill}"
+    rounded: "{rounded.popover}"
     padding: "8px 16px"
   chip-selected:
     backgroundColor: "{colors.ink}"
     textColor: "{colors.paper}"
-    rounded: "{rounded.pill}"
+    rounded: "{rounded.popover}"
     padding: "8px 16px"
   answer-option:
     backgroundColor: "{colors.sheet}"
@@ -191,7 +191,7 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 
 ## Shapes
 
-- Gently rounded, with radius growing with size: flags 6px, popovers 8px, buttons, options and inputs 12px, cards 16px, chips and the meter fully round.
+- Gently rounded, with radius growing with size: flags 6px, popovers and chips 8px, buttons, options and inputs 12px, cards 16px, the meter fully round.
 - 1px hairline borders on every sheet. Hover darkens the border to ink.
 - Line drawings (logo, icons, globe) use round caps and joins with a 1.75px stroke at 24px.
 
@@ -205,7 +205,7 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 - **Danger:** Quit's Confirm uses wrong-red text on a sheet, with a red border on hover.
 
 ### Chips
-- **Style:** fully round, hairline border on sheet, 14px text.
+- **Style:** boxy with 8px corners (changed from fully round on 2026-11-08, asked by the owner), hairline border on sheet, 14px text. Used for the settings choices and the leaderboard's board buttons.
 - **Selected:** ink fill, paper text. Disabled chips fade to 40% opacity.
 
 ### Answer Options

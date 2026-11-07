@@ -250,7 +250,7 @@ function Chip({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`rounded-full border px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
+      className={`rounded-lg border px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
         selected
           ? "border-foreground bg-foreground text-background"
           : "border-line bg-surface hover:border-foreground"
