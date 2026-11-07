@@ -11,6 +11,8 @@ A geography quiz website with Flags and Capitals modes. Built with Next.js (App 
 - `lib/supabase/`, `lib/account.ts`, `components/account/`: Supabase clients, the signed-in player, and the sign-in pieces.
 - `supabase/migrations/`: database SQL, numbered. The owner runs each new file once in the Supabase SQL Editor; there's no CLI link.
 - `supabase/templates/`: the sign-in emails. The owner pastes each into Supabase > Authentication > Emails (subject in the file's first line).
+- `public/maps/world.json`: the Maps mode map, built by `npm run map:build` (scripts/build-map.mjs) from Natural Earth 1:50m shapes (public domain, via world-atlas). Rebuild it if the country list changes.
+- `lib/map.ts`, `components/map/`: map views per region, projection, and the map component.
 - `public/flags/`: one SVG flag per country, named by lowercase ISO code (for example `fr.svg`). From flag-icons (MIT).
 
 ## Working rules
@@ -110,5 +112,16 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - Logo: a line globe whose outline forms a "G", beside "Geoquiz" in the header and in the browser tab.
 - Home page cards show a random flag and a random capital (with a government building icon) on every load. They always come from two different countries and never repeat the previous load's countries.
 
+### Maps mode (agreed 2026-11-07, being built)
+- A third quiz beside Flags and Capitals, with the same settings, timer, meter, score, pauses, end screen and Practice / Ranked / Hardcore modes.
+- Three answer modes: **Find it** (a country's name is shown; click it on the map), **Name it · multiple choice** and **Name it · type-in** (a country is highlighted; name it).
+- Find it gives 3 tries (1 in Hardcore). A wrong click shows that country's name in red; after the third miss the right country turns green.
+- The map fits the region: the whole world for World, the continent's box for one continent, and the box around several (the world when Oceania is mixed with others). Pinch, scroll, drag and +/− buttons zoom and pan.
+- Countries too small to tap (Vatican City, Monaco, Pacific islands...) get a small round marker. Tuvalu has no shape at this detail, so it's only a marker.
+- Kosovo is matched by name; Northern Cyprus and Somaliland are drawn as part of Cyprus and Somalia. Other territories (Greenland, Western Sahara...) are plain land that can't be picked; Antarctica is left off.
+- Looks: grey sea, white region countries, grey land outside the region (dark mode: darkest sea, brighter region). The country asked about is ink; green and red only mean right and wrong.
+- Leaderboards: 24 more boards (3 answer modes × Hardcore, World and six continents).
+- Build order: the map (PR A), the game (PR B), ranked Maps (PR C). Until PR B, `/maps` is an unlinked preview where tapping a country shows its name.
+
 ### Later
-- A Maps mode.
+- An installable web app (PWA), maybe with offline practice. Discussed 2026-11-04, on hold.
