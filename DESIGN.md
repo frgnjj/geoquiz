@@ -251,7 +251,7 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 
 ### Profile
 - A round initial (the header's, at page size) beside the username in headline type, then a graphite line of facts.
-- Bests as one grid sheet on wider screens: boards down the side, the four quiz types across, hairlines between every cell, "#rank" in graphite before the score, and a faint dash for boards not played. On phones, two switches pick the quiz type and one list of eight boards shows.
+- Bests as one grid sheet on desktop: boards down the side, the seven quiz types across under their quiz name (Flags, Capitals, Maps), hairlines between every cell, "#rank" in graphite before the score, and a faint dash for boards not played. On phones, two switches pick the quiz type and one list of eight boards shows.
 
 ### Reading Pages (Privacy)
 - 672px column. The short version leads in 20 to 24px body; the details follow in sections ruled by hairlines.
@@ -261,6 +261,8 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 - The country asked about is ink; right is correct-green and a wrong pick wrong-red. Tiny countries get a 5px round marker (region only) in a layer above every shape and border, and the asked one a 13px ink ring around it. A marker hides once its island is 10px across on screen, so zooming in reveals the real islands.
 - Zoom buttons (+, −, whole region) sit in a small sheet in the bottom-right corner.
 - Name it flies between countries in 0.45 s (cubic in-out). Neighbours within a screen-width glide at the same zoom; longer jumps widen the view mid-flight, growing to 35% at three screen-widths. With reduced motion it jumps.
+- Feedback floats as a small rounded sheet (lifted shadow) centred at the top of the map, in correct-green or wrong-red text; the first question's how-to-move hint sits in a quieter pill bottom-left.
+- End screen in Maps: missed countries show their outline in ink (48 by 36px box) instead of a flag.
 - Game stage: full screen on phones with the map edge to edge; on desktop a 1280px stage, the map as a rounded sheet filling the window's height, the meter beside it and the four options in one row under it.
 
 ### Run Dots

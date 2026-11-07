@@ -453,20 +453,42 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
           </div>
         </div>
 
-        <div className="px-4 pt-3 text-center lg:px-0 lg:pt-5">
+        <div className="px-4 pt-3 text-center lg:px-0 lg:pt-4">
           {finding ? (
             <h1 className="text-3xl leading-[1.1] font-semibold tracking-[-0.03em] text-balance lg:text-5xl">
               <span className="font-normal text-muted">Find </span>
               {country.name}
             </h1>
           ) : (
-            <h1 className="text-xl font-medium text-muted lg:text-2xl">Which country is highlighted?</h1>
+            <h1 className="text-lg font-medium text-muted lg:text-2xl">Which country is highlighted?</h1>
           )}
-          <div className="mt-1.5 lg:mt-2">{feedbackLine}</div>
         </div>
 
-        <div className="mt-2 flex min-h-0 flex-1 gap-8 lg:mt-4">
+        <div className="mt-3 flex min-h-0 flex-1 gap-8 lg:mt-4">
           <div className="relative min-h-0 flex-1">
+            {/* Feedback floats at the top of the map, where the eyes already are, instead of
+                holding an empty row above it. */}
+            <div
+              className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center px-4"
+              aria-live="polite"
+            >
+              {!paused && feedbackText && (
+                <p
+                  className={`rounded-full border border-line bg-surface px-4 py-2 text-center text-sm font-medium shadow-lifted lg:text-base ${
+                    feedback === "correct" ? "text-correct" : "text-wrong"
+                  }`}
+                >
+                  {feedbackText}
+                </p>
+              )}
+            </div>
+            {/* How to move around, shown on the first question only. */}
+            {!paused && index === 0 && !feedback && wrongPicks.length === 0 && (
+              <p className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-full border border-line bg-surface px-3 py-1.5 text-xs text-muted shadow-sheet">
+                <span className="[@media(pointer:fine)]:hidden">Pinch to zoom, drag to move</span>
+                <span className="hidden [@media(pointer:fine)]:inline">Scroll to zoom, drag to move</span>
+              </p>
+            )}
             {paused ? (
               <div className="flex h-full items-center justify-center px-4">{pausedCard}</div>
             ) : (
@@ -488,18 +510,18 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
           </div>
         </div>
 
-        <div className="px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:px-0 lg:pt-5 lg:pb-0">
-          {!paused && !finding && (
-            <div className="mx-auto flex max-w-5xl justify-center">
-              {settings.answerMode === "choice" ? choiceButtons : typedForm}
-            </div>
-          )}
-          {finding && (
-            <p className="text-center text-sm text-muted lg:hidden">
-              Pinch to zoom, drag to move.
-            </p>
-          )}
-        </div>
+        {finding ? (
+          // Find it has nothing below the map; on phones the map runs down to the home indicator.
+          <div className="pb-[env(safe-area-inset-bottom)]" />
+        ) : (
+          <div className="px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:px-0 lg:pt-4 lg:pb-0">
+            {!paused && (
+              <div className="mx-auto flex max-w-5xl justify-center">
+                {settings.answerMode === "choice" ? choiceButtons : typedForm}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   }

@@ -4,28 +4,18 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAccount } from "@/lib/account";
-import { PRESETS } from "@/lib/ranked";
+import { BOARD_QUIZZES, PRESETS } from "@/lib/ranked";
 import { loadBoard, TOP_COUNT, type Entry } from "@/lib/scores";
 import Globe from "./Globe";
 import Segmented from "./Segmented";
 
-const MODES = [
-  { id: "flags", label: "Flags" },
-  { id: "capitals", label: "Capitals" },
-];
-const ANSWERS = [
-  { id: "choice", label: "Multiple choice" },
-  { id: "type", label: "Type-in" },
-];
 const DEFAULT_BOARD = ["flags", "choice", "world"];
 
-/** The board in the address, such as ?board=flags:choice:europe, or the default when it's not valid. */
+/** The board in the address, such as ?board=maps:find:europe, or the default when it's not valid. */
 function parseBoard(value: string | null) {
   const [mode, answer, preset] = value?.split(":") ?? [];
-  const valid =
-    MODES.some((m) => m.id === mode) &&
-    ANSWERS.some((a) => a.id === answer) &&
-    PRESETS.some((p) => p.id === preset);
+  const quiz = BOARD_QUIZZES.find((q) => q.id === mode);
+  const valid = quiz?.answers.some((a) => a.id === answer) && PRESETS.some((p) => p.id === preset);
   return valid ? [mode, answer, preset] : DEFAULT_BOARD;
 }
 
@@ -57,8 +47,14 @@ export default function Leaderboard() {
     };
   }, [key, board, userId, attempt]);
 
+  const quiz = BOARD_QUIZZES.find((q) => q.id === mode) ?? BOARD_QUIZZES[0];
+
   function pick(next: { mode?: string; answer?: string; preset?: string }) {
-    const value = [next.mode ?? mode, next.answer ?? answer, next.preset ?? preset].join(":");
+    const nextQuiz = BOARD_QUIZZES.find((q) => q.id === (next.mode ?? mode)) ?? BOARD_QUIZZES[0];
+    // Switching quiz keeps the answer mode when it has one (Find it is Maps only).
+    const nextAnswer = next.answer ?? answer;
+    const keptAnswer = nextQuiz.answers.some((a) => a.id === nextAnswer) ? nextAnswer : nextQuiz.answers[0].id;
+    const value = [nextQuiz.id, keptAnswer, next.preset ?? preset].join(":");
     router.replace(`${pathname}?board=${value}`, { scroll: false });
   }
 
@@ -69,8 +65,8 @@ export default function Leaderboard() {
       {/* What was played (two switches), then which board: Hardcore on its own, Ranked by region. */}
       <div className="flex flex-col gap-5 rounded-2xl border border-line bg-surface p-4 shadow-sheet sm:p-6 lg:p-8">
         <div className="grid gap-3 sm:grid-cols-2">
-          <Segmented label="Quiz" options={MODES} value={mode} onChange={(id) => pick({ mode: id })} />
-          <Segmented label="Answer mode" options={ANSWERS} value={answer} onChange={(id) => pick({ answer: id })} />
+          <Segmented label="Quiz" options={BOARD_QUIZZES} value={mode} onChange={(id) => pick({ mode: id })} />
+          <Segmented label="Answer mode" options={quiz.answers} value={answer} onChange={(id) => pick({ answer: id })} />
         </div>
         <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
           <Group title="Hardcore">
@@ -95,7 +91,7 @@ export default function Leaderboard() {
             {preset === "hardcore" ? "Hardcore" : `Ranked ${PRESETS.find((p) => p.id === preset)?.label}`}
           </h2>
           <p className="text-sm text-muted">
-            {mode === "flags" ? "Flags" : "Capitals"} &middot; {answer === "choice" ? "Multiple choice" : "Type-in"} &middot;{" "}
+            {quiz.label} &middot; {quiz.answers.find((a) => a.id === answer)?.label} &middot;{" "}
             {preset === "hardcore"
               ? "all 197 countries, 1 min +5s per right answer, one try"
               : "every country, 5 min +5s per right answer, no retry"}
@@ -125,7 +121,7 @@ export default function Leaderboard() {
               href={`/${mode}`}
               className="mt-5 inline-block rounded-xl bg-foreground px-6 py-3 font-medium text-background transition-opacity hover:opacity-90"
             >
-              Play {mode === "flags" ? "Flags" : "Capitals"}
+              Play {quiz.label}
             </Link>
           </div>
         ) : (

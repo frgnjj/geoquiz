@@ -94,10 +94,10 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - At first sign-in the player picks a unique username: 3 to 20 letters, numbers or underscores, not case-sensitive, with a small blocklist. Emails are never shown to others.
 - Header: "Sign in" for guests; for players, a round initial that opens a menu with the username, email, Profile and Sign out. Hidden during a game.
 - A Privacy link sits in the footer of every page except the quiz pages, and on the sign-in page.
-- Profile page (`/u/<username>`, not case-sensitive, built 2026-11-04): public. Shows the username, join month, boards played out of 32, and the best score and rank on every board in four groups (each row opens that leaderboard). On their own profile, players can change their username, sign out, and delete their account (with a second "Delete for good" step), which removes their profile and scores. Leaderboard names link to profiles.
+- Profile page (`/u/<username>`, not case-sensitive, built 2026-11-04): public. Shows the username, join month, boards played out of 56, and the best score and rank on every board in four groups (each row opens that leaderboard). On their own profile, players can change their username, sign out, and delete their account (with a second "Delete for good" step), which removes their profile and scores. Leaderboard names link to profiles.
 
 ### Ranked games (built 2026-11-04)
-- 32 leaderboards: Flags or Capitals × multiple choice or type-in × 8 boards: Hardcore, and Ranked World or one of the six continents.
+- 56 leaderboards: Flags and Capitals (multiple choice, type-in) and Maps (Find it, Pick name, Type name), each × 8 boards: Hardcore, and Ranked World or one of the six continents.
 - Only Ranked and Hardcore games are saved, picked in the Mode block. A Practice game is never saved, even if its settings happen to match. The summary's Mode row shows Practice, Ranked or Hardcore.
 - End screen: signed-in players' ranked games save automatically, showing "New personal best" with their rank, or their standing best. Guests see "Sign in to save your score"; the game waits in the browser for up to an hour and saves when they return signed in. A score of 0 isn't saved.
 - Only each player's best per board is kept: higher score wins, then more right answers. Ties rank whoever got there first.
@@ -125,8 +125,9 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - The map can always be moved far enough to centre any country in the game, even one on the very edge (Samoa and Tonga in the world view), plus a quarter of the frame to spare. Tiny countries are aimed at by their marker, since some span the date line (Kiribati).
 - Phones (upright frames): a wide region is drawn up to 1.6× larger than "fits entirely", so it fills the screen; the rest is a drag away. Tiny countries asked in Name it get a ring around their marker.
 - Name it zooms in on each highlighted country so it fills about a third of the map (up to 6×), keeping its neighbours in view. Tiny islands are zoomed until their land is about 18 px across (up to 40×), so their real shape shows inside the ring; ones too small even then (Vatican City, Tuvalu) keep their dot. Players can zoom up to 40× themselves. Moving to the next country is a 0.45 s flight (asked by the owner on 2026-11-07): up to about a screen-width away (Egypt to Sudan, Germany to Romania) it just glides at the same zoom; farther jumps pull back a little mid-way, more the farther they go, up to 35% at three screen-widths. The meter doesn't drain during the flight, so it never costs points. Find it never zooms on its own (that would give the answer away), except to bring a revealed answer on screen.
-- Leaderboards: 24 more boards (3 answer modes × Hardcore, World and six continents), added in PR C. Until then, a ranked Maps game says its score isn't saved yet.
-- Build order: the map (PR A, done), the game (PR B, done), ranked Maps (PR C).
+- Leaderboards: 24 Maps boards (3 answer modes × Hardcore, World and six continents), added 2026-11-08. On the leaderboard and profile, Maps' answer modes read Find it, Pick name and Type name.
+- Game screen details: feedback ("Correct", "That's Germany. 2 tries left.") floats in a small sheet at the top of the map rather than a row above it; the first question shows a "Pinch (or scroll) to zoom, drag to move" hint on the map.
+- End screen: Maps lists missed countries with their outline (public/maps/shapes) instead of their flag. Outlines that would be mostly ocean drop far-flung pieces (French Guiana, the Chatham Islands) and island chains fall back to their main island (Micronesia, Palau).
 
 ### Later
 - An installable web app (PWA), maybe with offline practice. Discussed 2026-11-04, on hold.

@@ -8,6 +8,7 @@ import type { Settings } from "@/lib/quiz";
 import { boardId } from "@/lib/ranked";
 import type { RankedGame } from "@/lib/scores";
 import type { Result } from "./Game";
+import CountryOutline from "@/components/map/CountryOutline";
 import GameSummary from "./GameSummary";
 import RankedSave from "./RankedSave";
 
@@ -117,14 +118,19 @@ export default function Results({
             <ul className="grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:gap-y-5">
               {missed.map(({ country }) => (
                 <li key={country.code} className="flex items-center gap-4">
-                  <Image
-                    src={`/flags/${country.code}.svg`}
-                    alt=""
-                    width={48}
-                    height={36}
-                    unoptimized
-                    className="shrink-0 rounded-[3px] shadow-flag ring-1 ring-line"
-                  />
+                  {/* Maps teaches shapes, so its misses show each country's outline instead of its flag. */}
+                  {mode === "maps" ? (
+                    <CountryOutline code={country.code} className="h-9 w-12 shrink-0" />
+                  ) : (
+                    <Image
+                      src={`/flags/${country.code}.svg`}
+                      alt=""
+                      width={48}
+                      height={36}
+                      unoptimized
+                      className="shrink-0 rounded-[3px] shadow-flag ring-1 ring-line"
+                    />
+                  )}
                   <span className="leading-snug">
                     <span className="block font-medium">{country.name}</span>
                     {mode === "capitals" && (

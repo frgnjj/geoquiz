@@ -35,12 +35,42 @@ export function boardId(mode: Mode, settings: Settings): string | null {
   return preset ? `${mode}:${settings.answerMode}:${preset.id}` : null;
 }
 
-/** "Flags · Multiple choice · Europe" */
+/** The quizzes and answer modes that have leaderboards, in the order they're shown. */
+export const BOARD_QUIZZES: { id: Mode; label: string; answers: { id: string; label: string }[] }[] = [
+  {
+    id: "flags",
+    label: "Flags",
+    answers: [
+      { id: "choice", label: "Multiple choice" },
+      { id: "type", label: "Type-in" },
+    ],
+  },
+  {
+    id: "capitals",
+    label: "Capitals",
+    answers: [
+      { id: "choice", label: "Multiple choice" },
+      { id: "type", label: "Type-in" },
+    ],
+  },
+  {
+    id: "maps",
+    label: "Maps",
+    answers: [
+      { id: "find", label: "Find it" },
+      { id: "choice", label: "Pick name" },
+      { id: "type", label: "Type name" },
+    ],
+  },
+];
+
+/** "Flags · Multiple choice · Europe" or "Maps · Find it · World" */
 export function boardLabel(board: string): string {
   const [mode, answerMode, presetId] = board.split(":");
+  const quiz = BOARD_QUIZZES.find((q) => q.id === mode);
   return [
-    QUIZ_INFO[mode as Mode].title,
-    answerMode === "find" ? "Find it" : answerMode === "choice" ? "Multiple choice" : "Type-in",
+    QUIZ_INFO[mode as Mode]?.title ?? mode,
+    quiz?.answers.find((a) => a.id === answerMode)?.label ?? answerMode,
     PRESETS.find((p) => p.id === presetId)?.label ?? presetId,
   ].join(" · ");
 }
