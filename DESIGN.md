@@ -224,7 +224,7 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 
 ### Settings Screen
 - Two columns: a 352px summary on the left, the settings on the right.
-- The left column holds a ghost "Back" button (to the home page), the title, a list of the current choices separated by hairlines, Start, and a compact Hardcore sheet (24px padding, Off/On chips beside its label). It stays in view while the settings scroll when the window is at least 820px tall; shorter windows scroll it normally.
+- The left column holds a ghost "Back" button (to the home page), the title, a list of the current choices separated by hairlines, Start, and a compact Mode sheet (24px padding): Practice, Ranked and Hardcore chips with a one-line note under them. It stays in view while the settings scroll when the window is at least 820px tall; shorter windows scroll it normally.
 - Settings sit in three resting sheets (16px radius, 32px padding): what to play (Region, Questions), how to answer, and time.
 
 ### End Screen
@@ -237,6 +237,24 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 - The question sits centred, with the score meter beside it and an equal empty space on the other side to keep it centred.
 - Paused: the question is replaced by a resting sheet with "Paused", the pauses left and Resume.
 - Quit's Confirm appears below Quit as a lifted sheet with wrong-red text.
+
+### Two-Way Switch
+- For a choice of exactly two (Flags or Capitals, Multiple choice or Type-in) on browsing pages: a 12px-radius track in hairline at 60%, with the chosen side raised as a sheet with the resting shadow. Settings keep chips; switches are for filtering what you look at.
+
+### Sign-In Card
+- Sign in and Pick a username sit in one centred 448px sheet (16px radius, 40px padding, 24px on phones), vertically centred like the home page, with the faint graticule globe off its top-right corner. Nothing inside it is another card.
+
+### Leaderboard
+- A filter sheet (two switches, then the boards in labelled groups: Hardcore alone, Ranked by region, split by a hairline), then a results sheet headed by the board's name and rules.
+- Rows on hairlines: rank, player, right answers, score (semibold), date. Ranks 1 to 3 are ink and semibold; the rest graphite. The player's own row has a hairline-tinted background.
+- Loading shows placeholder rows in the table's shape; an empty board shows "No scores yet", a Play button and the graticule globe.
+
+### Profile
+- A round initial (the header's, at page size) beside the username in headline type, then a graphite line of facts.
+- Bests as one grid sheet on wider screens: boards down the side, the four quiz types across, hairlines between every cell, "#rank" in graphite before the score, and a faint dash for boards not played. On phones, two switches pick the quiz type and one list of eight boards shows.
+
+### Reading Pages (Privacy)
+- 672px column. The short version leads in 20 to 24px body; the details follow in sections ruled by hairlines.
 
 ### Run Dots
 - One 10px dot per country in the game, in the order asked: correct-green for right, wrong-red for missed, hairline for not reached. It shows streaks at a glance.

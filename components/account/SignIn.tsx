@@ -83,7 +83,7 @@ export default function SignIn() {
 
   if (sentTo) {
     return (
-      <div className="mt-8 rounded-2xl border border-line bg-surface p-6 shadow-sheet lg:p-8">
+      <div className="mt-8 border-t border-line pt-6">
         <h2 className="text-xl font-semibold tracking-tight">Check your inbox</h2>
         <p className="mt-2 text-muted">
           We sent a sign-in link to <span className="font-medium text-foreground">{sentTo}</span>.

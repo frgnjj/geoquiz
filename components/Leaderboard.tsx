@@ -6,6 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAccount } from "@/lib/account";
 import { PRESETS } from "@/lib/ranked";
 import { loadBoard, TOP_COUNT, type Entry } from "@/lib/scores";
+import Globe from "./Globe";
+import Segmented from "./Segmented";
 
 const MODES = [
   { id: "flags", label: "Flags" },
@@ -113,7 +115,8 @@ export default function Leaderboard() {
             </button>
           </p>
         ) : ready.entries.length === 0 ? (
-          <div className="p-6 lg:p-8">
+          <div className="relative isolate overflow-hidden rounded-b-2xl p-6 lg:p-8">
+            <Globe className="pointer-events-none absolute -right-24 -bottom-40 -z-10 size-80 rotate-[-23.4deg] text-line" />
             <p className="text-lg font-medium">No scores yet.</p>
             <p className="mt-1 text-muted">
               Play a {preset === "hardcore" ? "Hardcore" : "Ranked"} game to be the first on this board.
@@ -170,7 +173,10 @@ function Row({ entry, you }: { entry: Entry; you: boolean }) {
         you ? "bg-line/40" : ""
       }`}
     >
-      <span className="font-medium tabular-nums text-muted">{entry.rank}</span>
+      {/* The podium reads in ink; everyone else in graphite. */}
+      <span className={`tabular-nums ${entry.rank <= 3 ? "font-semibold text-foreground" : "font-medium text-muted"}`}>
+        {entry.rank}
+      </span>
       <span className="min-w-0">
         <span className="block truncate font-medium">
           <Link
@@ -194,14 +200,20 @@ function Row({ entry, you }: { entry: Entry; you: boolean }) {
   );
 }
 
+/** Placeholder rows in the table's own shape while a board loads. */
 function Skeleton() {
   return (
-    <div aria-hidden="true" className="flex flex-col gap-5 p-5 lg:p-8">
-      {Array.from({ length: 5 }, (_, i) => (
-        <div key={i} className="flex items-center gap-4">
-          <span className="h-4 w-6 rounded bg-line" />
-          <span className="h-4 flex-1 rounded bg-line" />
-          <span className="h-4 w-12 rounded bg-line" />
+    <div aria-hidden="true" className="motion-safe:animate-pulse">
+      {Array.from({ length: 6 }, (_, i) => (
+        <div
+          key={i}
+          className="grid grid-cols-[3rem_minmax(0,1fr)_5rem] items-center gap-4 border-t border-line px-5 py-4 first:border-t-0 sm:grid-cols-[3rem_minmax(0,1fr)_6rem_5rem_6rem] lg:px-8"
+        >
+          <span className="h-3.5 w-5 rounded bg-line" />
+          <span className="h-3.5 rounded bg-line" style={{ width: `${70 - i * 7}%` }} />
+          <span className="hidden h-3.5 w-8 justify-self-end rounded bg-line sm:block" />
+          <span className="h-4 w-12 justify-self-end rounded bg-line" />
+          <span className="hidden h-3.5 w-14 justify-self-end rounded bg-line sm:block" />
         </div>
       ))}
     </div>
@@ -217,37 +229,6 @@ function formatDate(iso: string) {
     month: "short",
     year: sameYear ? undefined : "numeric",
   });
-}
-
-/** A two-way switch: one track, with the chosen side raised. */
-function Segmented({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: { id: string; label: string }[];
-  value: string;
-  onChange: (id: string) => void;
-}) {
-  return (
-    <div role="group" aria-label={label} className="grid grid-flow-col auto-cols-fr rounded-xl bg-line/60 p-1">
-      {options.map((o) => (
-        <button
-          key={o.id}
-          type="button"
-          aria-pressed={value === o.id}
-          onClick={() => onChange(o.id)}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
-            value === o.id ? "bg-surface text-foreground shadow-sheet" : "text-muted hover:text-foreground"
-          }`}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
 }
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
