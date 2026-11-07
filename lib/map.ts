@@ -19,6 +19,8 @@ export const MAP_HEIGHT = 600;
 const PADDING = 16;
 /** How far the map may enlarge a region past "fits entirely" to fill a frame of another shape. */
 const MAX_FILL = 1.6;
+/** Extra room to move past the outermost country, as a share of the frame. */
+const REACH_MARGIN = 0.25;
 /** Countries with less land than this (square map units, before zooming) also get a round marker.
  * It's area, not size, so island nations spread over the ocean still count as tiny. */
 const TINY_AREA = 40;
@@ -76,8 +78,11 @@ export type MapCountry = {
   box: [[number, number], [number, number]];
 };
 
-/** Projects every shape for a view, at a size: our countries, and the other land drawn as background. */
-export function drawMap(data: WorldData, view: View, width = MAP_WIDTH, height = MAP_HEIGHT) {
+/**
+ * Projects every shape for a view, at a size: our countries, and the other land drawn as background.
+ * `region` lists the game's countries, so the map can always be moved far enough to show each one.
+ */
+export function drawMap(data: WorldData, view: View, region: string[], width = MAP_WIDTH, height = MAP_HEIGHT) {
   const box = outline(view.bounds);
   const projection = geoNaturalEarth1()
     .rotate([view.rotate, 0])
@@ -100,12 +105,6 @@ export function drawMap(data: WorldData, view: View, width = MAP_WIDTH, height =
       .translate([width / 2 + (tx - width / 2) * grow, height / 2 + (ty - height / 2) * grow]);
   }
   const path = geoPath(projection);
-  // Everything a player may need to reach by dragging: the frame and the whole region.
-  const [[ex0, ey0], [ex1, ey1]] = path.bounds(box);
-  const reach: [[number, number], [number, number]] = [
-    [Math.min(0, ex0 - PADDING), Math.min(0, ey0 - PADDING)],
-    [Math.max(width, ex1 + PADDING), Math.max(height, ey1 + PADDING)],
-  ];
 
   const features = feature(data.topology, data.topology.objects.countries).features as Feature<
     Polygon | MultiPolygon,
@@ -136,6 +135,16 @@ export function drawMap(data: WorldData, view: View, width = MAP_WIDTH, height =
     if (!at) continue;
     countries.push({ code, d: "", marker: [at[0], at[1]], box: [at, at] });
   }
+
+  // How far the map can be moved: the frame, the region's box and every country in the game,
+  // with room to spare, so even one on the very edge (Samoa in the world view) can be centred.
+  const inRegion = new Set(region);
+  const boxes = [path.bounds(box), ...countries.filter((c) => inRegion.has(c.code)).map((c) => c.box)];
+  const margin = Math.max(width, height) * REACH_MARGIN;
+  const reach: [[number, number], [number, number]] = [
+    [Math.min(0, ...boxes.map((b) => b[0][0] - margin)), Math.min(0, ...boxes.map((b) => b[0][1] - margin))],
+    [Math.max(width, ...boxes.map((b) => b[1][0] + margin)), Math.max(height, ...boxes.map((b) => b[1][1] + margin))],
+  ];
 
   return { land: land.join(""), countries, reach };
 }

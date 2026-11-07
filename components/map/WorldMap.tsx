@@ -111,8 +111,8 @@ export default function WorldMap({
   const key = continents.join("|");
   const view = useMemo(() => viewFor(continents), [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const drawn = useMemo(
-    () => (world && width > 0 ? drawMap(world, view, width, height) : null),
-    [world, view, width, height],
+    () => (world && width > 0 ? drawMap(world, view, region, width, height) : null),
+    [world, view, region, width, height],
   );
   const inRegion = useMemo(() => new Set(region), [region]);
 
@@ -185,7 +185,8 @@ export default function WorldMap({
     const country = drawn?.countries.find((c) => c.code === focus);
     if (!svg || !behavior || !country) return;
     const t = zoomTransform(svg);
-    const [[x0, y0], [x1, y1]] = country.box;
+    // A tiny country is aimed at by its marker: its outline can span the date line (Kiribati).
+    const [[x0, y0], [x1, y1]] = country.marker ? [country.marker, country.marker] : country.box;
     const margin = 24;
     const visible =
       t.applyX(x0) >= margin && t.applyX(x1) <= width - margin && t.applyY(y0) >= margin && t.applyY(y1) <= height - margin;
@@ -202,7 +203,8 @@ export default function WorldMap({
     if (!svg || !behavior || !country) return;
     if (followed.current?.code === country.code && followed.current.view === view) return;
     followed.current = { code: country.code, view };
-    const [[x0, y0], [x1, y1]] = country.box;
+    // A tiny country is aimed at by its marker: its outline can span the date line (Kiribati).
+    const [[x0, y0], [x1, y1]] = country.marker ? [country.marker, country.marker] : country.box;
     const fit = Math.min(width / Math.max(x1 - x0, 1), height / Math.max(y1 - y0, 1));
     const k = Math.max(1, Math.min(FOLLOW_MAX_ZOOM, FOLLOW_SHARE * fit));
     const target = zoomIdentity.translate(width / 2 - k * ((x0 + x1) / 2), height / 2 - k * ((y0 + y1) / 2)).scale(k);
