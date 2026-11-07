@@ -125,6 +125,7 @@ export default function WorldMap({
     const svg = svgRef.current;
     const layer = layerRef.current;
     if (!svg || !layer || !ready) return;
+    let markerScale = 1;
     const behavior = zoom<SVGSVGElement, unknown>()
       .scaleExtent([1, MAX_ZOOM])
       .clickDistance(6)
@@ -132,9 +133,17 @@ export default function WorldMap({
       .on("zoom", (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
         const { x, y, k } = event.transform;
         layer.setAttribute("transform", `translate(${x},${y}) scale(${k})`);
+        // While dragging, countries ignore the pointer, so passing over them doesn't repaint hovers.
+        if (event.sourceEvent?.type?.endsWith("move")) layer.style.pointerEvents = "none";
+        // A plain drag keeps the zoom, so the markers only need resizing when it changes.
+        if (k === markerScale) return;
+        markerScale = k;
         layer.querySelectorAll<SVGCircleElement>("circle[data-marker]").forEach((c) => {
           c.setAttribute("r", String((c.hasAttribute("data-ring") ? RING_RADIUS : MARKER_RADIUS) / k));
         });
+      })
+      .on("end", () => {
+        layer.style.pointerEvents = "";
       });
     zoomRef.current = behavior;
     const selection = select(svg);
