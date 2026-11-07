@@ -36,15 +36,23 @@ const RING_RADIUS = 13;
 /** When following a country, it takes up about this share of the frame, so its neighbours show too. */
 const FOLLOW_SHARE = 0.35;
 const FOLLOW_MAX_ZOOM = 6;
-/** How much wider the view gets halfway through a flight: a short pull back, not a trip out to space. */
+/** The most the view widens halfway through a long flight: a short pull back, not a trip out to space. */
 const FLIGHT_PULL_BACK = 0.35;
+/** Flights up to about a screen-width (Germany to Romania) just glide; the pull back grows until FAR_HOP. */
+const NEAR_HOP = 1;
+const FAR_HOP = 3;
 
 type ZoomView = [x: number, y: number, width: number];
 
-/** A flight between two views: a straight pan, with the view widening a little in the middle. */
+/**
+ * A flight between two views: a straight pan. A neighbour (Egypt to Sudan) is a glide at the same
+ * zoom; the farther the next country, the more the view widens in the middle, up to FLIGHT_PULL_BACK.
+ */
 function gentleFlight(a: ZoomView, b: ZoomView) {
+  const hop = Math.hypot(b[0] - a[0], b[1] - a[1]) / ((a[2] + b[2]) / 2);
+  const reach = Math.min(1, Math.max(0, (hop - NEAR_HOP) / (FAR_HOP - NEAR_HOP)));
   return (t: number): ZoomView => {
-    const pullBack = 1 + FLIGHT_PULL_BACK * Math.sin(Math.PI * t);
+    const pullBack = 1 + FLIGHT_PULL_BACK * reach * Math.sin(Math.PI * t);
     return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, (a[2] + (b[2] - a[2]) * t) * pullBack];
   };
 }
