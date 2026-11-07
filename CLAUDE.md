@@ -36,12 +36,12 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - Countries in two continents: Russia goes in Europe, Egypt in Africa, and Turkey, Kazakhstan, Georgia, Armenia, Azerbaijan and Cyprus in Asia.
 
 ### Home page
-- Two buttons, **Flags** and **Capitals**, each leading to its settings screen.
+- Three cards, **Flags**, **Capitals** and **Maps**, each leading to its settings screen. The Maps card shows a random country's outline (from `public/maps/shapes/`), drawn in ink.
 
-### Settings screen (same for Flags and Capitals)
+### Settings screen (same for Flags, Capitals and Maps)
 - **Region:** World, or 1 to 5 continents. All 6 can't be picked, because that is World.
 - **Questions:** a slider under Region sets how many countries to name, from 10 up to every country in the chosen region, in steps of 1. It starts at the maximum and resets to the new maximum when the region changes. The countries are a random pick from the region.
-- **Answer mode:** multiple choice or type-in.
+- **Answer mode:** multiple choice or type-in. Maps offers Find it, Name it · multiple choice and Name it · type it in, and starts on Find it.
 - **Time:**
   - 3 min, +5 s per correct answer
   - 5 min, +5 s per correct answer
@@ -112,7 +112,7 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - Logo: a line globe whose outline forms a "G", beside "Geoquiz" in the header and in the browser tab.
 - Home page cards show a random flag and a random capital (with a government building icon) on every load. They always come from two different countries and never repeat the previous load's countries.
 
-### Maps mode (agreed 2026-11-07, being built)
+### Maps mode (agreed 2026-11-07, game built 2026-11-07)
 - A third quiz beside Flags and Capitals, with the same settings, timer, meter, score, pauses, end screen and Practice / Ranked / Hardcore modes.
 - Three answer modes: **Find it** (a country's name is shown; click it on the map), **Name it · multiple choice** and **Name it · type-in** (a country is highlighted; name it).
 - Find it gives 3 tries (1 in Hardcore). A wrong click shows that country's name in red; after the third miss the right country turns green.
@@ -120,8 +120,11 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - Countries too small to tap (Vatican City, Monaco, Pacific islands...) get a small round marker. Tuvalu has no shape at this detail, so it's only a marker.
 - Kosovo is matched by name; Northern Cyprus and Somaliland are drawn as part of Cyprus and Somalia. Other territories (Greenland, Western Sahara...) are plain land that can't be picked; Antarctica is left off.
 - Looks: grey sea, white region countries, grey land outside the region (dark mode: darkest sea, brighter region). The country asked about is ink; green and red only mean right and wrong.
-- Leaderboards: 24 more boards (3 answer modes × Hardcore, World and six continents).
-- Build order: the map (PR A), the game (PR B), ranked Maps (PR C). Until PR B, `/maps` is an unlinked preview where tapping a country shows its name.
+- Game screen: on phones the game covers the whole screen (no site header) with the map edge to edge between the top bar and the answers; on desktop the stage widens to 1280px and the map fills the window's height, with the meter beside it and the four options in one row.
+- Phones (upright frames): a wide region is drawn up to 1.6× larger than "fits entirely", so it fills the screen; the rest is a drag away. Tiny countries asked in Name it get a ring around their marker.
+- Name it zooms in on each highlighted country so it fills about a third of the map (up to 6×), keeping its neighbours in view. Moving to the next country is a 0.45 s flight that pulls back a little mid-way (asked by the owner on 2026-11-07). The meter doesn't drain during the flight, so it never costs points. Find it never zooms on its own (that would give the answer away), except to bring a revealed answer on screen.
+- Leaderboards: 24 more boards (3 answer modes × Hardcore, World and six continents), added in PR C. Until then, a ranked Maps game says its score isn't saved yet.
+- Build order: the map (PR A, done), the game (PR B, done), ranked Maps (PR C).
 
 ### Later
 - An installable web app (PWA), maybe with offline practice. Discussed 2026-11-04, on hold.

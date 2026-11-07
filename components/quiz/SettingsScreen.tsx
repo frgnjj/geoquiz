@@ -5,12 +5,15 @@ import Link from "next/link";
 import { COUNTRIES, CONTINENTS, type Continent } from "@/data/countries";
 import type { Mode } from "@/lib/answers";
 import {
+  answerLabel,
+  answerModesFor,
   availableTimes,
   countriesFor,
   HARDCORE_LOCKS,
   MIN_QUESTIONS,
   PLAY_MODE_LABELS,
   playMode as playModeOf,
+  QUIZ_INFO,
   RANKED_LOCKS,
   TIME_OPTIONS,
   TYPE_IN_TRIES,
@@ -101,18 +104,14 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           Back
         </Link>
         <h1 className="text-5xl leading-[1.05] font-semibold tracking-[-0.03em] lg:text-6xl">
-          {mode === "flags" ? "Flags" : "Capitals"}
+          {QUIZ_INFO[mode].title}
         </h1>
-        <p className="mt-3 text-lg text-muted">
-          {mode === "flags"
-            ? "See a flag, name the country."
-            : "See a country, name its capital."}
-        </p>
+        <p className="mt-3 text-lg text-muted">{QUIZ_INFO[mode].tagline}</p>
 
         </div>
 
         <div className="mt-10 hidden lg:block">
-          <GameSummary settings={chosen} questions={shownCount} />
+          <GameSummary mode={mode} settings={chosen} questions={shownCount} />
         </div>
 
         <button
@@ -190,13 +189,21 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
         </Card>
 
         <Card>
-          <Setting title="Answer">
-            <Chip selected={answerMode === "choice"} onClick={() => setAnswerMode("choice")}>
-              Multiple choice
-            </Chip>
-            <Chip selected={answerMode === "type"} onClick={() => setAnswerMode("type")}>
-              Type it in
-            </Chip>
+          <Setting
+            title="Answer"
+            hint={
+              mode === "maps"
+                ? answerMode === "find"
+                  ? "A country's name is shown. Find it on the map."
+                  : "A country lights up on the map. Name it."
+                : undefined
+            }
+          >
+            {answerModesFor(mode).map((m) => (
+              <Chip key={m} selected={answerMode === m} onClick={() => setAnswerMode(m)}>
+                {answerLabel(mode, m)}
+              </Chip>
+            ))}
           </Setting>
 
           <Setting
@@ -206,6 +213,8 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
                 ? "Hardcore gives one try per question."
                 : answerMode === "type"
                   ? `Typed answers always get ${TYPE_IN_TRIES} tries.`
+                  : answerMode === "find"
+                    ? `Finding a country always gets ${TYPE_IN_TRIES} tries.`
                   : ranked
                     ? lockedHint
                     : "Get a second try when you pick the wrong answer."
@@ -213,14 +222,14 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
           >
             <Chip
               selected={answerMode === "choice" && !chosen.retry}
-              disabled={locked || answerMode === "type"}
+              disabled={locked || answerMode !== "choice"}
               onClick={() => setRetry(false)}
             >
               Off
             </Chip>
             <Chip
               selected={answerMode === "choice" && chosen.retry}
-              disabled={locked || answerMode === "type"}
+              disabled={locked || answerMode !== "choice"}
               onClick={() => setRetry(true)}
             >
               On
@@ -253,7 +262,7 @@ export default function SettingsScreen({ mode, initial, onStart }: Props) {
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-background px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
-        <p className="truncate text-center text-xs text-muted">{summaryLine(chosen, shownCount)}</p>
+        <p className="truncate text-center text-xs text-muted">{summaryLine(mode, chosen, shownCount)}</p>
         <button
           type="button"
           onClick={() => onStart(chosen)}

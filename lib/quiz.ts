@@ -1,6 +1,8 @@
 import { CONTINENTS, COUNTRIES, type Continent, type Country } from "@/data/countries";
+import type { Mode } from "@/lib/answers";
 
-export type AnswerMode = "choice" | "type";
+/** "find" is Maps only: click the country on the map. */
+export type AnswerMode = "choice" | "type" | "find";
 
 export type TimeOption = {
   id: string;
@@ -77,9 +79,9 @@ export const MIN_QUESTIONS = 10;
 export const CHOICE_COUNT = 4;
 export const MAX_PAUSES = 3;
 
-/** Tries per question: type-in gets 3 (1 in Hardcore), multiple choice 1 (2 with retry). */
+/** Tries per question: type-in and Find it get 3 (1 in Hardcore), multiple choice 1 (2 with retry). */
 export function triesFor(settings: Settings): number {
-  if (settings.answerMode === "type") return settings.hardcore ? 1 : TYPE_IN_TRIES;
+  if (settings.answerMode !== "choice") return settings.hardcore ? 1 : TYPE_IN_TRIES;
   return settings.retry ? 2 : 1;
 }
 
@@ -119,4 +121,23 @@ export function makeChoices(answer: Country): Country[] {
     (c) => c.continent === answer.continent && c.code !== answer.code,
   );
   return shuffle([answer, ...shuffle(neighbours).slice(0, CHOICE_COUNT - 1)]);
+}
+
+/** Each quiz's name and one-line description. */
+export const QUIZ_INFO: Record<Mode, { title: string; tagline: string }> = {
+  flags: { title: "Flags", tagline: "See a flag, name the country." },
+  capitals: { title: "Capitals", tagline: "See a country, name its capital." },
+  maps: { title: "Maps", tagline: "Find a country on the map, or name the one shown." },
+};
+
+/** The answer modes a quiz offers. Find it is Maps only. */
+export function answerModesFor(mode: Mode): AnswerMode[] {
+  return mode === "maps" ? ["find", "choice", "type"] : ["choice", "type"];
+}
+
+/** "Multiple choice", or in Maps "Name it · multiple choice". */
+export function answerLabel(mode: Mode, answerMode: AnswerMode): string {
+  if (answerMode === "find") return "Find it";
+  const base = answerMode === "choice" ? "Multiple choice" : "Type it in";
+  return mode === "maps" ? `Name it · ${base.toLowerCase()}` : base;
 }

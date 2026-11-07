@@ -1,10 +1,19 @@
 import type { ReactNode } from "react";
-import { PLAY_MODE_LABELS, playMode, regionLabel, timeOption, triesFor, type Settings } from "@/lib/quiz";
+import type { Mode } from "@/lib/answers";
+import { answerLabel, PLAY_MODE_LABELS, playMode, regionLabel, timeOption, triesFor, type Settings } from "@/lib/quiz";
 
 const TRIES = ["", "one try", "two tries", "three tries"];
 
 /** The chosen settings as a short list, shown beside the settings and on the end screen. */
-export default function GameSummary({ settings, questions }: { settings: Settings; questions: number }) {
+export default function GameSummary({
+  mode,
+  settings,
+  questions,
+}: {
+  mode: Mode;
+  settings: Settings;
+  questions: number;
+}) {
   const time = timeOption(settings.timeId);
   const tries = triesFor(settings);
   return (
@@ -15,7 +24,7 @@ export default function GameSummary({ settings, questions }: { settings: Setting
         <span className="tabular-nums">{questions}</span> countries
       </Row>
       <Row label="Answer">
-        {settings.answerMode === "choice" ? "Multiple choice" : "Type it in"}, {TRIES[tries]}
+        {answerLabel(mode, settings.answerMode)}, {TRIES[tries]}
       </Row>
       <Row label="Time">
         {time.label}
@@ -26,13 +35,13 @@ export default function GameSummary({ settings, questions }: { settings: Setting
 }
 
 /** The same choices on one line, for the phone's bottom bar. */
-export function summaryLine(settings: Settings, questions: number): string {
+export function summaryLine(mode: Mode, settings: Settings, questions: number): string {
   const time = timeOption(settings.timeId);
   return [
     playMode(settings) !== "practice" && PLAY_MODE_LABELS[playMode(settings)],
     regionLabel(settings.continents),
     `${questions} countries`,
-    settings.answerMode === "choice" ? "Multiple choice" : "Type it in",
+    answerLabel(mode, settings.answerMode),
     TRIES[triesFor(settings)],
     time.bonus > 0 ? `${time.label} +${time.bonus}s` : time.label,
   ]
