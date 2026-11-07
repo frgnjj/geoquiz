@@ -44,7 +44,7 @@ type Props = {
 export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   const time = timeOption(settings.timeId);
   const tries = triesFor(settings);
-  const rates = meterRates(settings.hardcore);
+  const rates = meterRates(settings.hardcore, mode === "maps");
   const [queue] = useState(() => {
     const pool = shuffle(countriesFor(settings.continents));
     return pool.slice(0, settings.questionCount ?? pool.length);
@@ -119,7 +119,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   }, [mode, settings.answerMode, index]);
 
   useEffect(() => {
-    const { drain } = meterRates(settings.hardcore);
+    const { drain } = meterRates(settings.hardcore, mode === "maps");
     let last = Date.now();
     const id = setInterval(() => {
       const t = Date.now();
@@ -133,7 +133,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
       }
     }, 100);
     return () => clearInterval(id);
-  }, [settings.hardcore]);
+  }, [settings.hardcore, mode]);
 
   useEffect(() => {
     if (remaining <= 0) finish();

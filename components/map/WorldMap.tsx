@@ -242,6 +242,21 @@ export default function WorldMap({
                   onPick={pick}
                 />
               ))}
+              {/* Markers come after every shape, so no country or border is ever drawn over them. */}
+              {drawn.countries.map(
+                (c) =>
+                  c.marker &&
+                  inRegion.has(c.code) && (
+                    <CountryMarker
+                      key={c.code}
+                      code={c.code}
+                      at={c.marker}
+                      tone={tones[c.code]}
+                      pickable={Boolean(onPick)}
+                      onPick={pick}
+                    />
+                  ),
+              )}
             </>
           )}
         </g>
@@ -283,7 +298,7 @@ export default function WorldMap({
   );
 }
 
-/** One country: its shape, plus a round marker when it's tiny and a ring when it's the one asked about. */
+/** One country's shape. Tiny countries also get a CountryMarker, drawn above every shape. */
 const CountryShape = memo(function CountryShape({
   country: c,
   tone,
@@ -306,30 +321,53 @@ const CountryShape = memo(function CountryShape({
       className={`${fill} ${hover} transition-[fill] duration-150 ${pickable ? "cursor-pointer" : "pointer-events-none"}`}
     >
       {c.d && <path d={c.d} className="stroke-muted/50" vectorEffect="non-scaling-stroke" strokeWidth={0.6} strokeLinejoin="round" />}
-      {/* The country asked about gets a ring too, so a tiny one still catches the eye. */}
-      {c.marker && tone === "highlight" && (
+    </g>
+  );
+});
+
+/** A tiny country's round marker, clickable like its shape. The one asked about gets a ring too. */
+const CountryMarker = memo(function CountryMarker({
+  code,
+  at,
+  tone,
+  pickable,
+  onPick,
+}: {
+  code: string;
+  at: [number, number];
+  tone?: CountryTone;
+  pickable: boolean;
+  onPick: (code: string) => void;
+}) {
+  const fill = tone ? FILL[tone] : "fill-surface dark:fill-line";
+  const hover = pickable && !tone ? "hover:fill-line dark:hover:fill-muted/50" : "";
+  return (
+    <g
+      data-marker-for={code}
+      onClick={pickable ? () => onPick(code) : undefined}
+      className={`${fill} ${hover} transition-[fill] duration-150 ${pickable ? "cursor-pointer" : "pointer-events-none"}`}
+    >
+      {tone === "highlight" && (
         <circle
           data-marker=""
           data-ring=""
-          cx={c.marker[0]}
-          cy={c.marker[1]}
+          cx={at[0]}
+          cy={at[1]}
           r={RING_RADIUS}
           className="fill-none stroke-foreground"
           vectorEffect="non-scaling-stroke"
           strokeWidth={1.5}
         />
       )}
-      {c.marker && inRegion && (
-        <circle
-          data-marker=""
-          cx={c.marker[0]}
-          cy={c.marker[1]}
-          r={MARKER_RADIUS}
-          className="stroke-muted"
-          vectorEffect="non-scaling-stroke"
-          strokeWidth={1}
-        />
-      )}
+      <circle
+        data-marker=""
+        cx={at[0]}
+        cy={at[1]}
+        r={MARKER_RADIUS}
+        className="stroke-muted"
+        vectorEffect="non-scaling-stroke"
+        strokeWidth={1}
+      />
     </g>
   );
 });
