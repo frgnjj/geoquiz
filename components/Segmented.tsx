@@ -20,7 +20,7 @@ export default function Segmented({
           type="button"
           aria-pressed={value === o.id}
           onClick={() => onChange(o.id)}
-          className={`rounded-lg px-4 py-2 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
+          className={`rounded-lg px-2 py-2 text-sm font-medium whitespace-nowrap transition sm:px-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
             value === o.id ? "bg-surface text-foreground shadow-sheet" : "text-muted hover:text-foreground"
           }`}
         >

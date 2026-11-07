@@ -1,7 +1,7 @@
 // Builds public/maps/world.json, the Maps mode map, from Natural Earth 1:50m shapes (world-atlas).
 // Run with `npm run map:build` after changing the country list; the output is committed.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { geoCentroid, geoMercator, geoPath } from "d3-geo";
+import { geoArea, geoCentroid, geoDistance, geoMercator, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import { createRequire } from "node:module";
 
@@ -46,9 +46,34 @@ const SHAPE_H = 144;
 const shapesDir = new URL("../public/maps/shapes/", import.meta.url);
 mkdirSync(shapesDir, { recursive: true });
 const features = feature(topology, topology.objects.countries).features;
+// An outline that's mostly ocean would turn its islands into specks, so far-flung pieces
+// (French Guiana, the Chatham Islands) are dropped, keeping those near the main island.
+// A chain that's still mostly ocean (Micronesia, Palau) is drawn by its main island alone.
+const MOSTLY_OCEAN = 0.04;
+const NEARBY = (8 * Math.PI) / 180; // about 900 km
+const asCollection = (polygons) => ({
+  type: "FeatureCollection",
+  features: polygons.map((coordinates) => ({ type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates } })),
+});
+const oceanShare = (collection) => {
+  const probe = geoPath(geoMercator().rotate([-geoCentroid(collection)[0], 0]).fitSize([SHAPE_W, SHAPE_H], collection));
+  const [[x0, y0], [x1, y1]] = probe.bounds(collection);
+  return probe.area(collection) / Math.max((x1 - x0) * (y1 - y0), 1);
+};
+const trimmed = (collection) => {
+  const polygons = collection.features.flatMap((f) =>
+    f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates,
+  );
+  const area = (rings) => geoArea({ type: "Polygon", coordinates: rings });
+  const centre = (rings) => geoCentroid({ type: "Polygon", coordinates: rings });
+  const main = polygons.reduce((a, b) => (area(b) > area(a) ? b : a));
+  const near = asCollection(polygons.filter((p) => geoDistance(centre(p), centre(main)) <= NEARBY));
+  return oceanShare(near) < MOSTLY_OCEAN ? asCollection([main]) : near;
+};
 for (const code of shaped) {
   if (!code) continue;
-  const collection = { type: "FeatureCollection", features: features.filter((f) => f.id === code) };
+  let collection = { type: "FeatureCollection", features: features.filter((f) => f.id === code) };
+  if (oceanShare(collection) < MOSTLY_OCEAN) collection = trimmed(collection);
   const projection = geoMercator()
     .rotate([-geoCentroid(collection)[0], 0])
     .fitExtent([[4, 4], [SHAPE_W - 4, SHAPE_H - 4]], collection);

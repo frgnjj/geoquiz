@@ -5,17 +5,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { setAccountUsername, signOut, useAccount } from "@/lib/account";
-import { PRESETS } from "@/lib/ranked";
+import { BOARD_QUIZZES, PRESETS } from "@/lib/ranked";
 import { loadBests, loadProfile, type Entry, type Profile as Player } from "@/lib/scores";
 import { USERNAME_FORMAT, USERNAME_RULE, usernameError } from "@/lib/username";
 import Segmented from "@/components/Segmented";
 
-const GROUPS = [
-  { mode: "flags", answer: "choice", title: "Flags · Multiple choice" },
-  { mode: "flags", answer: "type", title: "Flags · Type-in" },
-  { mode: "capitals", answer: "choice", title: "Capitals · Multiple choice" },
-  { mode: "capitals", answer: "type", title: "Capitals · Type-in" },
-];
+/** Every quiz and answer mode with leaderboards, flattened into the profile grid's columns. */
+const GROUPS = BOARD_QUIZZES.flatMap((quiz) =>
+  quiz.answers.map((a) => ({ mode: quiz.id, answer: a.id, title: `${quiz.label} · ${a.label}` })),
+);
+/** Short column names for the wide grid; the quiz name sits above them. */
+const SHORT_ANSWER: Record<string, string> = { choice: "Choice", type: "Typed", find: "Find" };
 const BOARD_COUNT = GROUPS.length * PRESETS.length;
 
 type Loaded =
@@ -113,24 +113,48 @@ export default function Profile({ username }: { username: string }) {
 
 /** Every board at a glance: a grid on wider screens, one quiz type at a time on phones. */
 function Bests({ bests }: { bests: Entry[] }) {
-  const [mode, setMode] = useState("flags");
+  const [mode, setMode] = useState<string>("flags");
   const [answer, setAnswer] = useState("choice");
+  const quiz = BOARD_QUIZZES.find((q) => q.id === mode) ?? BOARD_QUIZZES[0];
+  // Find it is Maps only, so another quiz falls back to its first answer mode.
+  const shownAnswer = quiz.answers.some((a) => a.id === answer) ? answer : quiz.answers[0].id;
   const best = (group: { mode: string; answer: string }, presetId: string) =>
     bests.find((b) => b.board === `${group.mode}:${group.answer}:${presetId}`);
 
   return (
     <section aria-label="Best scores">
-      <div className="hidden overflow-hidden rounded-2xl border border-line bg-surface shadow-sheet sm:block">
+      <div className="hidden overflow-hidden rounded-2xl border border-line bg-surface shadow-sheet lg:block">
         <table className="w-full table-fixed border-collapse text-left">
           <thead>
-            <tr className="border-b border-line">
-              <th scope="col" className="w-[28%] px-5 py-4 text-xs font-medium uppercase tracking-wider text-muted lg:px-6">
+            <tr>
+              <th
+                scope="col"
+                rowSpan={2}
+                className="w-[18%] border-b border-line px-6 py-3 align-bottom text-xs font-medium uppercase tracking-wider text-muted"
+              >
                 Board
               </th>
+              {BOARD_QUIZZES.map((q) => (
+                <th
+                  key={q.id}
+                  scope="colgroup"
+                  colSpan={q.answers.length}
+                  className="border-l border-line px-4 pt-4 pb-1 text-center font-semibold"
+                >
+                  {q.label}
+                </th>
+              ))}
+            </tr>
+            <tr className="border-b border-line">
               {GROUPS.map((g) => (
-                <th key={g.title} scope="col" className="border-l border-line px-4 py-4 text-right font-normal lg:px-5">
-                  <span className="block font-semibold">{g.mode === "flags" ? "Flags" : "Capitals"}</span>
-                  <span className="block text-sm text-muted">{g.answer === "choice" ? "Multiple choice" : "Type-in"}</span>
+                <th
+                  key={g.title}
+                  scope="col"
+                  className={`px-3 pt-1 pb-3 text-right text-sm font-normal text-muted ${
+                    BOARD_QUIZZES.some((q) => q.answers[0].id === g.answer && q.id === g.mode) ? "border-l border-line" : ""
+                  }`}
+                >
+                  {SHORT_ANSWER[g.answer]}
                 </th>
               ))}
             </tr>
@@ -138,22 +162,23 @@ function Bests({ bests }: { bests: Entry[] }) {
           <tbody>
             {PRESETS.map((preset) => (
               <tr key={preset.id} className="border-t border-line first:border-t-0">
-                <th scope="row" className="px-5 py-3 font-medium lg:px-6">
+                <th scope="row" className="px-6 py-3 font-medium whitespace-nowrap">
                   {preset.label}
                 </th>
                 {GROUPS.map((g) => {
                   const entry = best(g, preset.id);
+                  const firstOfQuiz = BOARD_QUIZZES.some((q) => q.id === g.mode && q.answers[0].id === g.answer);
                   return (
-                    <td key={g.title} className="border-l border-line p-0">
+                    <td key={g.title} className={`p-0 ${firstOfQuiz ? "border-l border-line" : ""}`}>
                       <Link
                         href={`/leaderboard?board=${g.mode}:${g.answer}:${preset.id}`}
                         aria-label={`${g.title}, ${preset.label}: ${entry ? `${entry.score}, rank ${entry.rank}` : "not played"}`}
-                        className="flex h-full items-baseline justify-end gap-2 px-4 py-3 tabular-nums transition-colors hover:bg-line/40 lg:px-5"
+                        className="flex h-full items-baseline justify-end gap-1.5 px-3 py-3 tabular-nums transition-colors hover:bg-line/40"
                       >
                         {entry ? (
                           <>
-                            <span className="text-sm text-muted">#{entry.rank}</span>
-                            <span className="text-lg font-semibold">{entry.score}</span>
+                            <span className="text-xs text-muted">#{entry.rank}</span>
+                            <span className="font-semibold">{entry.score}</span>
                           </>
                         ) : (
                           <span className="text-muted/60">&ndash;</span>
@@ -168,32 +193,16 @@ function Bests({ bests }: { bests: Entry[] }) {
         </table>
       </div>
 
-      <div className="flex flex-col gap-3 sm:hidden">
-        <Segmented
-          label="Quiz"
-          options={[
-            { id: "flags", label: "Flags" },
-            { id: "capitals", label: "Capitals" },
-          ]}
-          value={mode}
-          onChange={setMode}
-        />
-        <Segmented
-          label="Answer mode"
-          options={[
-            { id: "choice", label: "Multiple choice" },
-            { id: "type", label: "Type-in" },
-          ]}
-          value={answer}
-          onChange={setAnswer}
-        />
+      <div className="flex flex-col gap-3 lg:hidden">
+        <Segmented label="Quiz" options={BOARD_QUIZZES} value={quiz.id} onChange={setMode} />
+        <Segmented label="Answer mode" options={quiz.answers} value={shownAnswer} onChange={setAnswer} />
         <ul className="mt-1 rounded-2xl border border-line bg-surface shadow-sheet">
           {PRESETS.map((preset) => {
-            const entry = best({ mode, answer }, preset.id);
+            const entry = best({ mode: quiz.id, answer: shownAnswer }, preset.id);
             return (
               <li key={preset.id} className="border-t border-line first:border-t-0">
                 <Link
-                  href={`/leaderboard?board=${mode}:${answer}:${preset.id}`}
+                  href={`/leaderboard?board=${quiz.id}:${shownAnswer}:${preset.id}`}
                   className="flex items-baseline justify-between gap-4 px-5 py-3 transition-colors active:bg-line/40"
                 >
                   <span className={entry ? "font-medium" : "text-muted"}>{preset.label}</span>

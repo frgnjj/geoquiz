@@ -7,6 +7,7 @@ import { COUNTRIES, type Country } from "@/data/countries";
 import { ArrowRightIcon, CapitolIcon } from "@/components/icons";
 import RememberPair from "@/components/RememberPair";
 import Globe from "@/components/Globe";
+import CountryOutline from "@/components/map/CountryOutline";
 import { PAIR_COOKIE } from "@/lib/homePair";
 
 type Pair = { flag: Country; capital: Country; map: Country };
@@ -101,20 +102,10 @@ function ModeCards({ pair }: { pair?: Pair }) {
       description: "Find a country, or name it.",
       // The country's outline, drawn in ink through a mask so it follows the theme.
       preview: pair ? (
-        <span
-          role="img"
-          aria-label="Outline of a country"
-          className="block h-24 w-32 bg-foreground transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:-translate-y-1 lg:h-36 lg:w-48"
-          style={{
-            maskImage: `url(/maps/shapes/${pair.map.code}.svg)`,
-            WebkitMaskImage: `url(/maps/shapes/${pair.map.code}.svg)`,
-            maskSize: "contain",
-            WebkitMaskSize: "contain",
-            maskRepeat: "no-repeat",
-            WebkitMaskRepeat: "no-repeat",
-            maskPosition: "left center",
-            WebkitMaskPosition: "left center",
-          }}
+        <CountryOutline
+          code={pair.map.code}
+          align="left"
+          className="h-24 w-32 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:-translate-y-1 lg:h-36 lg:w-48"
         />
       ) : (
         <div className="h-24 w-32 rounded-md bg-line lg:h-36 lg:w-48" />

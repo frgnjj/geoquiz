@@ -366,7 +366,7 @@ function Chip({
       disabled={disabled}
       title={title}
       onClick={onClick}
-      className={`rounded-full border px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground disabled:cursor-not-allowed disabled:opacity-40 ${
+      className={`rounded-lg border px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground disabled:cursor-not-allowed disabled:opacity-40 ${
         selected
           ? "border-foreground bg-foreground text-background"
           : "border-line bg-surface hover:border-foreground disabled:hover:border-line"
