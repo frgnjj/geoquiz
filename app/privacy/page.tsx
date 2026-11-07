@@ -8,17 +8,17 @@ const UPDATED = "November 2026";
 export default function PrivacyPage() {
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-6 pb-[max(4rem,env(safe-area-inset-bottom))] sm:px-8 lg:pt-10">
-      <h1 className="text-4xl font-semibold tracking-[-0.03em] lg:text-5xl">Privacy</h1>
+      <h1 className="text-5xl leading-[1.05] font-semibold tracking-[-0.03em] lg:text-6xl">Privacy</h1>
       <p className="mt-3 text-muted">Last updated {UPDATED}.</p>
 
-      <div className="mt-10 space-y-10 leading-relaxed">
-        <Section title="The short version">
-          <p>
-            You can play Geoquiz without an account. If you sign in to save scores, we keep your
-            username, your email address and your best scores. There are no ads, no tracking and no
-            selling of data.
-          </p>
-        </Section>
+      {/* The short version leads, in larger type; the details follow in ruled sections. */}
+      <p className="mt-10 text-xl leading-relaxed text-pretty lg:text-2xl lg:leading-relaxed">
+        You can play Geoquiz without an account. If you sign in to save scores, we keep your
+        username, your email address and your best scores. There are no ads, no tracking and no
+        selling of data.
+      </p>
+
+      <div className="mt-12 leading-relaxed">
 
         <Section title="Playing without an account">
           <p>Nothing about you is stored. Your browser keeps two small things on your device:</p>
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-3">
+    <section className="space-y-3 border-t border-line py-8">
       <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
       {children}
     </section>

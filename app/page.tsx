@@ -6,6 +6,7 @@ import { connection } from "next/server";
 import { COUNTRIES, type Country } from "@/data/countries";
 import { ArrowRightIcon, CapitolIcon } from "@/components/icons";
 import RememberPair from "@/components/RememberPair";
+import Globe from "@/components/Globe";
 import { PAIR_COOKIE } from "@/lib/homePair";
 
 type Pair = { flag: Country; capital: Country };
@@ -114,19 +115,5 @@ function ModeCards({ pair }: { pair?: Pair }) {
         </Link>
       ))}
     </div>
-  );
-}
-
-/** A faint line globe behind each card, drawn like the logo, tilted like the Earth's axis. */
-function Globe({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 200 200" fill="none" stroke="currentColor" aria-hidden="true" className={className}>
-      <g strokeWidth={0.5}>
-        <circle cx="100" cy="100" r="96" />
-        <ellipse cx="100" cy="100" rx="32" ry="96" />
-        <ellipse cx="100" cy="100" rx="64" ry="96" />
-        <path d="M100 4v192M4 100h192M16.9 52h166.2M16.9 148h166.2M36.5 28h127M36.5 172h127" />
-      </g>
-    </svg>
   );
 }

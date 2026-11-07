@@ -8,6 +8,7 @@ import { setAccountUsername, signOut, useAccount } from "@/lib/account";
 import { PRESETS } from "@/lib/ranked";
 import { loadBests, loadProfile, type Entry, type Profile as Player } from "@/lib/scores";
 import { USERNAME_FORMAT, USERNAME_RULE, usernameError } from "@/lib/username";
+import Segmented from "@/components/Segmented";
 
 const GROUPS = [
   { mode: "flags", answer: "choice", title: "Flags · Multiple choice" },
@@ -85,51 +86,132 @@ export default function Profile({ username }: { username: string }) {
   return (
     <div className="flex flex-col gap-8 lg:gap-10">
       <div>
-        <h1 className="break-words text-5xl leading-[1.05] font-semibold tracking-[-0.03em] lg:text-6xl">
-          {player.username}
-        </h1>
-        <p className="mt-3 text-lg text-muted">
+        <div className="flex items-center gap-4 lg:gap-6">
+          {/* The same round initial as the header menu, at page size. */}
+          <span
+            aria-hidden="true"
+            className="flex size-14 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-2xl font-semibold uppercase shadow-sheet lg:size-20 lg:text-3xl"
+          >
+            {player.username[0]}
+          </span>
+          <h1 className="min-w-0 break-words text-5xl leading-[1.05] font-semibold tracking-[-0.03em] lg:text-6xl">
+            {player.username}
+          </h1>
+        </div>
+        <p className="mt-4 text-lg text-muted">
           Joined {joined} &middot; <span className="tabular-nums">{bests.length}</span> of {BOARD_COUNT} boards played
         </p>
         {own && <OwnActions userId={player.id} username={player.username} />}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {GROUPS.map((group) => (
-          <section key={group.title} className="rounded-2xl border border-line bg-surface shadow-sheet">
-            <h2 className="border-b border-line px-5 py-4 text-sm font-medium uppercase tracking-wider text-muted lg:px-6">
-              {group.title}
-            </h2>
-            <ul>
-              {PRESETS.map((preset) => {
-                const board = `${group.mode}:${group.answer}:${preset.id}`;
-                const best = bests.find((b) => b.board === board);
-                return (
-                  <li key={board} className="border-t border-line first:border-t-0">
-                    <Link
-                      href={`/leaderboard?board=${board}`}
-                      className="flex items-baseline justify-between gap-4 px-5 py-3 transition-colors hover:bg-line/40 lg:px-6"
-                    >
-                      <span className={best ? "font-medium" : "text-muted"}>{preset.label}</span>
-                      {best ? (
-                        <span className="flex items-baseline gap-3 tabular-nums">
-                          <span className="text-sm text-muted">#{best.rank}</span>
-                          <span className="w-14 text-right text-lg font-semibold">{best.score}</span>
-                        </span>
-                      ) : (
-                        <span className="text-sm text-muted">Not played</span>
-                      )}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        ))}
-      </div>
+      <Bests bests={bests} />
 
       {own && <DeleteAccount />}
     </div>
+  );
+}
+
+/** Every board at a glance: a grid on wider screens, one quiz type at a time on phones. */
+function Bests({ bests }: { bests: Entry[] }) {
+  const [mode, setMode] = useState("flags");
+  const [answer, setAnswer] = useState("choice");
+  const best = (group: { mode: string; answer: string }, presetId: string) =>
+    bests.find((b) => b.board === `${group.mode}:${group.answer}:${presetId}`);
+
+  return (
+    <section aria-label="Best scores">
+      <div className="hidden overflow-hidden rounded-2xl border border-line bg-surface shadow-sheet sm:block">
+        <table className="w-full table-fixed border-collapse text-left">
+          <thead>
+            <tr className="border-b border-line">
+              <th scope="col" className="w-[28%] px-5 py-4 text-xs font-medium uppercase tracking-wider text-muted lg:px-6">
+                Board
+              </th>
+              {GROUPS.map((g) => (
+                <th key={g.title} scope="col" className="border-l border-line px-4 py-4 text-right font-normal lg:px-5">
+                  <span className="block font-semibold">{g.mode === "flags" ? "Flags" : "Capitals"}</span>
+                  <span className="block text-sm text-muted">{g.answer === "choice" ? "Multiple choice" : "Type-in"}</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {PRESETS.map((preset) => (
+              <tr key={preset.id} className="border-t border-line first:border-t-0">
+                <th scope="row" className="px-5 py-3 font-medium lg:px-6">
+                  {preset.label}
+                </th>
+                {GROUPS.map((g) => {
+                  const entry = best(g, preset.id);
+                  return (
+                    <td key={g.title} className="border-l border-line p-0">
+                      <Link
+                        href={`/leaderboard?board=${g.mode}:${g.answer}:${preset.id}`}
+                        aria-label={`${g.title}, ${preset.label}: ${entry ? `${entry.score}, rank ${entry.rank}` : "not played"}`}
+                        className="flex h-full items-baseline justify-end gap-2 px-4 py-3 tabular-nums transition-colors hover:bg-line/40 lg:px-5"
+                      >
+                        {entry ? (
+                          <>
+                            <span className="text-sm text-muted">#{entry.rank}</span>
+                            <span className="text-lg font-semibold">{entry.score}</span>
+                          </>
+                        ) : (
+                          <span className="text-muted/60">&ndash;</span>
+                        )}
+                      </Link>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:hidden">
+        <Segmented
+          label="Quiz"
+          options={[
+            { id: "flags", label: "Flags" },
+            { id: "capitals", label: "Capitals" },
+          ]}
+          value={mode}
+          onChange={setMode}
+        />
+        <Segmented
+          label="Answer mode"
+          options={[
+            { id: "choice", label: "Multiple choice" },
+            { id: "type", label: "Type-in" },
+          ]}
+          value={answer}
+          onChange={setAnswer}
+        />
+        <ul className="mt-1 rounded-2xl border border-line bg-surface shadow-sheet">
+          {PRESETS.map((preset) => {
+            const entry = best({ mode, answer }, preset.id);
+            return (
+              <li key={preset.id} className="border-t border-line first:border-t-0">
+                <Link
+                  href={`/leaderboard?board=${mode}:${answer}:${preset.id}`}
+                  className="flex items-baseline justify-between gap-4 px-5 py-3 transition-colors active:bg-line/40"
+                >
+                  <span className={entry ? "font-medium" : "text-muted"}>{preset.label}</span>
+                  {entry ? (
+                    <span className="flex items-baseline gap-3 tabular-nums">
+                      <span className="text-sm text-muted">#{entry.rank}</span>
+                      <span className="text-lg font-semibold">{entry.score}</span>
+                    </span>
+                  ) : (
+                    <span className="text-sm text-muted">Not played</span>
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
   );
 }
 
@@ -295,13 +377,10 @@ function SmallButton({ onClick, children }: { onClick: () => void; children: Rea
 
 function Skeleton() {
   return (
-    <div aria-hidden="true">
+    <div aria-hidden="true" className="motion-safe:animate-pulse">
       <div className="h-14 w-64 rounded-lg bg-line" />
       <div className="mt-4 h-5 w-80 max-w-full rounded bg-line" />
-      <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <div className="h-96 rounded-2xl bg-line/60" />
-        <div className="h-96 rounded-2xl bg-line/60" />
-      </div>
+      <div className="mt-10 h-96 rounded-2xl bg-line/60" />
     </div>
   );
 }
