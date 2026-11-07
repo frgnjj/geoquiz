@@ -70,6 +70,54 @@ function sizeMarkers(layer: SVGGElement, k: number) {
   });
 }
 
+/** Finger taps: how close (px on screen) a tap must be to a small country's dot, or to a coast, to count. */
+const TAP_DOT_REACH = 12;
+const TAP_COAST_REACH = 10;
+
+/** The pickable country (or its marker) at a point on screen, if any. */
+function codeAt(layer: SVGGElement, x: number, y: number): string | undefined {
+  for (const el of document.elementsFromPoint(x, y)) {
+    if (!layer.contains(el)) continue;
+    const g = el.closest<SVGGElement>("g.cursor-pointer");
+    const code = g?.dataset.code ?? g?.dataset.markerFor;
+    if (code) return code;
+  }
+  return undefined;
+}
+
+/**
+ * What a finger tap picks, most specific first: the closest small country's dot within reach,
+ * then the country under the finger, then the closest coast within reach of a tap on the sea.
+ */
+function tapTarget(layer: SVGGElement, x: number, y: number): string | undefined {
+  let nearest: string | undefined;
+  let nearestDistance = TAP_DOT_REACH;
+  layer.querySelectorAll<SVGGElement>("g.cursor-pointer[data-marker-for]").forEach((g) => {
+    const dot = g.querySelector<SVGCircleElement>("circle:not([data-ring])");
+    if (!dot || dot.getAttribute("visibility") === "hidden") return;
+    const box = dot.getBoundingClientRect();
+    const distance = Math.hypot(box.left + box.width / 2 - x, box.top + box.height / 2 - y);
+    if (distance <= nearestDistance) {
+      nearest = g.dataset.markerFor;
+      nearestDistance = distance;
+    }
+  });
+  if (nearest) return nearest;
+
+  const under = codeAt(layer, x, y);
+  if (under) return under;
+
+  // Rings of points around the tap, closest first.
+  for (let radius = 3; radius <= TAP_COAST_REACH; radius += 3.5) {
+    for (let step = 0; step < 12; step++) {
+      const angle = (step / 12) * 2 * Math.PI;
+      const code = codeAt(layer, x + radius * Math.cos(angle), y + radius * Math.sin(angle));
+      if (code) return code;
+    }
+  }
+  return undefined;
+}
+
 function gentleFlight(a: ZoomView, b: ZoomView) {
   const hop = Math.hypot(b[0] - a[0], b[1] - a[1]) / ((a[2] + b[2]) / 2);
   const reach = Math.min(1, Math.max(0, (hop - NEAR_HOP) / (FAR_HOP - NEAR_HOP)));
@@ -143,10 +191,31 @@ export default function WorldMap({
   useLayoutEffect(() => {
     onPickRef.current = onPick;
   });
-  const pick = useCallback((code: string) => onPickRef.current?.(code), []);
+  // Finger taps go through tapTarget below (more forgiving); mouse clicks stay exact.
+  const lastPointer = useRef("mouse");
+  const pick = useCallback((code: string) => {
+    if (lastPointer.current !== "touch") onPickRef.current?.(code);
+  }, []);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const layerRef = useRef<SVGGElement>(null);
+
+  // Phones (finger taps only): the country under the finger darkens straight away.
+  function pressStart(event: React.PointerEvent<SVGSVGElement>) {
+    lastPointer.current = event.pointerType;
+    if (event.pointerType !== "touch" || !onPickRef.current) return;
+    const target = (event.target as Element).closest<SVGGElement>("g.cursor-pointer");
+    target?.setAttribute("data-pressed", "");
+  }
+  function pressEnd() {
+    svgRef.current?.querySelectorAll("[data-pressed]").forEach((el) => el.removeAttribute("data-pressed"));
+  }
+  function tap(event: React.MouseEvent<SVGSVGElement>) {
+    pressEnd();
+    if (lastPointer.current !== "touch" || !onPickRef.current || !layerRef.current) return;
+    const code = tapTarget(layerRef.current, event.clientX, event.clientY);
+    if (code) onPickRef.current(code);
+  }
   const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
 
   // Pinch, scroll and drag move one layer; markers stay the same size on screen at any zoom.
@@ -163,6 +232,8 @@ export default function WorldMap({
         const { x, y, k } = event.transform;
         layer.setAttribute("transform", `translate(${x},${y}) scale(${k})`);
         sizeMarkers(layer, k);
+        // A drag isn't a tap, so nothing stays pressed.
+        if (event.sourceEvent?.type?.endsWith("move")) layer.querySelectorAll("[data-pressed]").forEach((el) => el.removeAttribute("data-pressed"));
       });
     zoomRef.current = behavior;
     const selection = select(svg);
@@ -259,6 +330,10 @@ export default function WorldMap({
         role="img"
         aria-label={label}
         className={`block w-full touch-none select-none ${size === "fill" ? "absolute inset-0 h-full" : "aspect-[5/3]"}`}
+        onPointerDown={pressStart}
+        onPointerUp={pressEnd}
+        onPointerCancel={pressEnd}
+        onClick={tap}
       >
         <g ref={layerRef}>
           {drawn && (
@@ -346,7 +421,7 @@ const CountryShape = memo(function CountryShape({
   onPick: (code: string) => void;
 }) {
   const fill = tone ? FILL[tone] : inRegion ? "fill-surface dark:fill-line" : "fill-line dark:fill-surface";
-  const hover = pickable && !tone ? "hover:fill-line/70 dark:hover:fill-muted/50" : "";
+  const hover = pickable && !tone ? "hover:fill-line/70 dark:hover:fill-muted/50 data-pressed:fill-line dark:data-pressed:fill-muted/50" : "";
   return (
     <g
       data-code={c.code}
@@ -376,7 +451,7 @@ const CountryMarker = memo(function CountryMarker({
   onPick: (code: string) => void;
 }) {
   const fill = tone ? FILL[tone] : "fill-surface dark:fill-line";
-  const hover = pickable && !tone ? "hover:fill-line dark:hover:fill-muted/50" : "";
+  const hover = pickable && !tone ? "hover:fill-line dark:hover:fill-muted/50 data-pressed:fill-line dark:data-pressed:fill-muted/50" : "";
   return (
     <g
       data-marker-for={code}
