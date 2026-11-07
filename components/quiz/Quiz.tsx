@@ -13,7 +13,10 @@ type Phase =
   | { name: "done"; results: Result[]; total: number; score: number; playedMs: number };
 
 export default function Quiz({ mode }: { mode: Mode }) {
-  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  // Maps starts on Find it, its own answer mode.
+  const [settings, setSettings] = useState<Settings>(
+    mode === "maps" ? { ...DEFAULT_SETTINGS, answerMode: "find" } : DEFAULT_SETTINGS,
+  );
   const [phase, setPhase] = useState<Phase>({ name: "settings" });
 
   // Next.js keeps this page alive (hidden) after navigating away. Going back to settings when it
@@ -33,7 +36,12 @@ export default function Quiz({ mode }: { mode: Mode }) {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-4 pb-[max(3rem,env(safe-area-inset-bottom))] sm:px-8 lg:pb-24">
+    // A Maps game gets a wider stage on desktop, so the map can be big.
+    <main
+      className={`mx-auto flex w-full flex-1 flex-col px-4 pb-[max(3rem,env(safe-area-inset-bottom))] sm:px-8 ${
+        mode === "maps" && phase.name === "playing" ? "max-w-7xl lg:pb-6" : "max-w-5xl lg:pb-24"
+      }`}
+    >
       {phase.name === "settings" && (
         <SettingsScreen mode={mode} initial={settings} onStart={start} />
       )}

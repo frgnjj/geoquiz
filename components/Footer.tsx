@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 // The quiz pages keep the screen to the game (and phones have Start pinned to the bottom there).
-const HIDDEN_ON = ["/flags", "/capitals"];
+const HIDDEN_ON = ["/flags", "/capitals", "/maps"];
 
 export default function Footer() {
   const pathname = usePathname();
