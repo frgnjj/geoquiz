@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useEffectEvent, useRef, useState } from "react";
-import type { Country } from "@/data/countries";
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import { COUNTRIES, type Country } from "@/data/countries";
 import { displayAnswer, isCorrect, type Mode } from "@/lib/answers";
 import {
   countriesFor,
@@ -18,6 +18,7 @@ import {
 import { meterRates, METER_FULL_HOLD_MS, pointsFor } from "@/lib/score";
 import { setQuizActive } from "@/lib/quizActive";
 import { PauseIcon, PlayIcon } from "@/components/icons";
+import WorldMap, { type CountryTone } from "@/components/map/WorldMap";
 import ScoreMeter from "./ScoreMeter";
 import QuitButton from "./QuitButton";
 
@@ -75,6 +76,8 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   const [pausesLeft, setPausesLeft] = useState(MAX_PAUSES);
   const pausedRef = useRef(false);
   const pausedAt = useRef(0);
+
+  const regionCodes = useMemo(() => countriesFor(settings.continents).map((c) => c.code), [settings.continents]);
 
   const finished = useRef(false);
   const country = queue[index];
@@ -199,6 +202,12 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
     if (wrong.length >= tries) resolve(false);
   }
 
+  /** Find it: a click on the map counts like picking that country as an answer. */
+  function findPick(code: string) {
+    const picked = COUNTRIES.find((c) => c.code === code);
+    if (picked) pick(picked);
+  }
+
   const onKey = useEffectEvent((e: KeyboardEvent) => {
     if (settings.answerMode !== "choice" || paused) return;
     const n = Number(e.key);
@@ -229,83 +238,277 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
 
   const answer = displayAnswer(country, mode);
   const answered = index + (feedback ? 1 : 0);
+  const modeLabel = playMode(settings) !== "practice" ? PLAY_MODE_LABELS[playMode(settings)] : null;
+
+  const controls = (
+    <span className="-ml-3 flex items-center gap-1">
+      <QuitButton onConfirm={onQuit} />
+      <button
+        type="button"
+        onClick={togglePause}
+        disabled={!paused && pausesLeft === 0}
+        aria-label={paused ? "Resume" : `Pause (${pausesLeft} left)`}
+        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:bg-line/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground active:bg-line/60 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted"
+      >
+        {paused ? <PlayIcon className="size-4" /> : <PauseIcon className="size-4" />}
+        {paused ? (
+          "Resume"
+        ) : (
+          <>
+            <span className="hidden sm:inline">Pause ({pausesLeft} left)</span>
+            <span className="tabular-nums sm:hidden">{pausesLeft}</span>
+          </>
+        )}
+      </button>
+    </span>
+  );
+
+  const progressText = (
+    <>
+      {modeLabel && (
+        <>
+          <span className="font-medium text-foreground">{modeLabel}</span>
+          <span className="mx-3 opacity-40">·</span>
+        </>
+      )}
+      Question <span className="font-medium text-foreground">{index + 1}</span> of {queue.length}
+      <span className="mx-3 opacity-40">·</span>
+      {correctCount} correct
+    </>
+  );
+
+  const stats = (
+    <span className="flex items-baseline gap-4 lg:gap-8">
+      <span className="relative">
+        <span className="text-sm text-muted">Score</span>{" "}
+        <span className="text-xl font-semibold tracking-tight tabular-nums lg:text-2xl">{score}</span>
+        {lastPoints && (
+          <span key={lastPoints.key} className="animate-bonus absolute -top-5 right-0 text-sm font-medium text-correct">
+            +{lastPoints.points}
+          </span>
+        )}
+      </span>
+      <span className="relative font-mono text-xl tabular-nums lg:text-2xl">
+        <span className={remaining <= 10_000 ? "text-wrong" : undefined}>{formatTime(remaining)}</span>
+        {bonusKey > 0 && (
+          <span
+            key={bonusKey}
+            className="animate-bonus absolute -top-5 right-0 font-sans text-sm font-medium text-correct"
+          >
+            +{time.bonus}s
+          </span>
+        )}
+      </span>
+    </span>
+  );
+
+  const progressLine = (
+    <div className="h-px w-full bg-line" aria-hidden="true">
+      <div
+        className="h-px bg-foreground transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{ width: `${(answered / queue.length) * 100}%` }}
+      />
+    </div>
+  );
+
+  const pausedCard = (
+    <div className="flex w-full max-w-md flex-col items-center rounded-2xl border border-line bg-surface px-6 py-10 text-center shadow-sheet lg:px-10 lg:py-14">
+      <h1 className="text-4xl font-semibold tracking-tight lg:text-5xl">Paused</h1>
+      <p className="mt-3 text-muted">
+        {pausesLeft === 0 ? "That was your last pause." : `${pausesLeft} ${pausesLeft === 1 ? "pause" : "pauses"} left.`}
+      </p>
+      <button
+        type="button"
+        onClick={togglePause}
+        className="mt-8 flex items-center gap-2 rounded-xl bg-foreground px-6 py-3 font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
+      >
+        <PlayIcon className="size-4" />
+        Resume
+      </button>
+    </div>
+  );
+
+  // In Find it, the last wrong pick is named so the miss still teaches something.
+  const lastWrong = wrongPicks.length > 0 ? COUNTRIES.find((c) => c.code === wrongPicks.at(-1)) : undefined;
+  const feedbackText =
+    feedback === "correct"
+      ? "Correct"
+      : feedback === "reveal"
+        ? settings.answerMode === "find"
+          ? `${country.name} is shown in green`
+          : `The answer is ${answer}`
+        : settings.answerMode === "find" && lastWrong
+          ? `That’s ${lastWrong.name}. ${tries - wrongPicks.length} ${tries - wrongPicks.length === 1 ? "try" : "tries"} left.`
+          : null;
+  const feedbackLine = (
+    <p
+      className={`min-h-6 text-center font-medium lg:text-lg ${feedback === "correct" ? "text-correct" : "text-wrong"}`}
+      aria-live="polite"
+    >
+      {feedbackText}
+    </p>
+  );
+
+  const choiceButtons = (
+    // On the Maps stage the four options sit in one row on desktop, leaving the height to the map.
+    <div className={`grid w-full grid-cols-2 gap-2 lg:gap-3 ${mode === "maps" ? "lg:grid-cols-4" : ""}`}>
+      {choices.map((choice, i) => {
+        const isAnswer = choice.code === country.code;
+        const pickedWrong = wrongPicks.includes(choice.code);
+        const showRight = isAnswer && feedback !== null;
+        return (
+          <button
+            key={choice.code}
+            type="button"
+            onClick={() => pick(choice)}
+            disabled={feedback !== null || pickedWrong}
+            className={`flex items-center gap-4 rounded-xl border bg-surface px-4 py-3.5 text-left leading-snug shadow-sheet transition duration-300 enabled:active:scale-[0.98] lg:px-5 lg:py-4 lg:text-lg ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
+              showRight
+                ? "border-correct text-correct"
+                : pickedWrong
+                  ? "border-wrong text-wrong line-through opacity-70"
+                  : "border-line enabled:hover:border-foreground enabled:hover:shadow-lifted motion-safe:enabled:hover:-translate-y-0.5"
+            }`}
+          >
+            {/* Keys 1 to 4 only help with a keyboard. */}
+            <span className="font-mono text-sm text-muted [@media(pointer:coarse)]:hidden">{i + 1}</span>
+            {displayAnswer(choice, mode)}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const typedForm = (
+    <form onSubmit={submitTyped} className="w-full max-w-md">
+      <div key={shakeKey} className={shakeKey > 0 ? "animate-shake" : undefined}>
+        <input
+          ref={inputRef}
+          value={typed}
+          onChange={(e) => setTyped(e.target.value)}
+          disabled={feedback !== null}
+          placeholder={mode === "capitals" ? "Capital" : "Country"}
+          autoComplete="off"
+          autoCapitalize="none"
+          autoCorrect="off"
+          enterKeyHint="go"
+          spellCheck={false}
+          className={`w-full rounded-xl border bg-surface px-5 py-3.5 text-lg lg:py-4 shadow-sheet outline-none transition-colors placeholder:text-muted focus:border-foreground ${
+            feedback === "correct" ? "border-correct" : wrongTries > 0 ? "border-wrong" : "border-line"
+          }`}
+        />
+      </div>
+      <div className="mt-3 flex items-center justify-between text-sm text-muted">
+        <span>
+          {feedback === null &&
+            wrongTries > 0 &&
+            `Not quite. ${tries - wrongTries} ${tries - wrongTries === 1 ? "try" : "tries"} left.`}
+          {feedback === null && wrongTries === 0 && (
+            <span className="[@media(pointer:coarse)]:hidden">Press Enter to answer.</span>
+          )}
+        </span>
+        <button
+          type="button"
+          onClick={() => resolve(false)}
+          disabled={feedback !== null}
+          className="-mr-2 rounded-lg px-2 py-1 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground disabled:opacity-40"
+        >
+          Skip
+        </button>
+      </div>
+    </form>
+  );
+
+  if (mode === "maps") {
+    const finding = settings.answerMode === "find";
+    const tones: Record<string, CountryTone> = {};
+    if (finding) {
+      for (const code of wrongPicks) tones[code] = "wrong";
+      if (feedback) tones[country.code] = "correct";
+    } else {
+      tones[country.code] = feedback === "correct" ? "correct" : "highlight";
+    }
+
+    return (
+      // Phones: the game takes the whole screen, with the map edge to edge.
+      // Desktop: a wide stage that fills the window under the header.
+      <div className="fixed inset-0 z-30 flex flex-col bg-background pt-[max(0.5rem,env(safe-area-inset-top))] lg:static lg:z-auto lg:mx-auto lg:h-[calc(100svh-7rem)] lg:min-h-[34rem] lg:w-full lg:pt-2">
+        <div className="px-4 lg:px-0">
+          <div className="flex items-center justify-between">
+            {controls}
+            <span className="hidden text-sm text-muted tabular-nums lg:inline">{progressText}</span>
+            {stats}
+          </div>
+          <div className="mt-3">{progressLine}</div>
+          <div className="mt-3 lg:hidden">
+            <ScoreMeter meter={meter} layout="horizontal" />
+          </div>
+        </div>
+
+        <div className="px-4 pt-3 text-center lg:px-0 lg:pt-5">
+          {finding ? (
+            <h1 className="text-3xl leading-[1.1] font-semibold tracking-[-0.03em] text-balance lg:text-5xl">
+              <span className="font-normal text-muted">Find </span>
+              {country.name}
+            </h1>
+          ) : (
+            <h1 className="text-xl font-medium text-muted lg:text-2xl">Which country is highlighted?</h1>
+          )}
+          <div className="mt-1.5 lg:mt-2">{feedbackLine}</div>
+        </div>
+
+        <div className="mt-2 flex min-h-0 flex-1 gap-8 lg:mt-4">
+          <div className="relative min-h-0 flex-1">
+            {paused ? (
+              <div className="flex h-full items-center justify-center px-4">{pausedCard}</div>
+            ) : (
+              <WorldMap
+                size="fill"
+                continents={settings.continents}
+                region={regionCodes}
+                tones={tones}
+                onPick={finding && !feedback ? findPick : undefined}
+                focus={finding ? (feedback ? country.code : undefined) : country.code}
+                label={finding ? `Map. Find ${country.name}.` : "Map with one country highlighted."}
+                className="rounded-none border-x-0 shadow-none lg:rounded-2xl lg:border-x lg:shadow-sheet"
+              />
+            )}
+          </div>
+          <div className="hidden items-center lg:flex">
+            <ScoreMeter meter={meter} />
+          </div>
+        </div>
+
+        <div className="px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:px-0 lg:pt-5 lg:pb-0">
+          {!paused && !finding && (
+            <div className="mx-auto flex max-w-5xl justify-center">
+              {settings.answerMode === "choice" ? choiceButtons : typedForm}
+            </div>
+          )}
+          {finding && (
+            <p className="text-center text-sm text-muted lg:hidden">
+              Pinch to zoom, drag to move.
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col pt-2">
       <div className="flex items-center justify-between">
-        <span className="-ml-3 flex items-center gap-1">
-          <QuitButton onConfirm={onQuit} />
-          <button
-            type="button"
-            onClick={togglePause}
-            disabled={!paused && pausesLeft === 0}
-            aria-label={paused ? "Resume" : `Pause (${pausesLeft} left)`}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:bg-line/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground active:bg-line/60 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted"
-          >
-            {paused ? <PlayIcon className="size-4" /> : <PauseIcon className="size-4" />}
-            {paused ? (
-              "Resume"
-            ) : (
-              <>
-                <span className="hidden sm:inline">Pause ({pausesLeft} left)</span>
-                <span className="tabular-nums sm:hidden">{pausesLeft}</span>
-              </>
-            )}
-          </button>
-        </span>
-        <span className="hidden text-sm text-muted tabular-nums lg:inline">
-          {playMode(settings) !== "practice" && (
-            <>
-              <span className="font-medium text-foreground">{PLAY_MODE_LABELS[playMode(settings)]}</span>
-              <span className="mx-3 opacity-40">·</span>
-            </>
-          )}
-          Question <span className="font-medium text-foreground">{index + 1}</span> of {queue.length}
-          <span className="mx-3 opacity-40">·</span>
-          {correctCount} correct
-        </span>
-        <span className="flex items-baseline gap-4 lg:gap-8">
-          <span className="relative">
-            <span className="text-sm text-muted">Score</span>{" "}
-            <span className="text-xl font-semibold tracking-tight tabular-nums lg:text-2xl">{score}</span>
-            {lastPoints && (
-              <span
-                key={lastPoints.key}
-                className="animate-bonus absolute -top-5 right-0 text-sm font-medium text-correct"
-              >
-                +{lastPoints.points}
-              </span>
-            )}
-          </span>
-          <span className="relative font-mono text-xl tabular-nums lg:text-2xl">
-            <span className={remaining <= 10_000 ? "text-wrong" : undefined}>
-              {formatTime(remaining)}
-            </span>
-            {bonusKey > 0 && (
-              <span
-                key={bonusKey}
-                className="animate-bonus absolute -top-5 right-0 font-sans text-sm font-medium text-correct"
-              >
-                +{time.bonus}s
-              </span>
-            )}
-          </span>
-        </span>
+        {controls}
+        <span className="hidden text-sm text-muted tabular-nums lg:inline">{progressText}</span>
+        {stats}
       </div>
 
       {/* Progress through the questions. */}
-      <div className="mt-3 h-px w-full bg-line lg:mt-4" aria-hidden="true">
-        <div
-          className="h-px bg-foreground transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
-          style={{ width: `${(answered / queue.length) * 100}%` }}
-        />
-      </div>
+      <div className="mt-3 lg:mt-4">{progressLine}</div>
 
       {/* Phones: the question count moves under the bar, and the meter turns sideways. */}
       <p className="mt-2 text-center text-xs text-muted tabular-nums lg:hidden">
-        {playMode(settings) !== "practice" && (
-          <span className="font-medium text-foreground">{PLAY_MODE_LABELS[playMode(settings)]} · </span>
-        )}
+        {modeLabel && <span className="font-medium text-foreground">{modeLabel} · </span>}
         Question <span className="font-medium text-foreground">{index + 1}</span> of {queue.length}
         {" · "}
         {correctCount} correct
@@ -318,128 +521,36 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
         {/* Balances the meter so the question stays centred. */}
         <div className="hidden w-16 shrink-0 lg:block" aria-hidden="true" />
         <div className="flex w-full max-w-3xl flex-col items-center">
-        {paused ? (
-          <div className="flex w-full max-w-md flex-col items-center rounded-2xl border border-line bg-surface px-6 py-10 text-center shadow-sheet lg:px-10 lg:py-14">
-            <h1 className="text-4xl font-semibold tracking-tight lg:text-5xl">Paused</h1>
-            <p className="mt-3 text-muted">
-              {pausesLeft === 0
-                ? "That was your last pause."
-                : `${pausesLeft} ${pausesLeft === 1 ? "pause" : "pauses"} left.`}
-            </p>
-            <button
-              type="button"
-              onClick={togglePause}
-              className="mt-8 flex items-center gap-2 rounded-xl bg-foreground px-6 py-3 font-medium text-background transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
-            >
-              <PlayIcon className="size-4" />
-              Resume
-            </button>
-          </div>
-        ) : (
-          <>
-          {mode === "flags" ? (
-            <Image
-              src={`/flags/${country.code}.svg`}
-              alt="Flag to identify"
-              width={420}
-              height={315}
-              unoptimized
-              priority
-              className="aspect-[4/3] h-[min(315px,32svh)] w-auto max-w-full lg:h-[315px] rounded-lg object-cover shadow-flag ring-1 ring-line"
-            />
+          {paused ? (
+            pausedCard
           ) : (
-            <div className="text-center">
-              <p className="text-muted lg:text-lg">What is the capital of</p>
-              <h1 className="mt-2 text-4xl leading-[1.05] font-semibold tracking-[-0.03em] text-balance lg:text-6xl">
-                {country.name}
-              </h1>
-            </div>
-          )}
-
-          <p
-            className={`mt-4 min-h-7 text-center font-medium lg:mt-8 lg:text-lg ${
-              feedback === "correct" ? "text-correct" : "text-wrong"
-            }`}
-            aria-live="polite"
-          >
-            {feedback === "correct" && "Correct"}
-            {feedback === "reveal" && `The answer is ${answer}`}
-          </p>
-
-          {settings.answerMode === "choice" ? (
-            <div className="mt-3 grid w-full grid-cols-2 gap-2 lg:mt-6 lg:gap-3">
-              {choices.map((choice, i) => {
-                const isAnswer = choice.code === country.code;
-                const pickedWrong = wrongPicks.includes(choice.code);
-                const showRight = isAnswer && feedback !== null;
-                return (
-                  <button
-                    key={choice.code}
-                    type="button"
-                    onClick={() => pick(choice)}
-                    disabled={feedback !== null || pickedWrong}
-                    className={`flex items-center gap-4 rounded-xl border bg-surface px-4 py-3.5 text-left leading-snug shadow-sheet transition duration-300 enabled:active:scale-[0.98] lg:px-5 lg:py-4 lg:text-lg ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground ${
-                      showRight
-                        ? "border-correct text-correct"
-                        : pickedWrong
-                          ? "border-wrong text-wrong line-through opacity-70"
-                          : "border-line enabled:hover:border-foreground enabled:hover:shadow-lifted motion-safe:enabled:hover:-translate-y-0.5"
-                    }`}
-                  >
-                    {/* Keys 1 to 4 only help with a keyboard. */}
-                    <span className="font-mono text-sm text-muted [@media(pointer:coarse)]:hidden">{i + 1}</span>
-                    {displayAnswer(choice, mode)}
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <form onSubmit={submitTyped} className="mt-3 w-full max-w-md lg:mt-6">
-              <div key={shakeKey} className={shakeKey > 0 ? "animate-shake" : undefined}>
-                <input
-                  ref={inputRef}
-                  value={typed}
-                  onChange={(e) => setTyped(e.target.value)}
-                  disabled={feedback !== null}
-                  placeholder={mode === "flags" ? "Country" : "Capital"}
-                  autoComplete="off"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  enterKeyHint="go"
-                  spellCheck={false}
-                  className={`w-full rounded-xl border bg-surface px-5 py-3.5 text-lg lg:py-4 shadow-sheet outline-none transition-colors placeholder:text-muted focus:border-foreground ${
-                    feedback === "correct"
-                      ? "border-correct"
-                      : wrongTries > 0
-                        ? "border-wrong"
-                        : "border-line"
-                  }`}
+            <>
+              {mode === "flags" ? (
+                <Image
+                  src={`/flags/${country.code}.svg`}
+                  alt="Flag to identify"
+                  width={420}
+                  height={315}
+                  unoptimized
+                  priority
+                  className="aspect-[4/3] h-[min(315px,32svh)] w-auto max-w-full lg:h-[315px] rounded-lg object-cover shadow-flag ring-1 ring-line"
                 />
+              ) : (
+                <div className="text-center">
+                  <p className="text-muted lg:text-lg">What is the capital of</p>
+                  <h1 className="mt-2 text-4xl leading-[1.05] font-semibold tracking-[-0.03em] text-balance lg:text-6xl">
+                    {country.name}
+                  </h1>
+                </div>
+              )}
+
+              <div className="mt-4 w-full lg:mt-8">{feedbackLine}</div>
+
+              <div className="mt-3 flex w-full justify-center lg:mt-6">
+                {settings.answerMode === "choice" ? choiceButtons : typedForm}
               </div>
-              <div className="mt-3 flex items-center justify-between text-sm text-muted">
-                <span>
-                  {feedback === null &&
-                    wrongTries > 0 &&
-                    `Not quite. ${tries - wrongTries} ${
-                      tries - wrongTries === 1 ? "try" : "tries"
-                    } left.`}
-                  {feedback === null && wrongTries === 0 && (
-                    <span className="[@media(pointer:coarse)]:hidden">Press Enter to answer.</span>
-                  )}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => resolve(false)}
-                  disabled={feedback !== null}
-                  className="-mr-2 rounded-lg px-2 py-1 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-foreground disabled:opacity-40"
-                >
-                  Skip
-                </button>
-              </div>
-            </form>
+            </>
           )}
-          </>
-        )}
         </div>
         <div className="hidden lg:block">
           <ScoreMeter meter={meter} />

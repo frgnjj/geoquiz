@@ -9,7 +9,7 @@ import RememberPair from "@/components/RememberPair";
 import Globe from "@/components/Globe";
 import { PAIR_COOKIE } from "@/lib/homePair";
 
-type Pair = { flag: Country; capital: Country };
+type Pair = { flag: Country; capital: Country; map: Country };
 
 export default function Home() {
   return (
@@ -35,12 +35,12 @@ async function RandomModeCards() {
   return (
     <>
       <ModeCards pair={pair} />
-      <RememberPair value={`${pair.flag.code}.${pair.capital.code}`} />
+      <RememberPair value={`${pair.flag.code}.${pair.capital.code}.${pair.map.code}`} />
     </>
   );
 }
 
-/** Picks two different countries, avoiding the ones shown on the previous load. */
+/** Picks three different countries, avoiding the ones shown on the previous load. */
 function randomPair(exclude: string[]): Pair {
   const pick = (skip: string[]) => {
     const options = COUNTRIES.filter((c) => !skip.includes(c.code));
@@ -48,7 +48,9 @@ function randomPair(exclude: string[]): Pair {
   };
   const flag = pick(exclude);
   const capital = pick([...exclude, flag.code]);
-  return { flag, capital };
+  // Tuvalu has no outline at the map's detail, so it never appears on the Maps card.
+  const map = pick([...exclude, flag.code, capital.code, "tv"]);
+  return { flag, capital, map };
 }
 
 function ModeCards({ pair }: { pair?: Pair }) {
@@ -76,7 +78,7 @@ function ModeCards({ pair }: { pair?: Pair }) {
       title: "Capitals",
       description: "See a country, name its capital.",
       preview: (
-        <span className="flex items-start gap-3 text-3xl leading-[1.1] font-semibold tracking-tight text-balance lg:gap-4 lg:text-4xl">
+        <span className="flex items-start gap-3 text-3xl leading-[1.1] font-semibold tracking-tight text-balance lg:gap-4">
           <CapitolIcon className="mt-0.5 size-7 shrink-0 text-muted lg:size-9" />
           {pair ? (
             // Let long multi-capital names wrap after a slash.
@@ -93,15 +95,40 @@ function ModeCards({ pair }: { pair?: Pair }) {
         </span>
       ),
     },
+    {
+      href: "/maps",
+      title: "Maps",
+      description: "Find a country, or name it.",
+      // The country's outline, drawn in ink through a mask so it follows the theme.
+      preview: pair ? (
+        <span
+          role="img"
+          aria-label="Outline of a country"
+          className="block h-24 w-32 bg-foreground transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:-translate-y-1 lg:h-36 lg:w-48"
+          style={{
+            maskImage: `url(/maps/shapes/${pair.map.code}.svg)`,
+            WebkitMaskImage: `url(/maps/shapes/${pair.map.code}.svg)`,
+            maskSize: "contain",
+            WebkitMaskSize: "contain",
+            maskRepeat: "no-repeat",
+            WebkitMaskRepeat: "no-repeat",
+            maskPosition: "left center",
+            WebkitMaskPosition: "left center",
+          }}
+        />
+      ) : (
+        <div className="h-24 w-32 rounded-md bg-line lg:h-36 lg:w-48" />
+      ),
+    },
   ];
 
   return (
-    <div className="mt-10 grid gap-4 md:grid-cols-2 lg:mt-14 lg:gap-6">
+    <div className="mt-10 grid gap-4 md:grid-cols-2 lg:mt-14 lg:grid-cols-3 lg:gap-6">
       {modes.map((mode) => (
         <Link
           key={mode.href}
           href={mode.href}
-          className="group relative isolate flex flex-col overflow-hidden rounded-2xl border border-line bg-surface p-6 transition-colors active:border-foreground lg:p-10 hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
+          className="group relative isolate flex flex-col overflow-hidden rounded-2xl border border-line bg-surface p-6 transition-colors active:border-foreground lg:p-8 hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
         >
           <Globe className="pointer-events-none absolute -top-24 -right-32 -z-10 size-[22rem] rotate-[-23.4deg] text-line transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:group-hover:rotate-[-8deg]" />
           <div className="flex h-24 items-center lg:h-36">{mode.preview}</div>

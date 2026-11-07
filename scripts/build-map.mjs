@@ -1,6 +1,8 @@
 // Builds public/maps/world.json, the Maps mode map, from Natural Earth 1:50m shapes (world-atlas).
 // Run with `npm run map:build` after changing the country list; the output is committed.
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { geoCentroid, geoMercator, geoPath } from "d3-geo";
+import { feature } from "topojson-client";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -36,4 +38,24 @@ for (const code of ours) {
 }
 
 writeFileSync(new URL("../public/maps/world.json", import.meta.url), JSON.stringify({ topology, points }));
+
+// One outline per country for the home page's Maps card (public/maps/shapes/<code>.svg),
+// drawn centred on the country so ones crossing the date line (Russia, Fiji) stay whole.
+const SHAPE_W = 192;
+const SHAPE_H = 144;
+const shapesDir = new URL("../public/maps/shapes/", import.meta.url);
+mkdirSync(shapesDir, { recursive: true });
+const features = feature(topology, topology.objects.countries).features;
+for (const code of shaped) {
+  if (!code) continue;
+  const collection = { type: "FeatureCollection", features: features.filter((f) => f.id === code) };
+  const projection = geoMercator()
+    .rotate([-geoCentroid(collection)[0], 0])
+    .fitExtent([[4, 4], [SHAPE_W - 4, SHAPE_H - 4]], collection);
+  const d = geoPath(projection).digits(1)(collection);
+  writeFileSync(
+    new URL(`${code}.svg`, shapesDir),
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SHAPE_W} ${SHAPE_H}"><path d="${d}"/></svg>`,
+  );
+}
 console.log(`${shaped.size - 1} countries with shapes, points for: ${Object.keys(points).join(", ") || "none"}`);

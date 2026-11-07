@@ -256,6 +256,12 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 ### Reading Pages (Privacy)
 - 672px column. The short version leads in 20 to 24px body; the details follow in sections ruled by hairlines.
 
+### Map (Maps mode)
+- An atlas page in the palette's own greys: sea in hairline at 40% (dark: paper), land outside the region in hairline (dark: sheet), region countries in sheet (dark: hairline), borders in graphite at 50% and 0.6px whatever the zoom.
+- The country asked about is ink; right is correct-green and a wrong pick wrong-red. Tiny countries get a 5px round marker (region only), and the asked one a 13px ink ring around it.
+- Zoom buttons (+, −, whole region) sit in a small sheet in the bottom-right corner.
+- Game stage: full screen on phones with the map edge to edge; on desktop a 1280px stage, the map as a rounded sheet filling the window's height, the meter beside it and the four options in one row under it.
+
 ### Run Dots
 - One 10px dot per country in the game, in the order asked: correct-green for right, wrong-red for missed, hairline for not reached. It shows streaks at a glance.
 

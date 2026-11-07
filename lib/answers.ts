@@ -1,6 +1,6 @@
 import type { Country } from "@/data/countries";
 
-export type Mode = "flags" | "capitals";
+export type Mode = "flags" | "capitals" | "maps";
 
 /**
  * Makes typed answers comparable: ignores case, accents, punctuation,
@@ -21,11 +21,11 @@ export function normalize(text: string): string {
     .replace(/^the /, "");
 }
 
-/** Every answer that counts as correct for this country in this mode. */
+/** Every answer that counts as correct for this country in this mode. Maps asks for the country's name. */
 export function acceptedAnswers(country: Country, mode: Mode): string[] {
-  return mode === "flags"
-    ? [country.name, ...country.aliases]
-    : [...country.capitals, ...country.capitalAliases];
+  return mode === "capitals"
+    ? [...country.capitals, ...country.capitalAliases]
+    : [country.name, ...country.aliases];
 }
 
 export function isCorrect(typed: string, country: Country, mode: Mode): boolean {
@@ -36,5 +36,5 @@ export function isCorrect(typed: string, country: Country, mode: Mode): boolean 
 
 /** The answer as shown on screen. Several capitals are joined with "/". */
 export function displayAnswer(country: Country, mode: Mode): string {
-  return mode === "flags" ? country.name : country.capitals.join("/");
+  return mode === "capitals" ? country.capitals.join("/") : country.name;
 }

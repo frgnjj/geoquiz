@@ -1,6 +1,6 @@
 import { CONTINENTS, type Continent } from "@/data/countries";
 import type { Mode } from "@/lib/answers";
-import type { Settings } from "@/lib/quiz";
+import { QUIZ_INFO, type Settings } from "@/lib/quiz";
 
 /**
  * Ranked and Hardcore games are saved to leaderboards. Each mode and answer mode has
@@ -39,8 +39,8 @@ export function boardId(mode: Mode, settings: Settings): string | null {
 export function boardLabel(board: string): string {
   const [mode, answerMode, presetId] = board.split(":");
   return [
-    mode === "flags" ? "Flags" : "Capitals",
-    answerMode === "choice" ? "Multiple choice" : "Type-in",
+    QUIZ_INFO[mode as Mode].title,
+    answerMode === "find" ? "Find it" : answerMode === "choice" ? "Multiple choice" : "Type-in",
     PRESETS.find((p) => p.id === presetId)?.label ?? presetId,
   ].join(" · ");
 }

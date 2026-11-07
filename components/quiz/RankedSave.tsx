@@ -21,17 +21,21 @@ export default function RankedSave({ game }: { game: RankedGame | null }) {
   return (
     <div className="mt-4 rounded-2xl border border-line bg-surface px-6 py-5 shadow-sheet">
       <p className="text-sm text-muted">{boardLabel(game.board)}</p>
-      {game.score === 0 ? (
+      {game.board.startsWith("maps:") ? (
+        <p className="mt-2 font-medium">Maps leaderboards arrive in the next update, so this score isn&rsquo;t saved yet.</p>
+      ) : game.score === 0 ? (
         <p className="mt-2 font-medium">A score of 0 isn&rsquo;t saved.</p>
       ) : (
         <SaveState game={game} />
       )}
-      <Link
-        href={`/leaderboard?board=${game.board}`}
-        className="mt-3 inline-block text-sm text-muted underline decoration-line underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
-      >
-        See the leaderboard
-      </Link>
+      {!game.board.startsWith("maps:") && (
+        <Link
+          href={`/leaderboard?board=${game.board}`}
+          className="mt-3 inline-block text-sm text-muted underline decoration-line underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground"
+        >
+          See the leaderboard
+        </Link>
+      )}
     </div>
   );
 }

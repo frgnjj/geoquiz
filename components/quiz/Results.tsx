@@ -90,7 +90,7 @@ export default function Results({
         </div>
 
         <div className="order-3 lg:mt-10">
-          <GameSummary settings={settings} questions={total} />
+          <GameSummary mode={mode} settings={settings} questions={total} />
         </div>
       </aside>
 

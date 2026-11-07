@@ -14,6 +14,8 @@ export type WorldData = {
 export const MAP_WIDTH = 1000;
 export const MAP_HEIGHT = 600;
 const PADDING = 16;
+/** How far the map may enlarge a region past "fits entirely" to fill a frame of another shape. */
+const MAX_FILL = 1.6;
 /** Countries with less land than this (square map units, before zooming) also get a round marker.
  * It's area, not size, so island nations spread over the ocean still count as tiny. */
 const TINY_AREA = 40;
@@ -67,20 +69,40 @@ export type MapCountry = {
   d: string;
   /** Where its round marker sits, when it's too small to click comfortably. */
   marker: [number, number] | null;
+  /** Its outline's box on the map, used to bring it into view. */
+  box: [[number, number], [number, number]];
 };
 
-/** Projects every shape for a view: our countries, and the other land drawn as background. */
-export function drawMap(data: WorldData, view: View) {
+/** Projects every shape for a view, at a size: our countries, and the other land drawn as background. */
+export function drawMap(data: WorldData, view: View, width = MAP_WIDTH, height = MAP_HEIGHT) {
+  const box = outline(view.bounds);
   const projection = geoNaturalEarth1()
     .rotate([view.rotate, 0])
     .fitExtent(
       [
         [PADDING, PADDING],
-        [MAP_WIDTH - PADDING, MAP_HEIGHT - PADDING],
+        [width - PADDING, height - PADDING],
       ],
-      outline(view.bounds),
+      box,
     );
+  // On an upright frame (a phone), a wide region like Europe would leave most of it empty,
+  // so it's enlarged to fill more of it; the rest is a drag away.
+  const [[bx0, by0], [bx1, by1]] = geoPath(projection).bounds(box);
+  const filled = Math.min((bx1 - bx0) / width, (by1 - by0) / height);
+  const grow = height > width ? Math.min(MAX_FILL, 0.92 / filled) : 1;
+  if (grow > 1) {
+    const [tx, ty] = projection.translate();
+    projection
+      .scale(projection.scale() * grow)
+      .translate([width / 2 + (tx - width / 2) * grow, height / 2 + (ty - height / 2) * grow]);
+  }
   const path = geoPath(projection);
+  // Everything a player may need to reach by dragging: the frame and the whole region.
+  const [[ex0, ey0], [ex1, ey1]] = path.bounds(box);
+  const reach: [[number, number], [number, number]] = [
+    [Math.min(0, ex0 - PADDING), Math.min(0, ey0 - PADDING)],
+    [Math.max(width, ex1 + PADDING), Math.max(height, ey1 + PADDING)],
+  ];
 
   const features = feature(data.topology, data.topology.objects.countries).features as Feature<
     Polygon | MultiPolygon,
@@ -102,15 +124,17 @@ export function drawMap(data: WorldData, view: View) {
   const countries: MapCountry[] = [];
   for (const [code, group] of pieces) {
     const d = group.map((f) => path(f) ?? "").join("");
-    const tiny = path.area({ type: "FeatureCollection", features: group }) < TINY_AREA;
-    countries.push({ code, d, marker: tiny ? markerAt(group, projection) : null });
+    const collection = { type: "FeatureCollection" as const, features: group };
+    const tiny = path.area(collection) < TINY_AREA;
+    countries.push({ code, d, marker: tiny ? markerAt(group, projection) : null, box: path.bounds(collection) });
   }
   for (const [code, lonLat] of Object.entries(data.points)) {
     const at = projection(lonLat);
-    countries.push({ code, d: "", marker: at ? [at[0], at[1]] : null });
+    if (!at) continue;
+    countries.push({ code, d: "", marker: [at[0], at[1]], box: [at, at] });
   }
 
-  return { land: land.join(""), countries };
+  return { land: land.join(""), countries, reach };
 }
 
 /** The centre of a country's largest piece, so island nations get their marker on land. */

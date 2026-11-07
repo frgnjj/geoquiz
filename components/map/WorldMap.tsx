@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { select } from "d3-selection";
-import { zoom, zoomIdentity, type D3ZoomEvent, type ZoomBehavior } from "d3-zoom";
+import { zoom, zoomIdentity, zoomTransform, type D3ZoomEvent, type ZoomBehavior } from "d3-zoom";
 import type { Continent } from "@/data/countries";
 import { drawMap, loadWorld, MAP_HEIGHT, MAP_WIDTH, viewFor, type WorldData } from "@/lib/map";
 
@@ -18,10 +18,17 @@ type Props = {
   tones?: Record<string, CountryTone>;
   /** When set, region countries can be clicked or tapped. */
   onPick?: (code: string) => void;
+  /** A country to keep in view: the map slides to it when it's off screen. */
+  focus?: string;
   label: string;
+  /** "fill" takes the size of its container (the game); otherwise the map keeps a 5:3 shape. */
+  size?: "fill" | "aspect";
+  /** Extra classes for the frame, such as dropping the rounded edge when the map runs edge to edge. */
+  className?: string;
 };
 
 const MARKER_RADIUS = 5;
+const RING_RADIUS = 13;
 const MAX_ZOOM = 12;
 
 const FILL: Record<CountryTone, string> = {
@@ -31,7 +38,16 @@ const FILL: Record<CountryTone, string> = {
 };
 
 /** The Maps mode map: an atlas page of the region, with zoom, pan and clickable countries. */
-export default function WorldMap({ continents, region, tones = {}, onPick, label }: Props) {
+export default function WorldMap({
+  continents,
+  region,
+  tones = {},
+  onPick,
+  focus,
+  label,
+  size = "aspect",
+  className = "",
+}: Props) {
   const [world, setWorld] = useState<WorldData | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -47,9 +63,29 @@ export default function WorldMap({ continents, region, tones = {}, onPick, label
     };
   }, [attempt]);
 
+  // In "fill" mode the map is drawn for the frame's own size, so it uses all of it.
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [frame, setFrame] = useState<{ width: number; height: number } | null>(null);
+  useEffect(() => {
+    const el = frameRef.current;
+    if (size !== "fill" || !el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const width = Math.round(entry.contentRect.width);
+      const height = Math.round(entry.contentRect.height);
+      if (width > 0 && height > 0) setFrame({ width, height });
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [size]);
+  const width = size === "fill" ? (frame?.width ?? 0) : MAP_WIDTH;
+  const height = size === "fill" ? (frame?.height ?? 0) : MAP_HEIGHT;
+
   const key = continents.join("|");
   const view = useMemo(() => viewFor(continents), [key]); // eslint-disable-line react-hooks/exhaustive-deps
-  const drawn = useMemo(() => (world ? drawMap(world, view) : null), [world, view]);
+  const drawn = useMemo(
+    () => (world && width > 0 ? drawMap(world, view, width, height) : null),
+    [world, view, width, height],
+  );
   const inRegion = useMemo(() => new Set(region), [region]);
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -63,16 +99,13 @@ export default function WorldMap({ continents, region, tones = {}, onPick, label
     if (!svg || !layer || !drawn) return;
     const behavior = zoom<SVGSVGElement, unknown>()
       .scaleExtent([1, MAX_ZOOM])
-      .translateExtent([
-        [0, 0],
-        [MAP_WIDTH, MAP_HEIGHT],
-      ])
+      .translateExtent(drawn.reach)
       .clickDistance(6)
       .on("zoom", (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
         const { x, y, k } = event.transform;
         layer.setAttribute("transform", `translate(${x},${y}) scale(${k})`);
         layer.querySelectorAll<SVGCircleElement>("circle[data-marker]").forEach((c) => {
-          c.setAttribute("r", String(MARKER_RADIUS / k));
+          c.setAttribute("r", String((c.hasAttribute("data-ring") ? RING_RADIUS : MARKER_RADIUS) / k));
         });
       });
     zoomRef.current = behavior;
@@ -82,7 +115,30 @@ export default function WorldMap({ continents, region, tones = {}, onPick, label
     return () => {
       selection.on(".zoom", null);
     };
-  }, [drawn]);
+  }, [drawn, width, height]);
+
+  // A ring drawn for a new question starts at the current zoom's size, like the other markers.
+  useLayoutEffect(() => {
+    const svg = svgRef.current;
+    const layer = layerRef.current;
+    if (!svg || !layer) return;
+    const { k } = zoomTransform(svg);
+    layer.querySelectorAll<SVGCircleElement>("circle[data-ring]").forEach((c) => c.setAttribute("r", String(RING_RADIUS / k)));
+  }, [tones, drawn]);
+
+  // Brings the focused country on screen when the current zoom and pan hide it.
+  useEffect(() => {
+    const svg = svgRef.current;
+    const behavior = zoomRef.current;
+    const country = drawn?.countries.find((c) => c.code === focus);
+    if (!svg || !behavior || !country) return;
+    const t = zoomTransform(svg);
+    const [[x0, y0], [x1, y1]] = country.box;
+    const margin = 24;
+    const visible =
+      t.applyX(x0) >= margin && t.applyX(x1) <= width - margin && t.applyY(y0) >= margin && t.applyY(y1) <= height - margin;
+    if (!visible) select(svg).call(behavior.translateTo, (x0 + x1) / 2, (y0 + y1) / 2);
+  }, [focus, drawn, width, height]);
 
   function zoomBy(factor: number) {
     if (svgRef.current && zoomRef.current) select(svgRef.current).call(zoomRef.current.scaleBy, factor);
@@ -93,13 +149,18 @@ export default function WorldMap({ continents, region, tones = {}, onPick, label
 
   return (
     // Sea, then other land, then the region, each a step lighter (light mode) or brighter (dark mode).
-    <div className="relative overflow-hidden rounded-2xl border border-line bg-line/40 shadow-sheet dark:bg-background">
+    <div
+      ref={frameRef}
+      className={`relative overflow-hidden rounded-2xl border border-line bg-line/40 shadow-sheet dark:bg-background ${
+        size === "fill" ? "h-full w-full" : ""
+      } ${className}`}
+    >
       <svg
         ref={svgRef}
-        viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+        viewBox={`0 0 ${width || MAP_WIDTH} ${height || MAP_HEIGHT}`}
         role="img"
         aria-label={label}
-        className="block aspect-[5/3] w-full touch-none select-none"
+        className={`block w-full touch-none select-none ${size === "fill" ? "absolute inset-0 h-full" : "aspect-[5/3]"}`}
       >
         <g ref={layerRef}>
           {drawn && (
@@ -117,13 +178,27 @@ export default function WorldMap({ continents, region, tones = {}, onPick, label
                 return (
                   <g
                     key={c.code}
+                    data-code={c.code}
                     onClick={pickable ? () => onPick?.(c.code) : undefined}
                     className={`${fill} ${hover} transition-[fill] duration-150 ${pickable ? "cursor-pointer" : "pointer-events-none"}`}
                   >
                     {c.d && (
                       <path d={c.d} className="stroke-muted/50" vectorEffect="non-scaling-stroke" strokeWidth={0.6} strokeLinejoin="round" />
                     )}
-                    {c.marker && (
+                    {/* The country asked about gets a ring too, so a tiny one still catches the eye. */}
+                    {c.marker && tone === "highlight" && (
+                      <circle
+                        data-marker=""
+                        data-ring=""
+                        cx={c.marker[0]}
+                        cy={c.marker[1]}
+                        r={RING_RADIUS}
+                        className="fill-none stroke-foreground"
+                        vectorEffect="non-scaling-stroke"
+                        strokeWidth={1.5}
+                      />
+                    )}
+                    {c.marker && inRegion.has(c.code) && (
                       <circle
                         data-marker=""
                         cx={c.marker[0]}
