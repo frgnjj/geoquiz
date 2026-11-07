@@ -76,6 +76,8 @@ export type MapCountry = {
   marker: [number, number] | null;
   /** Its outline's box on the map, used to bring it into view. */
   box: [[number, number], [number, number]];
+  /** Its land as one square's side (map units at zoom 1): small for scattered islands, unlike the box. */
+  size: number;
 };
 
 /**
@@ -127,13 +129,20 @@ export function drawMap(data: WorldData, view: View, region: string[], width = M
   for (const [code, group] of pieces) {
     const d = group.map((f) => path(f) ?? "").join("");
     const collection = { type: "FeatureCollection" as const, features: group };
-    const tiny = path.area(collection) < TINY_AREA;
-    countries.push({ code, d, marker: tiny ? markerAt(group, projection) : null, box: path.bounds(collection) });
+    const area = path.area(collection);
+    const tiny = area < TINY_AREA;
+    countries.push({
+      code,
+      d,
+      marker: tiny ? markerAt(group, projection) : null,
+      box: path.bounds(collection),
+      size: Math.sqrt(area),
+    });
   }
   for (const [code, lonLat] of Object.entries(data.points)) {
     const at = projection(lonLat);
     if (!at) continue;
-    countries.push({ code, d: "", marker: [at[0], at[1]], box: [at, at] });
+    countries.push({ code, d: "", marker: [at[0], at[1]], box: [at, at], size: 0 });
   }
 
   // How far the map can be moved: the frame, the region's box and every country in the game,

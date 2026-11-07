@@ -33,9 +33,15 @@ type Props = {
 
 const MARKER_RADIUS = 5;
 const RING_RADIUS = 13;
+/** Once an island is this big on screen (px), its dot steps aside and the real shape is shown and tapped. */
+const SHAPE_SHOWS_AT = 10;
 /** When following a country, it takes up about this share of the frame, so its neighbours show too. */
 const FOLLOW_SHARE = 0.35;
 const FOLLOW_MAX_ZOOM = 6;
+/** Tiny countries are zoomed until their land is about this wide on screen (px), fitting inside the ring. */
+const TINY_ON_SCREEN = 18;
+/** Countries with no shape at all (Tuvalu) zoom only this far: there's nothing more to see. */
+const POINT_ZOOM = 10;
 /** The most the view widens halfway through a long flight: a short pull back, not a trip out to space. */
 const FLIGHT_PULL_BACK = 0.35;
 /** Flights up to about a screen-width (Germany to Romania) just glide; the pull back grows until FAR_HOP. */
@@ -48,6 +54,22 @@ type ZoomView = [x: number, y: number, width: number];
  * A flight between two views: a straight pan. A neighbour (Egypt to Sudan) is a glide at the same
  * zoom; the farther the next country, the more the view widens in the middle, up to FLIGHT_PULL_BACK.
  */
+/**
+ * Keeps markers the same size on screen at any zoom. A dot steps aside (hidden, not clickable) once
+ * its island is big enough to see and tap; rings around the asked country always stay.
+ */
+function sizeMarkers(layer: SVGGElement, k: number) {
+  layer.querySelectorAll<SVGCircleElement>("circle[data-marker]").forEach((c) => {
+    if (c.hasAttribute("data-ring")) {
+      c.setAttribute("r", String(RING_RADIUS / k));
+      return;
+    }
+    c.setAttribute("r", String(MARKER_RADIUS / k));
+    const size = Number(c.dataset.size ?? 0);
+    c.setAttribute("visibility", size * k >= SHAPE_SHOWS_AT ? "hidden" : "visible");
+  });
+}
+
 function gentleFlight(a: ZoomView, b: ZoomView) {
   const hop = Math.hypot(b[0] - a[0], b[1] - a[1]) / ((a[2] + b[2]) / 2);
   const reach = Math.min(1, Math.max(0, (hop - NEAR_HOP) / (FAR_HOP - NEAR_HOP)));
@@ -56,7 +78,7 @@ function gentleFlight(a: ZoomView, b: ZoomView) {
     return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, (a[2] + (b[2] - a[2]) * t) * pullBack];
   };
 }
-const MAX_ZOOM = 12;
+const MAX_ZOOM = 40;
 
 const FILL: Record<CountryTone, string> = {
   highlight: "fill-foreground",
@@ -140,9 +162,7 @@ export default function WorldMap({
       .on("zoom", (event: D3ZoomEvent<SVGSVGElement, unknown>) => {
         const { x, y, k } = event.transform;
         layer.setAttribute("transform", `translate(${x},${y}) scale(${k})`);
-        layer.querySelectorAll<SVGCircleElement>("circle[data-marker]").forEach((c) => {
-          c.setAttribute("r", String((c.hasAttribute("data-ring") ? RING_RADIUS : MARKER_RADIUS) / k));
-        });
+        sizeMarkers(layer, k);
       });
     zoomRef.current = behavior;
     const selection = select(svg);
@@ -175,7 +195,7 @@ export default function WorldMap({
     const layer = layerRef.current;
     if (!svg || !layer) return;
     const { k } = zoomTransform(svg);
-    layer.querySelectorAll<SVGCircleElement>("circle[data-ring]").forEach((c) => c.setAttribute("r", String(RING_RADIUS / k)));
+    sizeMarkers(layer, k);
   }, [tones, drawn]);
 
   // Brings the focused country on screen when the current zoom and pan hide it.
@@ -206,7 +226,9 @@ export default function WorldMap({
     // A tiny country is aimed at by its marker: its outline can span the date line (Kiribati).
     const [[x0, y0], [x1, y1]] = country.marker ? [country.marker, country.marker] : country.box;
     const fit = Math.min(width / Math.max(x1 - x0, 1), height / Math.max(y1 - y0, 1));
-    const k = Math.max(1, Math.min(FOLLOW_MAX_ZOOM, FOLLOW_SHARE * fit));
+    const k = country.marker
+      ? Math.max(1, Math.min(MAX_ZOOM, country.size > 0 ? TINY_ON_SCREEN / country.size : POINT_ZOOM))
+      : Math.max(1, Math.min(FOLLOW_MAX_ZOOM, FOLLOW_SHARE * fit));
     const target = zoomIdentity.translate(width / 2 - k * ((x0 + x1) / 2), height / 2 - k * ((y0 + y1) / 2)).scale(k);
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
     select(svg)
@@ -261,6 +283,7 @@ export default function WorldMap({
                       key={c.code}
                       code={c.code}
                       at={c.marker}
+                      size={c.size}
                       tone={tones[c.code]}
                       pickable={Boolean(onPick)}
                       onPick={pick}
@@ -339,12 +362,15 @@ const CountryShape = memo(function CountryShape({
 const CountryMarker = memo(function CountryMarker({
   code,
   at,
+  size,
   tone,
   pickable,
   onPick,
 }: {
   code: string;
   at: [number, number];
+  /** The island's land size on the map at zoom 1, so its dot can step aside when zoomed in. */
+  size: number;
   tone?: CountryTone;
   pickable: boolean;
   onPick: (code: string) => void;
@@ -371,6 +397,7 @@ const CountryMarker = memo(function CountryMarker({
       )}
       <circle
         data-marker=""
+        data-size={size}
         cx={at[0]}
         cy={at[1]}
         r={MARKER_RADIUS}
