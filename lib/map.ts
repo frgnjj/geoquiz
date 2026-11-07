@@ -11,6 +11,9 @@ export type WorldData = {
   points: Record<string, [number, number]>;
 };
 
+/** How long the map takes to fly to the next highlighted country. The meter doesn't drain meanwhile. */
+export const FLIGHT_MS = 450;
+
 export const MAP_WIDTH = 1000;
 export const MAP_HEIGHT = 600;
 const PADDING = 16;

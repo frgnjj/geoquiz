@@ -121,7 +121,8 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
 - Kosovo is matched by name; Northern Cyprus and Somaliland are drawn as part of Cyprus and Somalia. Other territories (Greenland, Western Sahara...) are plain land that can't be picked; Antarctica is left off.
 - Looks: grey sea, white region countries, grey land outside the region (dark mode: darkest sea, brighter region). The country asked about is ink; green and red only mean right and wrong.
 - Game screen: on phones the game covers the whole screen (no site header) with the map edge to edge between the top bar and the answers; on desktop the stage widens to 1280px and the map fills the window's height, with the meter beside it and the four options in one row.
-- Phones (upright frames): a wide region is drawn up to 1.6× larger than "fits entirely", so it fills the screen; the rest is a drag away. In Name it, the map slides the asked country into view if it's off screen, and a tiny one gets a ring around its marker.
+- Phones (upright frames): a wide region is drawn up to 1.6× larger than "fits entirely", so it fills the screen; the rest is a drag away. Tiny countries asked in Name it get a ring around their marker.
+- Name it zooms in on each highlighted country so it fills about a third of the map (up to 6×), keeping its neighbours in view. Moving to the next country is a 0.45 s flight that pulls back a little mid-way (asked by the owner on 2026-11-07). The meter doesn't drain during the flight, so it never costs points. Find it never zooms on its own (that would give the answer away), except to bring a revealed answer on screen.
 - Leaderboards: 24 more boards (3 answer modes × Hardcore, World and six continents), added in PR C. Until then, a ranked Maps game says its score isn't saved yet.
 - Build order: the map (PR A, done), the game (PR B, done), ranked Maps (PR C).
 

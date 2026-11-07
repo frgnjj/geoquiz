@@ -19,6 +19,7 @@ import { meterRates, METER_FULL_HOLD_MS, pointsFor } from "@/lib/score";
 import { setQuizActive } from "@/lib/quizActive";
 import { PauseIcon, PlayIcon } from "@/components/icons";
 import WorldMap, { type CountryTone } from "@/components/map/WorldMap";
+import { FLIGHT_MS } from "@/lib/map";
 import ScoreMeter from "./ScoreMeter";
 import QuitButton from "./QuitButton";
 
@@ -60,6 +61,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   const [lastPoints, setLastPoints] = useState<{ points: number; key: number } | null>(null);
   const [meter, setMeter] = useState(0);
   const holdUntil = useRef(0);
+  const flightUntil = useRef(0);
 
   // Multiple choice
   const [choices, setChoices] = useState(() => makeChoices(queue[0]));
@@ -111,6 +113,11 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
     return () => setQuizActive(false);
   }, []);
 
+  // Name it on the map: each new country starts with a short flight, which the meter waits out.
+  useEffect(() => {
+    if (mode === "maps" && settings.answerMode !== "find") flightUntil.current = Date.now() + FLIGHT_MS;
+  }, [mode, settings.answerMode, index]);
+
   useEffect(() => {
     const { drain } = meterRates(settings.hardcore);
     let last = Date.now();
@@ -120,7 +127,8 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
       last = t;
       if (pausedRef.current) return;
       setNow(t);
-      if (t >= holdUntil.current) {
+      // The meter holds while full, and while the map flies to the next country.
+      if (t >= holdUntil.current && t >= flightUntil.current) {
         setMeter((m) => Math.max(0, m - (drain * elapsed) / 1000));
       }
     }, 100);
@@ -342,7 +350,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
           : null;
   const feedbackLine = (
     <p
-      className={`min-h-6 text-center font-medium lg:text-lg ${feedback === "correct" ? "text-correct" : "text-wrong"}`}
+      className={`min-h-6 text-center font-medium lg:min-h-7 lg:text-lg ${feedback === "correct" ? "text-correct" : "text-wrong"}`}
       aria-live="polite"
     >
       {feedbackText}
@@ -468,7 +476,8 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
                 region={regionCodes}
                 tones={tones}
                 onPick={finding && !feedback ? findPick : undefined}
-                focus={finding ? (feedback ? country.code : undefined) : country.code}
+                focus={finding && feedback ? country.code : undefined}
+                follow={finding ? undefined : country.code}
                 label={finding ? `Map. Find ${country.name}.` : "Map with one country highlighted."}
                 className="rounded-none border-x-0 shadow-none lg:rounded-2xl lg:border-x lg:shadow-sheet"
               />
