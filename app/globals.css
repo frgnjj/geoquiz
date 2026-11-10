@@ -183,7 +183,7 @@ input {
 [data-map-theme="light"],
 [data-map-theme="auto"] {
   --map-sea: #eee9de;
-  --map-out: #d3c9b6;
+  --map-out: #ddd5c5;
   --map-land: #fbf9f3;
   --map-border: rgb(113 106 95 / 0.5);
   --map-hover: #e7e0d2;
@@ -208,7 +208,7 @@ input {
 
 [data-map-theme="grey-light"] {
   --map-sea: #f3f1ec;
-  --map-out: #a7a297;
+  --map-out: #b9b4aa;
   --map-land: #c8c4bc;
   --map-border: #f8f7f3;
   --map-hover: #b2ada3;
@@ -232,7 +232,7 @@ input {
 
 [data-map-theme="blue"] {
   --map-sea: #cfe3ef;
-  --map-out: #a6a299;
+  --map-out: #b7b3aa;
   --map-land: #c6c3bc;
   --map-border: #f7f6f2;
   --map-hover: #b1ada5;
