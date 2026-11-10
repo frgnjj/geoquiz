@@ -397,8 +397,11 @@ export default function WorldMap({
           <ZoomButton label="Zoom out" onClick={() => zoomBy(1 / 1.6)}>
             <path d="M6 12h12" />
           </ZoomButton>
-          <ZoomButton label="Show the whole region" onClick={reset}>
-            <path d="M4.5 9V4.5H9M15 4.5h4.5V9M19.5 15v4.5H15M9 19.5H4.5V15" />
+          <ZoomButton label="Re-centre the map" onClick={reset}>
+            {/* A crosshair: back to the whole region, centred. */}
+            <circle cx="12" cy="12" r="6.5" />
+            <path d="M12 2.5v3.5M12 18v3.5M2.5 12H6M18 12h3.5" />
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
           </ZoomButton>
         </div>
       )}

@@ -3,14 +3,15 @@
 /* Dark mode follows the .dark class on <html>, set by the theme toggle. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Light mode is warm paper rather than pure white: cream page, ivory sheets, warm greys. */
 :root {
-  --background: #fafafa;
-  --foreground: #18181b;
-  --muted: #71717a;
-  --line: #e4e4e7;
-  --surface: #ffffff;
-  --correct: #059669;
-  --wrong: #dc2626;
+  --background: #f5f1e8;
+  --foreground: #1f1c17;
+  --muted: #716a5f;
+  --line: #e4ddcf;
+  --surface: #fbf9f3;
+  --correct: #047857;
+  --wrong: #c81e1e;
 }
 
 .dark {
