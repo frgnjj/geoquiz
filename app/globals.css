@@ -173,3 +173,70 @@ input {
 .animate-bonus {
   animation: bonus 1s ease-out forwards;
 }
+
+/*
+ * Map themes (Maps mode). Each sets the map's own colours, so a map can be dark on a light page
+ * or the other way round. "auto" follows the site: light, or dark with the .dark class.
+ * The asked country (ink) and right and wrong (correct, wrong) are picked to stand out on each land.
+ */
+[data-map-theme="light"],
+[data-map-theme="auto"] {
+  --map-sea: #eee9de;
+  --map-out: #e4ddcf;
+  --map-land: #fbf9f3;
+  --map-border: rgb(113 106 95 / 0.5);
+  --map-hover: #e7e0d2;
+  --map-marker: #716a5f;
+  --map-ink: #4a443c;
+  --map-correct: #047857;
+  --map-wrong: #c81e1e;
+}
+
+[data-map-theme="dark"],
+.dark [data-map-theme="auto"] {
+  --map-sea: #0c0c0e;
+  --map-out: #151518;
+  --map-land: #27272a;
+  --map-border: rgb(161 161 170 / 0.5);
+  --map-hover: #4b4b50;
+  --map-marker: #a1a1aa;
+  --map-ink: #f4f4f5;
+  --map-correct: #34d399;
+  --map-wrong: #f87171;
+}
+
+[data-map-theme="grey-light"] {
+  --map-sea: #f3f1ec;
+  --map-out: #e3e0da;
+  --map-land: #c8c4bc;
+  --map-border: #f8f7f3;
+  --map-hover: #b2ada3;
+  --map-marker: #7c766c;
+  --map-ink: #3a352e;
+  --map-correct: #047857;
+  --map-wrong: #c81e1e;
+}
+
+[data-map-theme="grey-dark"] {
+  --map-sea: #0e0e10;
+  --map-out: #1c1c20;
+  --map-land: #47474e;
+  --map-border: #24242a;
+  --map-hover: #5d5d66;
+  --map-marker: #a1a1aa;
+  --map-ink: #f4f4f5;
+  --map-correct: #34d399;
+  --map-wrong: #f87171;
+}
+
+[data-map-theme="blue"] {
+  --map-sea: #cfe3ef;
+  --map-out: #e4e2dd;
+  --map-land: #c6c3bc;
+  --map-border: #f7f6f2;
+  --map-hover: #b1ada5;
+  --map-marker: #7c766c;
+  --map-ink: #3a352e;
+  --map-correct: #047857;
+  --map-wrong: #c81e1e;
+}
