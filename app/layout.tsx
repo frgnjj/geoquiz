@@ -31,7 +31,7 @@ export const viewport: Viewport = {
   interactiveWidget: "resizes-content",
   // The phone's status bar matches the page background in each system theme.
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: light)", color: "#f5f1e8" },
     { media: "(prefers-color-scheme: dark)", color: "#0c0c0e" },
   ],
 };

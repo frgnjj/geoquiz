@@ -2,13 +2,13 @@
 name: Geoquiz
 description: A calm geography quiz for flags and capitals.
 colors:
-  paper: "#fafafa"
-  ink: "#18181b"
-  graphite: "#71717a"
-  hairline: "#e4e4e7"
-  sheet: "#ffffff"
-  correct-green: "#059669"
-  wrong-red: "#dc2626"
+  paper: "#f5f1e8"
+  ink: "#4a443c"
+  graphite: "#716a5f"
+  hairline: "#e4ddcf"
+  sheet: "#fbf9f3"
+  correct-green: "#047857"
+  wrong-red: "#c81e1e"
   night-paper: "#0c0c0e"
   night-ink: "#f4f4f5"
   night-graphite: "#a1a1aa"
@@ -114,7 +114,7 @@ Geoquiz should feel like a well-made atlas: calm pages of paper and ink, where t
 
 The pages are spacious and unhurried, but sure of themselves: large confident headlines, a few large surfaces, and soft, lifted sheets that respond when touched. It is made for adults: no cartoon rewards, no bright buttons and no noise. Delight comes from craft, like a flag that lifts on hover or a globe that turns slightly, not from decoration.
 
-Light and dark mode are equal partners. Both follow the same rules, with paper and ink swapped.
+Light and dark mode are equal partners. Both follow the same rules, with paper and ink swapped. Light mode is warm paper (changed on 2026-11-10, asked by the owner): a cream page, ivory sheets and warm greys, not pure white.
 
 **Key Characteristics:**
 - Colour comes only from flags, plus green for right and red for wrong.
@@ -128,17 +128,17 @@ Light and dark mode are equal partners. Both follow the same rules, with paper a
 A monochrome atlas page; colour belongs to the flags.
 
 ### Primary
-- **Ink** (#18181b, night: #f4f4f5): text, headlines, primary buttons, selected chips, and the hover border of anything clickable. It does the job an accent colour would do elsewhere.
+- **Ink** (#4a443c, night: #f4f4f5): text, headlines, primary buttons, selected chips, and the hover border of anything clickable. It does the job an accent colour would do elsewhere.
 
 ### Neutral
-- **Paper** (#fafafa, night: #0c0c0e): the page background.
-- **Sheet** (#ffffff, night: #151518): cards, options, inputs and anything that sits on the page.
-- **Graphite** (#71717a, night: #a1a1aa): secondary text, descriptions, icons at rest, and the empty meter.
-- **Hairline** (#e4e4e7, night: #27272a): borders, dividers, loading placeholders and the faint graticule globe.
+- **Paper** (#f5f1e8, night: #0c0c0e): the page background.
+- **Sheet** (#fbf9f3, night: #151518): cards, options, inputs and anything that sits on the page.
+- **Graphite** (#716a5f, night: #a1a1aa): secondary text, descriptions, icons at rest, and the empty meter.
+- **Hairline** (#e4ddcf, night: #27272a): borders, dividers, loading placeholders and the faint graticule globe.
 
 ### Feedback
-- **Correct Green** (#059669, night: #34d399): right answers, the full meter and the time bonus. Nothing else.
-- **Wrong Red** (#dc2626, night: #f87171): wrong answers and the Quit confirm button. Nothing else.
+- **Correct Green** (#047857, night: #34d399): right answers, the full meter and the time bonus. Nothing else.
+- **Wrong Red** (#c81e1e, night: #f87171): wrong answers and the Quit confirm button. Nothing else.
 
 ### Named Rules
 **The Flags Bring the Colour Rule.** No brand or accent colour exists. If an element needs to stand out, use ink, size or weight, never a new hue.
@@ -259,7 +259,7 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 ### Map (Maps mode)
 - An atlas page in the palette's own greys: sea in hairline at 40% (dark: paper), land outside the region in hairline (dark: sheet), region countries in sheet (dark: hairline), borders in graphite at 50% and 0.6px whatever the zoom.
 - The country asked about is ink; right is correct-green and a wrong pick wrong-red. Tiny countries get a 5px round marker (region only) in a layer above every shape and border, and the asked one a 13px ink ring around it. A marker hides once its island is 10px across on screen, so zooming in reveals the real islands.
-- Zoom buttons (+, −, whole region) sit in a small sheet in the bottom-right corner.
+- Zoom buttons (+, −, and a crosshair to re-centre on the whole region) sit in a small sheet in the bottom-right corner.
 - On touch, a pressed country takes the hover fill (hairline) until the finger lifts.
 - Name it flies between countries in 0.45 s (cubic in-out). Neighbours within a screen-width glide at the same zoom; longer jumps widen the view mid-flight, growing to 35% at three screen-widths. With reduced motion it jumps.
 - Feedback floats as a small rounded sheet (lifted shadow) centred at the top of the map, in correct-green or wrong-red text; the first question's how-to-move hint sits in a quieter pill bottom-left.

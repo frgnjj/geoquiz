@@ -27,7 +27,7 @@ export default function ThemeToggle() {
   useEffect(() => {
     document
       .querySelectorAll('meta[name="theme-color"]')
-      .forEach((meta) => meta.setAttribute("content", dark ? "#0c0c0e" : "#fafafa"));
+      .forEach((meta) => meta.setAttribute("content", dark ? "#0c0c0e" : "#f5f1e8"));
   }, [dark]);
 
   // With no saved choice, the site follows the system theme, even when it changes later.
