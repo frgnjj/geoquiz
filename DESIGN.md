@@ -259,6 +259,7 @@ Every page now follows this: flags, settings cards, end screen cards, answer opt
 ### Map (Maps mode)
 - An atlas page in the palette's own greys: sea in hairline at 40% (dark: paper), land outside the region in hairline (dark: sheet), region countries in sheet (dark: hairline), borders in graphite at 50% and 0.6px whatever the zoom.
 - The country asked about is ink; right is correct-green and a wrong pick wrong-red. Tiny countries get a 5px round marker (region only) in a layer above every shape and border, and the asked one a 13px ink ring around it. A marker hides once its island is 10px across on screen, so zooming in reveals the real islands.
+- Map themes: Auto, Light, Dark, Grey light, Grey dark and Blue sea, picked from a layers button (40px sheet) at the top right; the list is a lifted sheet with a sea-and-land swatch per theme and a tick on the current one. Each theme picks its own ink, green and red so they stand out on its land. Land that can't be picked is each theme's darkest colour, below both the playable land and the sea.
 - Zoom buttons (+, −, and a crosshair to re-centre on the whole region) sit in a small sheet in the bottom-right corner.
 - On touch, a pressed country takes the hover fill (hairline) until the finger lifts.
 - Name it flies between countries in 0.45 s (cubic in-out). Neighbours within a screen-width glide at the same zoom; longer jumps widen the view mid-flight, growing to 35% at three screen-widths. With reduced motion it jumps.

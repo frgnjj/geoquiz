@@ -6,6 +6,7 @@ import { select } from "d3-selection";
 import "d3-transition";
 import { zoom, zoomIdentity, zoomTransform, type D3ZoomEvent, type ZoomBehavior } from "d3-zoom";
 import type { Continent } from "@/data/countries";
+import { MAP_THEMES, setMapTheme, useMapTheme, type MapTheme } from "@/lib/mapTheme";
 import { drawMap, FLIGHT_MS, loadWorld, MAP_HEIGHT, MAP_WIDTH, viewFor, type MapCountry, type WorldData } from "@/lib/map";
 
 /** How a country is drawn. "region" countries can be picked; the rest of the world is background. */
@@ -129,9 +130,9 @@ function gentleFlight(a: ZoomView, b: ZoomView) {
 const MAX_ZOOM = 40;
 
 const FILL: Record<CountryTone, string> = {
-  highlight: "fill-foreground",
-  correct: "fill-correct",
-  wrong: "fill-wrong",
+  highlight: "fill-(--map-ink)",
+  correct: "fill-(--map-correct)",
+  wrong: "fill-(--map-wrong)",
 };
 
 /** The Maps mode map: an atlas page of the region, with zoom, pan and clickable countries. */
@@ -146,6 +147,7 @@ export default function WorldMap({
   size = "aspect",
   className = "",
 }: Props) {
+  const theme = useMapTheme();
   const [world, setWorld] = useState<WorldData | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -317,10 +319,11 @@ export default function WorldMap({
   }
 
   return (
-    // Sea, then other land, then the region, each a step lighter (light mode) or brighter (dark mode).
+    // The map's colours come from its theme (see the map themes in globals.css).
     <div
       ref={frameRef}
-      className={`relative overflow-hidden rounded-2xl border border-line bg-line/40 shadow-sheet dark:bg-background ${
+      data-map-theme={theme}
+      className={`relative overflow-hidden rounded-2xl border border-line bg-(--map-sea) shadow-sheet ${
         size === "fill" ? "h-full w-full" : ""
       } ${className}`}
     >
@@ -338,7 +341,7 @@ export default function WorldMap({
         <g ref={layerRef}>
           {drawn && (
             <>
-              <path d={drawn.land} className="fill-line stroke-muted/30 dark:fill-surface" vectorEffect="non-scaling-stroke" strokeWidth={0.5} />
+              <path d={drawn.land} className="fill-(--map-out) stroke-(--map-border)" vectorEffect="non-scaling-stroke" strokeWidth={0.5} />
               {drawn.countries.map((c) => (
                 <CountryShape
                   key={c.code}
@@ -389,6 +392,8 @@ export default function WorldMap({
         </div>
       )}
 
+      {drawn && <ThemePicker theme={theme} />}
+
       {drawn && (
         <div className="absolute right-3 bottom-3 flex flex-col overflow-hidden rounded-xl border border-line bg-surface shadow-sheet">
           <ZoomButton label="Zoom in" onClick={() => zoomBy(1.6)}>
@@ -423,15 +428,15 @@ const CountryShape = memo(function CountryShape({
   pickable: boolean;
   onPick: (code: string) => void;
 }) {
-  const fill = tone ? FILL[tone] : inRegion ? "fill-surface dark:fill-line" : "fill-line dark:fill-surface";
-  const hover = pickable && !tone ? "hover:fill-line/70 dark:hover:fill-muted/50 data-pressed:fill-line dark:data-pressed:fill-muted/50" : "";
+  const fill = tone ? FILL[tone] : inRegion ? "fill-(--map-land)" : "fill-(--map-out)";
+  const hover = pickable && !tone ? "hover:fill-(--map-hover) data-pressed:fill-(--map-hover)" : "";
   return (
     <g
       data-code={c.code}
       onClick={pickable ? () => onPick(c.code) : undefined}
       className={`${fill} ${hover} transition-[fill] duration-150 ${pickable ? "cursor-pointer" : "pointer-events-none"}`}
     >
-      {c.d && <path d={c.d} className="stroke-muted/50" vectorEffect="non-scaling-stroke" strokeWidth={0.6} strokeLinejoin="round" />}
+      {c.d && <path d={c.d} className="stroke-(--map-border)" vectorEffect="non-scaling-stroke" strokeWidth={0.6} strokeLinejoin="round" />}
     </g>
   );
 });
@@ -453,8 +458,8 @@ const CountryMarker = memo(function CountryMarker({
   pickable: boolean;
   onPick: (code: string) => void;
 }) {
-  const fill = tone ? FILL[tone] : "fill-surface dark:fill-line";
-  const hover = pickable && !tone ? "hover:fill-line dark:hover:fill-muted/50 data-pressed:fill-line dark:data-pressed:fill-muted/50" : "";
+  const fill = tone ? FILL[tone] : "fill-(--map-land)";
+  const hover = pickable && !tone ? "hover:fill-(--map-hover) data-pressed:fill-(--map-hover)" : "";
   return (
     <g
       data-marker-for={code}
@@ -468,7 +473,7 @@ const CountryMarker = memo(function CountryMarker({
           cx={at[0]}
           cy={at[1]}
           r={RING_RADIUS}
-          className="fill-none stroke-foreground"
+          className="fill-none stroke-(--map-ink)"
           vectorEffect="non-scaling-stroke"
           strokeWidth={1.5}
         />
@@ -479,13 +484,95 @@ const CountryMarker = memo(function CountryMarker({
         cx={at[0]}
         cy={at[1]}
         r={MARKER_RADIUS}
-        className="stroke-muted"
+        className="stroke-(--map-marker)"
         vectorEffect="non-scaling-stroke"
         strokeWidth={1}
       />
     </g>
   );
 });
+
+/** Top-right of the map: a layers button that opens the list of map themes. */
+function ThemePicker({ theme }: { theme: MapTheme }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // A click anywhere else, or Esc, closes it.
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="absolute top-3 right-3 z-20">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-label="Map theme"
+        title="Map theme"
+        className={`flex size-10 items-center justify-center rounded-xl border bg-surface shadow-sheet transition-colors hover:text-foreground active:bg-line ${
+          open ? "border-foreground text-foreground" : "border-line text-muted"
+        }`}
+      >
+        {/* Layers: three stacked sheets. */}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="size-5" aria-hidden="true">
+          <path d="M12 3.5 21 8l-9 4.5L3 8Z" />
+          <path d="m3 12 9 4.5 9-4.5" />
+          <path d="m3 16 9 4.5 9-4.5" />
+        </svg>
+      </button>
+      {open && (
+        <div role="menu" aria-label="Map theme" className="absolute top-full right-0 mt-2 w-48 rounded-xl border border-line bg-surface p-1.5 shadow-lifted">
+          {MAP_THEMES.map((t) => {
+            const selected = t.id === theme;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="menuitemradio"
+                aria-checked={selected}
+                onClick={() => {
+                  setMapTheme(t.id);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-sm transition-colors hover:bg-line/60 ${
+                  selected ? "font-medium text-foreground" : "text-muted"
+                }`}
+              >
+                {/* Swatch: the sea as the ring, the land as the middle. Auto shows half light, half dark. */}
+                <span
+                  aria-hidden="true"
+                  className="flex size-5 shrink-0 items-center justify-center rounded-full ring-1 ring-line"
+                  style={{ background: t.id === "auto" ? "linear-gradient(135deg, #eee9de 50%, #18181c 50%)" : t.sea }}
+                >
+                  {t.id !== "auto" && <span className="size-2.5 rounded-full" style={{ background: t.land }} />}
+                </span>
+                <span className="flex-1">{t.label}</span>
+                {selected && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="size-4" aria-hidden="true">
+                    <path d="m5 12.5 4.5 4.5L19 7.5" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ZoomButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
   return (
