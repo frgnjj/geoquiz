@@ -7,10 +7,10 @@
       "ink": {
         "role": "primary",
         "displayName": "Ink",
-        "canonical": "#3a352e",
+        "canonical": "#4a443c",
         "tonalRamp": [
           "#09090b",
-          "#3a352e",
+          "#4a443c",
           "#27272a",
           "#3f3f46",
           "#52525b",
@@ -24,7 +24,7 @@
         "displayName": "Paper",
         "canonical": "#f5f1e8",
         "tonalRamp": [
-          "#3a352e",
+          "#4a443c",
           "#27272a",
           "#3f3f46",
           "#716a5f",
@@ -168,7 +168,7 @@
       "refersTo": "button-primary",
       "description": "The one main action on a screen, such as Start.",
       "html": "<button class=\"ds-btn-primary\">Start</button>",
-      "css": ".ds-btn-primary { background: var(--foreground, #3a352e); color: var(--background, #f5f1e8); padding: 12px 24px; border: none; border-radius: 12px; font: 500 16px/1.5 Geist, system-ui, sans-serif; cursor: pointer; transition: opacity 150ms; } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:focus-visible { outline: 2px solid var(--foreground, #3a352e); outline-offset: 4px; }"
+      "css": ".ds-btn-primary { background: var(--foreground, #4a443c); color: var(--background, #f5f1e8); padding: 12px 24px; border: none; border-radius: 12px; font: 500 16px/1.5 Geist, system-ui, sans-serif; cursor: pointer; transition: opacity 150ms; } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:focus-visible { outline: 2px solid var(--foreground, #4a443c); outline-offset: 4px; }"
     },
     {
       "name": "Secondary Button",
@@ -176,7 +176,7 @@
       "refersTo": "button-secondary",
       "description": "Second actions such as Play again settings.",
       "html": "<button class=\"ds-btn-secondary\">Change settings</button>",
-      "css": ".ds-btn-secondary { background: var(--surface, #fff); color: var(--foreground, #3a352e); padding: 12px 24px; border: 1px solid var(--line, #e4ddcf); border-radius: 12px; font: 500 16px/1.5 Geist, system-ui, sans-serif; cursor: pointer; transition: border-color 150ms; } .ds-btn-secondary:hover { border-color: var(--foreground, #3a352e); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--foreground, #3a352e); outline-offset: 4px; }"
+      "css": ".ds-btn-secondary { background: var(--surface, #fff); color: var(--foreground, #4a443c); padding: 12px 24px; border: 1px solid var(--line, #e4ddcf); border-radius: 12px; font: 500 16px/1.5 Geist, system-ui, sans-serif; cursor: pointer; transition: border-color 150ms; } .ds-btn-secondary:hover { border-color: var(--foreground, #4a443c); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--foreground, #4a443c); outline-offset: 4px; }"
     },
     {
       "name": "Chip",
@@ -184,7 +184,7 @@
       "refersTo": "chip",
       "description": "Toggle for settings choices such as continents and time.",
       "html": "<div style=\"display:flex;gap:8px\"><button class=\"ds-chip\">Africa</button><button class=\"ds-chip ds-chip-selected\" aria-pressed=\"true\">Europe</button></div>",
-      "css": ".ds-chip { background: var(--surface, #fff); color: var(--foreground, #3a352e); padding: 8px 16px; border: 1px solid var(--line, #e4ddcf); border-radius: 9999px; font: 400 14px/1.4 Geist, system-ui, sans-serif; cursor: pointer; transition: border-color 150ms, background 150ms; } .ds-chip:hover { border-color: var(--foreground, #3a352e); } .ds-chip-selected { background: var(--foreground, #3a352e); color: var(--background, #f5f1e8); border-color: var(--foreground, #3a352e); }"
+      "css": ".ds-chip { background: var(--surface, #fff); color: var(--foreground, #4a443c); padding: 8px 16px; border: 1px solid var(--line, #e4ddcf); border-radius: 9999px; font: 400 14px/1.4 Geist, system-ui, sans-serif; cursor: pointer; transition: border-color 150ms, background 150ms; } .ds-chip:hover { border-color: var(--foreground, #4a443c); } .ds-chip-selected { background: var(--foreground, #4a443c); color: var(--background, #f5f1e8); border-color: var(--foreground, #4a443c); }"
     },
     {
       "name": "Answer Option",
@@ -192,7 +192,7 @@
       "refersTo": "answer-option",
       "description": "One of four multiple choice answers, with its key number.",
       "html": "<button class=\"ds-option\"><span class=\"ds-option-key\">1</span>Portugal</button>",
-      "css": ".ds-option { display: flex; align-items: center; gap: 16px; width: 320px; background: var(--surface, #fff); color: var(--foreground, #3a352e); padding: 16px 20px; border: 1px solid var(--line, #e4ddcf); border-radius: 12px; font: 400 18px/1.4 Geist, system-ui, sans-serif; text-align: left; cursor: pointer; transition: border-color 150ms; } .ds-option:hover { border-color: var(--foreground, #3a352e); } .ds-option-key { font: 400 14px Geist Mono, ui-monospace, monospace; color: var(--muted, #716a5f); }"
+      "css": ".ds-option { display: flex; align-items: center; gap: 16px; width: 320px; background: var(--surface, #fff); color: var(--foreground, #4a443c); padding: 16px 20px; border: 1px solid var(--line, #e4ddcf); border-radius: 12px; font: 400 18px/1.4 Geist, system-ui, sans-serif; text-align: left; cursor: pointer; transition: border-color 150ms; } .ds-option:hover { border-color: var(--foreground, #4a443c); } .ds-option-key { font: 400 14px Geist Mono, ui-monospace, monospace; color: var(--muted, #716a5f); }"
     },
     {
       "name": "Text Input",
@@ -200,7 +200,7 @@
       "refersTo": "text-input",
       "description": "Type-in answer field.",
       "html": "<input class=\"ds-input\" placeholder=\"Country\" />",
-      "css": ".ds-input { width: 320px; background: var(--surface, #fff); color: var(--foreground, #3a352e); padding: 16px 20px; border: 1px solid var(--line, #e4ddcf); border-radius: 12px; font: 400 18px/1.4 Geist, system-ui, sans-serif; outline: none; transition: border-color 150ms; } .ds-input:focus { border-color: var(--foreground, #3a352e); } .ds-input::placeholder { color: var(--muted, #716a5f); }"
+      "css": ".ds-input { width: 320px; background: var(--surface, #fff); color: var(--foreground, #4a443c); padding: 16px 20px; border: 1px solid var(--line, #e4ddcf); border-radius: 12px; font: 400 18px/1.4 Geist, system-ui, sans-serif; outline: none; transition: border-color 150ms; } .ds-input:focus { border-color: var(--foreground, #4a443c); } .ds-input::placeholder { color: var(--muted, #716a5f); }"
     },
     {
       "name": "Mode Card",
@@ -208,7 +208,7 @@
       "refersTo": "mode-card",
       "description": "Home page card leading to a quiz mode, with a large preview and a faint graticule globe.",
       "html": "<a class=\"ds-mode-card\" href=\"#\"><svg class=\"ds-mode-globe\" viewBox=\"0 0 200 200\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"0.5\"><circle cx=\"100\" cy=\"100\" r=\"96\"/><ellipse cx=\"100\" cy=\"100\" rx=\"32\" ry=\"96\"/><ellipse cx=\"100\" cy=\"100\" rx=\"64\" ry=\"96\"/><path d=\"M100 4v192M4 100h192M16.9 52h166.2M16.9 148h166.2M36.5 28h127M36.5 172h127\"/></svg><span class=\"ds-mode-title\">Capitals</span><span class=\"ds-mode-desc\">See a country, name its capital.</span></a>",
-      "css": ".ds-mode-card { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; width: 360px; height: 220px; padding: 40px; background: var(--surface, #fff); color: var(--foreground, #3a352e); border: 1px solid var(--line, #e4ddcf); border-radius: 16px; text-decoration: none; font-family: Geist, system-ui, sans-serif; transition: border-color 150ms; } .ds-mode-card:hover { border-color: var(--foreground, #3a352e); } .ds-mode-card:focus-visible { outline: 2px solid var(--foreground, #3a352e); outline-offset: 4px; } .ds-mode-globe { position: absolute; top: -96px; right: -128px; z-index: -1; width: 352px; height: 352px; color: var(--line, #e4ddcf); transform: rotate(-23.4deg); transition: transform 1000ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-mode-card:hover .ds-mode-globe { transform: rotate(-8deg); } .ds-mode-title { font-size: 30px; font-weight: 600; letter-spacing: -0.025em; } .ds-mode-desc { margin-top: 6px; color: var(--muted, #716a5f); }"
+      "css": ".ds-mode-card { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; width: 360px; height: 220px; padding: 40px; background: var(--surface, #fff); color: var(--foreground, #4a443c); border: 1px solid var(--line, #e4ddcf); border-radius: 16px; text-decoration: none; font-family: Geist, system-ui, sans-serif; transition: border-color 150ms; } .ds-mode-card:hover { border-color: var(--foreground, #4a443c); } .ds-mode-card:focus-visible { outline: 2px solid var(--foreground, #4a443c); outline-offset: 4px; } .ds-mode-globe { position: absolute; top: -96px; right: -128px; z-index: -1; width: 352px; height: 352px; color: var(--line, #e4ddcf); transform: rotate(-23.4deg); transition: transform 1000ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-mode-card:hover .ds-mode-globe { transform: rotate(-8deg); } .ds-mode-title { font-size: 30px; font-weight: 600; letter-spacing: -0.025em; } .ds-mode-desc { margin-top: 6px; color: var(--muted, #716a5f); }"
     },
     {
       "name": "Question Slider",
@@ -216,7 +216,7 @@
       "refersTo": "slider",
       "description": "Question count: ink track filling to the thumb, the value riding above it, quick picks below.",
       "html": "<div class=\"ds-slider\"><span class=\"ds-slider-value\" style=\"left:calc(0.35 * (100% - 28px) + 14px)\">25</span><input type=\"range\" min=\"10\" max=\"54\" value=\"25\" class=\"ds-range\" style=\"--fill:35%\"/></div>",
-      "css": ".ds-slider { position: relative; width: 320px; padding-top: 44px; font-family: Geist, system-ui, sans-serif; } .ds-slider-value { position: absolute; top: 0; transform: translateX(-50%); padding: 4px 10px; border: 1px solid var(--line, #e4ddcf); border-radius: 8px; background: var(--surface, #fff); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06); } .ds-range { appearance: none; width: 100%; height: 8px; border-radius: 9999px; background: linear-gradient(to right, var(--foreground, #3a352e) var(--fill), var(--line, #e4ddcf) var(--fill)); cursor: pointer; } .ds-range::-webkit-slider-thumb { appearance: none; width: 28px; height: 28px; border-radius: 9999px; background: var(--foreground, #3a352e); border: 5px solid var(--surface, #fff); box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06), 0 0 0 1px var(--line, #e4ddcf); }"
+      "css": ".ds-slider { position: relative; width: 320px; padding-top: 44px; font-family: Geist, system-ui, sans-serif; } .ds-slider-value { position: absolute; top: 0; transform: translateX(-50%); padding: 4px 10px; border: 1px solid var(--line, #e4ddcf); border-radius: 8px; background: var(--surface, #fff); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06); } .ds-range { appearance: none; width: 100%; height: 8px; border-radius: 9999px; background: linear-gradient(to right, var(--foreground, #4a443c) var(--fill), var(--line, #e4ddcf) var(--fill)); cursor: pointer; } .ds-range::-webkit-slider-thumb { appearance: none; width: 28px; height: 28px; border-radius: 9999px; background: var(--foreground, #4a443c); border: 5px solid var(--surface, #fff); box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.06), 0 0 0 1px var(--line, #e4ddcf); }"
     },
     {
       "name": "Score Meter",
@@ -224,7 +224,7 @@
       "refersTo": "score-meter",
       "description": "Vertical meter beside the question with points zones marked: graphite under 50%, ink from 50%, green when full.",
       "html": "<div class=\"ds-meter-wrap\"><div class=\"ds-meter\"><div class=\"ds-meter-fill\"></div></div><div class=\"ds-meter-zones\"><span style=\"bottom:100%\">+25</span><span class=\"ds-on\" style=\"bottom:75%\">+15</span><span style=\"bottom:25%\">+10</span><span style=\"bottom:0%\">+5</span></div></div>",
-      "css": ".ds-meter-wrap { position: relative; display: inline-block; font-family: Geist, system-ui, sans-serif; } .ds-meter { position: relative; width: 16px; height: 320px; overflow: hidden; border-radius: 9999px; background: var(--line, #e4ddcf); } .ds-meter-fill { position: absolute; inset: auto 0 0 0; height: 65%; border-radius: 9999px; background: var(--foreground, #3a352e); } .ds-meter-zones { position: absolute; top: 0; bottom: 0; left: 100%; margin-left: 10px; } .ds-meter-zones span { position: absolute; transform: translateY(50%); font-size: 12px; color: var(--muted, #716a5f); font-variant-numeric: tabular-nums; } .ds-meter-zones .ds-on { color: var(--foreground, #3a352e); font-weight: 600; }"
+      "css": ".ds-meter-wrap { position: relative; display: inline-block; font-family: Geist, system-ui, sans-serif; } .ds-meter { position: relative; width: 16px; height: 320px; overflow: hidden; border-radius: 9999px; background: var(--line, #e4ddcf); } .ds-meter-fill { position: absolute; inset: auto 0 0 0; height: 65%; border-radius: 9999px; background: var(--foreground, #4a443c); } .ds-meter-zones { position: absolute; top: 0; bottom: 0; left: 100%; margin-left: 10px; } .ds-meter-zones span { position: absolute; transform: translateY(50%); font-size: 12px; color: var(--muted, #716a5f); font-variant-numeric: tabular-nums; } .ds-meter-zones .ds-on { color: var(--foreground, #4a443c); font-weight: 600; }"
     }
   ],
   "narrative": {
