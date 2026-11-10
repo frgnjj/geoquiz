@@ -9,9 +9,9 @@ export type MapTheme = "auto" | "light" | "dark" | "grey-light" | "grey-dark" | 
 export const MAP_THEMES: { id: MapTheme; label: string; sea: string; land: string }[] = [
   { id: "auto", label: "Auto", sea: "", land: "" },
   { id: "light", label: "Light", sea: "#eee9de", land: "#fbf9f3" },
-  { id: "dark", label: "Dark", sea: "#0c0c0e", land: "#27272a" },
+  { id: "dark", label: "Dark", sea: "#18181c", land: "#2d2d31" },
   { id: "grey-light", label: "Grey light", sea: "#f3f1ec", land: "#c8c4bc" },
-  { id: "grey-dark", label: "Grey dark", sea: "#0e0e10", land: "#47474e" },
+  { id: "grey-dark", label: "Grey dark", sea: "#1a1a1e", land: "#47474e" },
   { id: "blue", label: "Blue sea", sea: "#cfe3ef", land: "#c6c3bc" },
 ];
 

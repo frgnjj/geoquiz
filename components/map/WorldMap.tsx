@@ -555,7 +555,7 @@ function ThemePicker({ theme }: { theme: MapTheme }) {
                 <span
                   aria-hidden="true"
                   className="flex size-5 shrink-0 items-center justify-center rounded-full ring-1 ring-line"
-                  style={{ background: t.id === "auto" ? "linear-gradient(135deg, #eee9de 50%, #0c0c0e 50%)" : t.sea }}
+                  style={{ background: t.id === "auto" ? "linear-gradient(135deg, #eee9de 50%, #18181c 50%)" : t.sea }}
                 >
                   {t.id !== "auto" && <span className="size-2.5 rounded-full" style={{ background: t.land }} />}
                 </span>

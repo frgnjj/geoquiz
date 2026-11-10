@@ -178,11 +178,12 @@ input {
  * Map themes (Maps mode). Each sets the map's own colours, so a map can be dark on a light page
  * or the other way round. "auto" follows the site: light, or dark with the .dark class.
  * The asked country (ink) and right and wrong (correct, wrong) are picked to stand out on each land.
+ * Land that can't be picked (outside the region, or territories like Greenland) is the darkest colour.
  */
 [data-map-theme="light"],
 [data-map-theme="auto"] {
   --map-sea: #eee9de;
-  --map-out: #e4ddcf;
+  --map-out: #d3c9b6;
   --map-land: #fbf9f3;
   --map-border: rgb(113 106 95 / 0.5);
   --map-hover: #e7e0d2;
@@ -194,9 +195,9 @@ input {
 
 [data-map-theme="dark"],
 .dark [data-map-theme="auto"] {
-  --map-sea: #0c0c0e;
-  --map-out: #151518;
-  --map-land: #27272a;
+  --map-sea: #18181c;
+  --map-out: #070708;
+  --map-land: #2d2d31;
   --map-border: rgb(161 161 170 / 0.5);
   --map-hover: #4b4b50;
   --map-marker: #a1a1aa;
@@ -207,7 +208,7 @@ input {
 
 [data-map-theme="grey-light"] {
   --map-sea: #f3f1ec;
-  --map-out: #e3e0da;
+  --map-out: #a7a297;
   --map-land: #c8c4bc;
   --map-border: #f8f7f3;
   --map-hover: #b2ada3;
@@ -218,8 +219,8 @@ input {
 }
 
 [data-map-theme="grey-dark"] {
-  --map-sea: #0e0e10;
-  --map-out: #1c1c20;
+  --map-sea: #1a1a1e;
+  --map-out: #070708;
   --map-land: #47474e;
   --map-border: #24242a;
   --map-hover: #5d5d66;
@@ -231,7 +232,7 @@ input {
 
 [data-map-theme="blue"] {
   --map-sea: #cfe3ef;
-  --map-out: #e4e2dd;
+  --map-out: #a6a299;
   --map-land: #c6c3bc;
   --map-border: #f7f6f2;
   --map-hover: #b1ada5;
