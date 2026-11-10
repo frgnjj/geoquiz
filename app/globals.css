@@ -6,7 +6,7 @@
 /* Light mode is warm paper rather than pure white: cream page, ivory sheets, warm greys. */
 :root {
   --background: #f5f1e8;
-  --foreground: #1f1c17;
+  --foreground: #3a352e;
   --muted: #716a5f;
   --line: #e4ddcf;
   --surface: #fbf9f3;

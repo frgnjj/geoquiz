@@ -3,7 +3,7 @@ name: Geoquiz
 description: A calm geography quiz for flags and capitals.
 colors:
   paper: "#f5f1e8"
-  ink: "#1f1c17"
+  ink: "#3a352e"
   graphite: "#716a5f"
   hairline: "#e4ddcf"
   sheet: "#fbf9f3"
@@ -128,7 +128,7 @@ Light and dark mode are equal partners. Both follow the same rules, with paper a
 A monochrome atlas page; colour belongs to the flags.
 
 ### Primary
-- **Ink** (#1f1c17, night: #f4f4f5): text, headlines, primary buttons, selected chips, and the hover border of anything clickable. It does the job an accent colour would do elsewhere.
+- **Ink** (#3a352e, night: #f4f4f5): text, headlines, primary buttons, selected chips, and the hover border of anything clickable. It does the job an accent colour would do elsewhere.
 
 ### Neutral
 - **Paper** (#f5f1e8, night: #0c0c0e): the page background.
