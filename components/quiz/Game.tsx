@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { COUNTRIES, type Country } from "@/data/countries";
-import { displayAnswer, isCorrect, type Mode } from "@/lib/answers";
+import { checkAnswer, displayAnswer, type Mode } from "@/lib/answers";
 import {
   countriesFor,
   makeChoices,
@@ -70,6 +70,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   // Type-in
   const [typed, setTyped] = useState("");
   const [wrongTries, setWrongTries] = useState(0);
+  const [spelled, setSpelled] = useState<string | null>(null);
   const [shakeKey, setShakeKey] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -105,6 +106,7 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
     setWrongPicks([]);
     setTyped("");
     setWrongTries(0);
+    setSpelled(null);
     setFeedback(null);
   });
 
@@ -231,7 +233,10 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   function submitTyped(e: React.FormEvent) {
     e.preventDefault();
     if (feedback || !typed.trim()) return;
-    if (isCorrect(typed, country, mode)) {
+    const match = checkAnswer(typed, country, mode, COUNTRIES);
+    if (match) {
+      // A small slip in a long name still counts; the right spelling is shown so it sticks.
+      setSpelled(match.kind === "close" ? match.spelled : null);
       resolve(true, wrongTries === 0);
       return;
     }
@@ -340,7 +345,9 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
   const lastWrong = wrongPicks.length > 0 ? COUNTRIES.find((c) => c.code === wrongPicks.at(-1)) : undefined;
   const feedbackText =
     feedback === "correct"
-      ? "Correct"
+      ? spelled
+        ? `Correct · it’s spelled ${spelled}`
+        : "Correct"
       : feedback === "reveal"
         ? settings.answerMode === "find"
           ? `${country.name} is shown in green`
