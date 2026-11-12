@@ -147,9 +147,11 @@ export default function Game({ mode, settings, onFinish, onQuit }: Props) {
     return () => clearTimeout(id);
   }, [feedback, paused]);
 
+  // The answer box is always ready to type in: on each new question, after a pause, and after a
+  // wrong try (the shake rebuilds the box, which would otherwise drop the keyboard focus).
   useEffect(() => {
     if (settings.answerMode === "type" && !feedback && !paused) inputRef.current?.focus();
-  }, [settings.answerMode, feedback, index, paused]);
+  }, [settings.answerMode, feedback, index, paused, shakeKey]);
 
   function togglePause() {
     if (paused) {

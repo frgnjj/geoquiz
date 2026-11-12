@@ -65,7 +65,7 @@ Agreed with the owner on 2026-10-17, slider and score added 2026-10-19, Hardcore
   - There is no skip button.
 - **Type-in:**
   - The player gets up to 3 tries, and the correct answer is shown after the third wrong try.
-  - A wrong try empties the answer box, ready for the next try.
+  - A wrong try empties the answer box and keeps the cursor in it, so the next try can be typed straight away.
   - Answers aren't case-sensitive and are accepted with or without accents.
   - Common names count (for example "USA", "UK", "UAE", "Bosnia", "Holland").
   - Spelling mistakes (changed by the owner on 2026-11-12): names of up to 8 letters must be exact; names of 9 letters or more (not counting spaces) allow up to 2 mistakes, where a mistake is a wrong, missing or extra letter or two swapped letters. A close answer never counts if it's as close or closer to another country's answer (Austria never passes for Australia). It counts fully (points and meter), and the feedback shows the right spelling ("Correct · it's spelled Kazakhstan"). This applies to every type-in: Flags, Capitals and Maps.
